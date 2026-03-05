@@ -20,6 +20,7 @@
   --purple: #7c3aed;
 }
 
+html { background: #04060f; }
 html, body {
   width: 100%; min-height: 100%;
   background: none;
@@ -32,7 +33,7 @@ html, body {
 a, button, input { cursor: none; }
 
 /* fixed background */
-body::before {
+html::before {
   content: '';
   position: fixed; inset: 0; z-index: -2;
   background:
