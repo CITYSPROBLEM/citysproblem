@@ -337,7 +337,7 @@ a:hover .arr { transform: translateX(3px); }
 
 @media (max-width: 768px) {
   /* no custom cursor on touch devices */
-  html, body { cursor: auto; overflow-y: auto; overflow-x: hidden; }
+  html, body { cursor: auto; overflow-y: auto; overflow-x: hidden; touch-action: pan-y; max-width: 100vw; }
   #cur, #cur-ring { display: none; }
 
   main {
@@ -644,7 +644,7 @@ playerProg.addEventListener('touchstart', e => {
   seekTo(e.touches[0].clientX);
 }, { passive: true });
 window.addEventListener('mousemove', e => { if (isSeeking) seekTo(e.clientX); });
-window.addEventListener('touchmove', e => { if (isSeeking) seekTo(e.touches[0].clientX); }, { passive: true });
+window.addEventListener('touchmove', e => { if (isSeeking) { e.preventDefault(); seekTo(e.touches[0].clientX); } }, { passive: false });
 window.addEventListener('mouseup',  () => { if (isSeeking) { isSeeking = false; if (wasPlaying) audio.play(); } });
 window.addEventListener('touchend', () => { if (isSeeking) { isSeeking = false; if (wasPlaying) audio.play(); } });
 
