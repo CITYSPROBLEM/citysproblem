@@ -652,6 +652,7 @@ h1El.addEventListener('animationend', e => {
   }
 });
 h1El.addEventListener('mouseenter', () => {
+  h1El.style.width = h1El.offsetWidth + 'px';
   h1El.style.opacity = '1';
   h1El.style.animation = 'glowPulse 4s ease-in-out infinite';
   cancelH1?.();
@@ -663,7 +664,9 @@ h1El.addEventListener('mouseenter', () => {
 });
 h1El.addEventListener('mouseleave', () => {
   cancelH1?.();
-  cancelH1 = scrambleResolve(h1Orig, t => { h1El.textContent = t; });
+  cancelH1 = scrambleResolve(h1Orig, t => { h1El.textContent = t; }, 16, 25, () => {
+    h1El.style.width = '';
+  });
 });
 
 /* button scramble */
