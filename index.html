@@ -217,7 +217,7 @@ main {
   min-height: 100dvh;
   display: flex; flex-direction: column;
   justify-content: center; align-items: center;
-  padding: calc(72px + 2rem) min(4vw, 3rem) 120px;
+  padding: 72px min(4vw, 3rem) var(--player-h, 56px);
   text-align: center;
 }
 
@@ -463,7 +463,7 @@ a:hover .arr { transform: translateX(3px); }
   main {
     min-height: 100dvh;
     justify-content: center;
-    padding: calc(72px + 2rem) 1.25rem 100px;
+    padding: 72px 1.25rem var(--player-h, 48px);
     overflow-y: auto;
   }
 
@@ -813,6 +813,7 @@ function syncPlayerWidth() {
     ? playerEl.offsetWidth
     : h1El.offsetWidth;
   playerEl.style.setProperty('--player-content-w', w + 'px');
+  document.documentElement.style.setProperty('--player-h', playerEl.offsetHeight + 'px');
 }
 document.fonts.ready.then(syncPlayerWidth);
 let resizePlayerTimer;
