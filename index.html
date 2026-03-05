@@ -343,10 +343,11 @@ a:hover .arr { transform: translateX(3px); }
   .player-inner { width: 100%; }
   .player-volume-row { display: none; }
   .player-track-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    word-break: break-word;
     max-width: 28vw;
     font-size: .55rem;
+    text-align: right;
   }
   .player-time-disp { font-size: .5rem; }
   .player-btn { cursor: auto; }
