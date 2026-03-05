@@ -142,7 +142,8 @@ body.link-hover #cur-ring { width: 42px; height: 42px; margin: -21px 0 0 -21px; 
   border-bottom: 1px solid rgba(0,212,255,.12);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  flex-direction: column;
+  flex-direction: column; gap: .4rem;
+  padding: .5rem;
   display: none;
 }
 .topbar-dropdown.open {
@@ -157,11 +158,11 @@ body.link-hover #cur-ring { width: 42px; height: 42px; margin: -21px 0 0 -21px; 
   display: inline-flex; align-items: center; justify-content: center;
   width: 100%;
   font-family: 'Michroma', sans-serif;
-  font-size: clamp(.8rem, 1.6vw, 1rem);
+  font-size: .6rem;
   font-weight: 400;
-  letter-spacing: .18em; text-transform: uppercase; white-space: nowrap;
+  letter-spacing: .15em; text-transform: uppercase; white-space: nowrap;
   color: var(--text);
-  padding: .75rem 1.1rem;
+  padding: .6rem .9rem;
   border: none;
   position: relative; overflow: hidden; contain: layout;
   background-color: transparent;
