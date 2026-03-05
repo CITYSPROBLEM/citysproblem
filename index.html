@@ -154,6 +154,14 @@ body.link-hover #cur-ring { width: 42px; height: 42px; margin: -21px 0 0 -21px; 
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes dropUp {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-6px); }
+}
+.topbar-dropdown.closing {
+  display: flex;
+  animation: dropUp .2s ease forwards;
+}
 .topbar-dropdown button {
   display: inline-flex; align-items: center; justify-content: center;
   width: 100%;
@@ -819,15 +827,24 @@ window.addEventListener('resize', () => {
 /* topbar menu */
 const menuBtn      = document.getElementById('menuBtn');
 const menuDropdown = document.getElementById('menuDropdown');
+function closeMenu() {
+  if (!menuDropdown.classList.contains('open')) return;
+  menuDropdown.classList.add('closing');
+  menuBtn.classList.remove('open');
+  setTimeout(() => {
+    menuDropdown.classList.remove('open', 'closing');
+  }, 200);
+}
 menuBtn.addEventListener('click', () => {
-  const open = menuDropdown.classList.toggle('open');
-  menuBtn.classList.toggle('open', open);
+  if (menuDropdown.classList.contains('open')) {
+    closeMenu();
+  } else {
+    menuDropdown.classList.add('open');
+    menuBtn.classList.add('open');
+  }
 });
 document.addEventListener('click', e => {
-  if (!menuBtn.contains(e.target) && !menuDropdown.contains(e.target)) {
-    menuDropdown.classList.remove('open');
-    menuBtn.classList.remove('open');
-  }
+  if (!menuBtn.contains(e.target) && !menuDropdown.contains(e.target)) closeMenu();
 });
 [menuBtn, ...menuDropdown.querySelectorAll('button')].forEach(el => {
   el.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
