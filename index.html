@@ -630,18 +630,23 @@ function seekTo(clientX) {
   playerFill.style.width = (pct * 100) + '%';
 }
 let isSeeking = false;
+let wasPlaying = false;
 playerProg.addEventListener('mousedown', e => {
   isSeeking = true;
+  wasPlaying = !audio.paused;
+  audio.pause();
   seekTo(e.clientX);
 });
 playerProg.addEventListener('touchstart', e => {
   isSeeking = true;
+  wasPlaying = !audio.paused;
+  audio.pause();
   seekTo(e.touches[0].clientX);
 }, { passive: true });
 window.addEventListener('mousemove', e => { if (isSeeking) seekTo(e.clientX); });
 window.addEventListener('touchmove', e => { if (isSeeking) seekTo(e.touches[0].clientX); }, { passive: true });
-window.addEventListener('mouseup',  () => { isSeeking = false; });
-window.addEventListener('touchend', () => { isSeeking = false; });
+window.addEventListener('mouseup',  () => { if (isSeeking) { isSeeking = false; if (wasPlaying) audio.play(); } });
+window.addEventListener('touchend', () => { if (isSeeking) { isSeeking = false; if (wasPlaying) audio.play(); } });
 
 /* volume slider */
 const volSlider = document.getElementById('volSlider');
