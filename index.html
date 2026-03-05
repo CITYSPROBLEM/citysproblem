@@ -143,13 +143,10 @@ body.link-hover #cur-ring { width: 42px; height: 42px; margin: -21px 0 0 -21px; 
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   flex-direction: column;
-  display: none !important;
-  opacity: 0;
-  animation: none;
+  display: none;
 }
 .topbar-dropdown.open {
-  display: flex !important;
-  opacity: 1;
+  display: flex;
   animation: dropDown .2s ease forwards;
 }
 @keyframes dropDown {
@@ -484,13 +481,13 @@ a:hover .arr { transform: translateX(3px); }
     <span></span><span></span><span></span>
   </button>
 </header>
-<nav class="topbar-dropdown" id="menuDropdown">
+<div class="topbar-dropdown" id="menuDropdown">
   <button>Placeholder 1</button>
   <button>Placeholder 2</button>
   <button>Placeholder 3</button>
   <button>Placeholder 4</button>
   <button>Placeholder 5</button>
-</nav>
+</div>
 
 <main>
   <div class="aurora"></div>
