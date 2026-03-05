@@ -126,7 +126,12 @@ h1 {
   margin-bottom: clamp(2rem, 5vh, 4rem);
   opacity: 0;
   will-change: opacity, transform;
-  animation: fadeUp .9s .2s ease forwards, glowPulse 4s 1.1s ease-in-out infinite;
+  text-shadow: none;
+  animation: fadeUp .9s .2s ease forwards, glowFadeIn .9s 1.1s ease forwards;
+}
+@keyframes glowFadeIn {
+  from { text-shadow: none; }
+  to   { text-shadow: 0 0 18px rgba(0,212,255,.35), 0 0 40px rgba(0,212,255,.15); }
 }
 @keyframes glowPulse {
   0%, 100% { text-shadow: 0 0 18px rgba(0,212,255,.35), 0 0 40px rgba(0,212,255,.15); }
@@ -505,7 +510,7 @@ const h1El   = document.querySelector('h1');
 const h1Orig = 'CITYSPROBLEM';
 let cancelH1;
 h1El.addEventListener('animationend', e => {
-  if (e.animationName === 'fadeUp') {
+  if (e.animationName === 'glowFadeIn') {
     h1El.style.opacity = '1';
     h1El.style.animation = 'glowPulse 4s ease-in-out infinite';
   }
