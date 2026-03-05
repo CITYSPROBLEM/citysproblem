@@ -241,6 +241,7 @@ h1 {
   font-weight: 900;
   font-size: clamp(1rem, 5vw, 4rem);
   letter-spacing: .04em; line-height: 1;
+  white-space: nowrap;
   color: var(--text);
   margin-bottom: clamp(2rem, 5vh, 4rem);
   opacity: 0;
@@ -653,6 +654,7 @@ h1El.addEventListener('animationend', e => {
 });
 h1El.addEventListener('mouseenter', () => {
   h1El.style.width = h1El.offsetWidth + 'px';
+  h1El.style.height = h1El.offsetHeight + 'px';
   h1El.style.opacity = '1';
   h1El.style.animation = 'glowPulse 4s ease-in-out infinite';
   cancelH1?.();
@@ -666,6 +668,7 @@ h1El.addEventListener('mouseleave', () => {
   cancelH1?.();
   cancelH1 = scrambleResolve(h1Orig, t => { h1El.textContent = t; }, 16, 25, () => {
     h1El.style.width = '';
+    h1El.style.height = '';
   });
 });
 
