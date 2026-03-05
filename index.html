@@ -345,10 +345,11 @@ a:hover .arr { transform: translateX(3px); }
   .player-inner { width: 100%; }
   .player-volume-row { display: none; }
   .player-track-name {
-    white-space: normal;
-    word-break: break-word;
-    max-width: 28vw;
-    font-size: clamp(.35rem, 1.8vw, .55rem);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 40vw;
+    font-size: clamp(.55rem, 2.5vw, .75rem);
     text-align: left;
   }
   .player-time-disp { font-size: .5rem; }
