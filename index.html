@@ -491,6 +491,8 @@ a:hover .arr { transform: translateX(3px); }
   .player { padding: .6rem 1.25rem; }
   .player-inner { width: 100%; }
   .player-volume-row { display: none; }
+  .player-counter, .eq-bars { display: none; }
+  .player-btn-shuffle { cursor: auto; }
   .player-track-clip { max-width: 40vw; }
   .player-track-name {
     font-size: clamp(.35rem, 1.8vw, .55rem);
@@ -509,6 +511,118 @@ a:hover .arr { transform: translateX(3px); }
   .player-vol-slider { cursor: auto; }
   .player-vol-slider::-webkit-slider-thumb { cursor: auto; }
   .player-vol-slider::-moz-range-thumb { cursor: auto; }
+}
+
+/* ── logo glitch on hover ─────────────────────────── */
+@keyframes logoGlitch {
+  0%,100% { filter: brightness(0) invert(1) opacity(.96) sepia(.03); transform: translate(0,0); }
+  15%  { filter: brightness(1.5) invert(.9) hue-rotate(60deg) opacity(1); transform: translate(-3px,0); }
+  30%  { filter: brightness(0) invert(1) opacity(.5) saturate(5); transform: translate(3px,0); }
+  50%  { filter: brightness(2.5) invert(1) opacity(1); transform: translate(-2px,1px); }
+  70%  { filter: brightness(0) invert(1) opacity(.85); transform: translate(1px,-1px); }
+}
+.topbar-logo:hover { animation: logoGlitch .38s steps(1) forwards; }
+
+/* ── shuffle active state ─────────────────────────── */
+.player-btn-shuffle.active { color: var(--ice); text-shadow: 0 0 8px rgba(0,212,255,.5); }
+
+/* ── track counter ────────────────────────────────── */
+.player-counter {
+  font-size: .5rem; letter-spacing: .1em;
+  color: rgba(200,230,255,.3);
+  flex-shrink: 0; user-select: none; white-space: nowrap;
+}
+
+/* ── EQ bars ──────────────────────────────────────── */
+.eq-bars {
+  display: flex; align-items: flex-end; gap: 2px;
+  height: 12px; flex-shrink: 0;
+  opacity: 0; transition: opacity .3s;
+}
+.eq-bars.playing { opacity: 1; }
+.eq-bars span {
+  display: block; width: 2px; height: 3px;
+  background: var(--ice);
+  box-shadow: 0 0 4px rgba(0,212,255,.6);
+  border-radius: 1px;
+}
+.eq-bars.playing span:nth-child(1) { animation: eq1 .55s ease-in-out infinite alternate; }
+.eq-bars.playing span:nth-child(2) { animation: eq2 .45s .1s ease-in-out infinite alternate; }
+.eq-bars.playing span:nth-child(3) { animation: eq3 .7s .05s ease-in-out infinite alternate; }
+.eq-bars.playing span:nth-child(4) { animation: eq4 .4s .15s ease-in-out infinite alternate; }
+@keyframes eq1 { to { height: 10px; } }
+@keyframes eq2 { to { height: 12px; } }
+@keyframes eq3 { to { height:  7px; } }
+@keyframes eq4 { to { height: 11px; } }
+
+/* ── bio panel ────────────────────────────────────── */
+.bio-backdrop {
+  position: fixed; inset: 0; z-index: 299;
+  background: rgba(0,0,0,0); pointer-events: none;
+  transition: background .35s;
+}
+.bio-backdrop.active { background: rgba(0,0,0,.45); pointer-events: auto; }
+.bio-panel {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: min(440px, 100vw);
+  z-index: 300;
+  background: rgba(4,6,15,.93);
+  border-left: 1px solid rgba(0,212,255,.14);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  padding: 5rem 2rem 6rem;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform .35s cubic-bezier(.4,0,.2,1);
+}
+.bio-panel.open { transform: translateX(0); }
+.bio-close {
+  position: absolute; top: 1.25rem; right: 1.25rem;
+  background: none; border: none;
+  font-family: 'Michroma', sans-serif;
+  font-size: .6rem; letter-spacing: .15em;
+  color: rgba(200,230,255,.4); padding: .4rem .6rem;
+  transition: color .2s;
+}
+.bio-close:hover { color: var(--ice); }
+.bio-panel-title {
+  font-family: 'Michroma', sans-serif;
+  font-size: clamp(.85rem, 3vw, 1.3rem);
+  letter-spacing: .12em; color: var(--ice);
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 18px rgba(0,212,255,.35);
+}
+.bio-panel-label {
+  font-family: 'Michroma', sans-serif;
+  font-size: .55rem; letter-spacing: .22em;
+  color: rgba(200,230,255,.35);
+  margin: 2rem 0 .75rem; text-transform: uppercase;
+}
+.bio-text {
+  font-family: 'Michroma', sans-serif;
+  font-size: .7rem; line-height: 2;
+  letter-spacing: .05em; color: rgba(200,230,255,.7);
+}
+.bio-press-links { display: flex; flex-direction: column; gap: .5rem; }
+.bio-press-links a {
+  width: auto; padding: .5rem .75rem;
+  font-size: .58rem; letter-spacing: .13em;
+  justify-content: flex-start;
+}
+
+/* ── tap-to-play hint ─────────────────────────────── */
+.tap-hint {
+  position: fixed;
+  width: 52px; height: 52px;
+  margin: -26px 0 0 -26px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0,212,255,.7);
+  box-shadow: 0 0 10px rgba(0,212,255,.25);
+  pointer-events: none; z-index: 101; opacity: 0;
+}
+.tap-hint.show { animation: tapPulse 1.8s ease-out infinite; }
+@keyframes tapPulse {
+  0%   { transform: scale(.8); opacity: .8; }
+  100% { transform: scale(2.2); opacity: 0; }
 }
 </style>
 </head>
@@ -531,17 +645,19 @@ a:hover .arr { transform: translateX(3px); }
 
 <header class="topbar">
   <img class="topbar-logo" src="IMAGES/logo_white.png" alt="CITYSPROBLEM">
-  <!-- <button class="topbar-menu-btn" id="menuBtn" aria-label="Menu">
+  <button class="topbar-menu-btn" id="menuBtn" aria-label="Menu">
     <span></span><span></span><span></span>
-  </button> -->
+  </button>
 </header>
-<!-- <div class="topbar-dropdown" id="menuDropdown">
-  <button>Placeholder 1</button>
-  <button>Placeholder 2</button>
-  <button>Placeholder 3</button>
-  <button>Placeholder 4</button>
-  <button>Placeholder 5</button>
-</div> -->
+<div class="topbar-dropdown" id="menuDropdown">
+  <button id="menuBioBtn">About</button>
+  <button id="menuInstagram">Instagram</button>
+  <button id="menuSpotify">Spotify</button>
+  <button id="menuSoundcloud">SoundCloud</button>
+  <button id="menuBandcamp">Bandcamp</button>
+  <button id="menuYoutube">YouTube</button>
+  <button id="menuContact">Contact</button>
+</div>
 
 <main>
   <div class="aurora"></div>
@@ -575,19 +691,38 @@ a:hover .arr { transform: translateX(3px); }
       <button class="player-btn player-btn-skip" id="btnPrev" style="transform:scaleX(-1)">▶&#xFE0E;▶&#xFE0E;</button>
       <button class="player-btn player-btn-play" id="btnPlay">▶&#xFE0E;</button>
       <button class="player-btn player-btn-skip" id="btnNext">▶&#xFE0E;▶&#xFE0E;</button>
+      <button class="player-btn player-btn-shuffle" id="btnShuffle">&#x21C6;</button>
     </div>
     <span class="player-time-disp" id="playerTimeCurrent">0:00</span>
     <div class="player-progress" id="playerProgress">
       <div class="player-fill" id="playerFill"></div>
     </div>
     <span class="player-time-disp" id="playerTimeTotal">0:00</span>
+    <span class="player-counter" id="playerCounter">1 / 1</span>
     <div class="player-volume-row">
       <input class="player-vol-slider" id="volSlider" type="range" min="0" max="1" step="0.01" value="1">
     </div>
+    <div class="eq-bars" id="eqBars"><span></span><span></span><span></span><span></span></div>
     <div class="player-track-clip"><span class="player-track-name" id="playerTrack">—</span></div>
   </div>
 </div>
 <audio id="audio" preload="metadata"></audio>
+
+<div class="bio-backdrop" id="bioBackdrop"></div>
+<div class="bio-panel" id="bioPanel">
+  <button class="bio-close" id="bioClose">✕ CLOSE</button>
+  <p class="bio-panel-title">CITYSPROBLEM</p>
+  <!-- EDIT: Replace the paragraph below with your actual bio -->
+  <p class="bio-text">[ Your bio here — who you are, where you're from, what you make, what drives the sound. ]</p>
+  <p class="bio-panel-label">Press</p>
+  <div class="bio-press-links">
+    <!-- EDIT: Replace these with your actual press links -->
+    <a href="#" target="_blank">Publication — "Article Title"</a>
+    <a href="#" target="_blank">Publication — "Article Title"</a>
+  </div>
+</div>
+
+<div class="tap-hint" id="tapHint"></div>
 
 <script src="SONGS/tracks.js"></script>
 <script>
@@ -711,7 +846,20 @@ const playerProg  = document.getElementById('playerProgress');
 const btnPlay     = document.getElementById('btnPlay');
 const btnPrev     = document.getElementById('btnPrev');
 const btnNext     = document.getElementById('btnNext');
+const btnShuffle  = document.getElementById('btnShuffle');
+const eqBars      = document.getElementById('eqBars');
+const playerCounter = document.getElementById('playerCounter');
 
+let shuffleOn = false;
+function nextTrackIdx() {
+  if (!shuffleOn) return trackIdx + 1;
+  let r;
+  do { r = Math.floor(Math.random() * tracks.length); } while (tracks.length > 1 && r === trackIdx);
+  return r;
+}
+function updateCounter() {
+  playerCounter.textContent = tracks.length ? `${trackIdx + 1} / ${tracks.length}` : '—';
+}
 
 const tracks = (window.TRACKS || []).map(t => ({
   title: t.title.toUpperCase(),
@@ -743,27 +891,30 @@ function loadTrack(idx) {
   scrambleResolve(title, t => { playerTrack.textContent = t; }, 16, 25, () => {
     updateMarquee();
   });
+  updateCounter();
   if (!audio.paused) audio.play();
 }
 
 function setPlaying(v) {
   btnPlay.textContent = v ? '' : '▶\uFE0E';
   btnPlay.classList.toggle('playing', v);
+  eqBars.classList.toggle('playing', v);
 }
 
 if (tracks.length) loadTrack(0);
-else playerTrack.textContent = '—';
+else { playerTrack.textContent = '—'; updateCounter(); }
 
 btnPlay.addEventListener('click', () => {
+  hideTapHint();
   if (!tracks.length) return;
   audio.paused ? audio.play() : audio.pause();
 });
 btnPrev.addEventListener('click', () => loadTrack(trackIdx - 1));
-btnNext.addEventListener('click', () => loadTrack(trackIdx + 1));
+btnNext.addEventListener('click', () => loadTrack(nextTrackIdx()));
 audio.addEventListener('play',  () => setPlaying(true));
 audio.addEventListener('pause', () => setPlaying(false));
 audio.addEventListener('ended', () => {
-  if (trackIdx < tracks.length - 1) loadTrack(trackIdx + 1);
+  if (shuffleOn || trackIdx < tracks.length - 1) loadTrack(nextTrackIdx());
   else setPlaying(false);
 });
 audio.addEventListener('timeupdate', () => {
@@ -837,37 +988,87 @@ window.addEventListener('resize', () => {
 });
 
 /* cursor hover for player controls */
-[btnPlay, btnPrev, btnNext, playerProg, volSlider].forEach(el => {
+[btnPlay, btnPrev, btnNext, btnShuffle, playerProg, volSlider].forEach(el => {
   el.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
   el.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
 });
 
 /* topbar menu */
-// const menuBtn      = document.getElementById('menuBtn');
-// const menuDropdown = document.getElementById('menuDropdown');
-// function closeMenu() {
-//   if (!menuDropdown.classList.contains('open')) return;
-//   menuDropdown.classList.add('closing');
-//   menuBtn.classList.remove('open');
-//   setTimeout(() => {
-//     menuDropdown.classList.remove('open', 'closing');
-//   }, 200);
-// }
-// menuBtn.addEventListener('click', () => {
-//   if (menuDropdown.classList.contains('open')) {
-//     closeMenu();
-//   } else {
-//     menuDropdown.classList.add('open');
-//     menuBtn.classList.add('open');
-//   }
-// });
-// document.addEventListener('click', e => {
-//   if (!menuBtn.contains(e.target) && !menuDropdown.contains(e.target)) closeMenu();
-// });
-// [menuBtn, ...menuDropdown.querySelectorAll('button')].forEach(el => {
-//   el.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
-//   el.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
-// });
+const menuBtn      = document.getElementById('menuBtn');
+const menuDropdown = document.getElementById('menuDropdown');
+function closeMenu() {
+  if (!menuDropdown.classList.contains('open')) return;
+  menuDropdown.classList.add('closing');
+  menuBtn.classList.remove('open');
+  setTimeout(() => { menuDropdown.classList.remove('open', 'closing'); }, 200);
+}
+menuBtn.addEventListener('click', () => {
+  menuDropdown.classList.contains('open') ? closeMenu() : (menuDropdown.classList.add('open'), menuBtn.classList.add('open'));
+});
+document.addEventListener('click', e => {
+  if (!menuBtn.contains(e.target) && !menuDropdown.contains(e.target)) closeMenu();
+});
+[menuBtn, ...menuDropdown.querySelectorAll('button')].forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
+});
+
+/* dropdown nav links */
+const menuLinks = {
+  menuInstagram: 'https://www.instagram.com/itsthecitysproblemnow',
+  menuSpotify:   'https://open.spotify.com/artist/672iTns9P1RuXRG0AcIhcn?si=rjl7Ou1SQx6BWd0GUQiVQg',
+  menuSoundcloud:'https://soundcloud.com/citysproblem',
+  menuBandcamp:  'https://itsthecitysproblemnow.bandcamp.com/',
+  menuYoutube:   'https://www.youtube.com/@citysproblem',
+  menuContact:   'mailto:dj@citysproblem.com',
+};
+Object.entries(menuLinks).forEach(([id, url]) => {
+  document.getElementById(id).addEventListener('click', () => {
+    closeMenu();
+    window.open(url, url.startsWith('mailto') ? '_self' : '_blank');
+  });
+});
+
+/* bio panel */
+const bioPanel    = document.getElementById('bioPanel');
+const bioBackdrop = document.getElementById('bioBackdrop');
+const bioClose    = document.getElementById('bioClose');
+const menuBioBtn  = document.getElementById('menuBioBtn');
+function openBio()  { bioPanel.classList.add('open'); bioBackdrop.classList.add('active'); closeMenu(); }
+function closeBio() { bioPanel.classList.remove('open'); bioBackdrop.classList.remove('active'); }
+menuBioBtn.addEventListener('click', openBio);
+bioClose.addEventListener('click', closeBio);
+bioBackdrop.addEventListener('click', closeBio);
+[bioClose, menuBioBtn].forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
+});
+
+/* shuffle button */
+btnShuffle.addEventListener('click', () => {
+  shuffleOn = !shuffleOn;
+  btnShuffle.classList.toggle('active', shuffleOn);
+});
+
+/* logo hover cursor */
+document.querySelector('.topbar-logo').addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
+document.querySelector('.topbar-logo').addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
+
+/* tap-to-play hint */
+function showTapHint() {
+  if (!('ontouchstart' in window)) return;
+  if (localStorage.getItem('cpPlayHintSeen')) return;
+  const hint = document.getElementById('tapHint');
+  const r = btnPlay.getBoundingClientRect();
+  hint.style.left = (r.left + r.width / 2) + 'px';
+  hint.style.top  = (r.top  + r.height / 2) + 'px';
+  hint.classList.add('show');
+}
+function hideTapHint() {
+  document.getElementById('tapHint').classList.remove('show');
+  localStorage.setItem('cpPlayHintSeen', '1');
+}
+setTimeout(showTapHint, 2200);
 
 /* star field + shooting stars */
 const sc  = document.getElementById('stars');
