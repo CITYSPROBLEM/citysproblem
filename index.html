@@ -14,23 +14,17 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
 
 :root {
-  --bg: #04060f;
   --text: #e0eaf8;
   --ice: #00d4ff;
   --ice-b: #a78bfa;
-  --purple: #7c3aed;
 }
 
-html {
-  background-color: #030a14;
-}
 html, body {
   width: 100%; min-height: 100%;
-  cursor: none;
+  background-color: #030a14;
   overflow: hidden;
 }
 body {
-  background-color: #030a14;
   color: var(--text);
   font-family: 'Michroma', sans-serif;
   font-weight: 400;
@@ -42,8 +36,6 @@ body {
     url('IMAGES/PFP.webp') center/cover no-repeat;
   pointer-events: none;
 }
-a, button, input { cursor: none; }
-
 /* scan lines */
 body::after {
   content: '';
@@ -808,6 +800,7 @@ a:hover .arr { transform: translateX(3px); }
   <p class="bio-panel-title">SOCIALS</p>
   <div class="bio-press-links">
     <a href="https://www.instagram.com/itsthecitysproblemnow" target="_blank">Instagram</a>
+    <a href="https://x.com/CITYSPROBLEM" target="_blank">Twitter</a>
     <a href="mailto:dj@citysproblem.com">Contact</a>
   </div>
 </div>
@@ -834,7 +827,13 @@ const turbEl = document.querySelector('#noise feTurbulence');
 let noiseSeed = 0, grainFrame = 0;
 
 /* scramble */
-const glyphSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@%&<>?';
+const glyphSet      = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@%&<>?';
+const glyphSetLower = 'abcdefghijklmnopqrstuvwxyz0123456789#@%&<>?';
+/* match case of original char so lowercase text (e.g. bio) stays the same height */
+function randGlyph(c) {
+  const set = (c >= 'a' && c <= 'z') ? glyphSetLower : glyphSet;
+  return set[Math.floor(Math.random() * set.length)];
+}
 
 function scrambleLoop(original, setText, stepMs = 25) {
   let rafId, last = 0;
@@ -842,7 +841,7 @@ function scrambleLoop(original, setText, stepMs = 25) {
     if (ts - last >= stepMs) {
       last = ts;
       setText(original.split('').map(c =>
-        c === ' ' ? ' ' : glyphSet[Math.floor(Math.random() * glyphSet.length)]
+        c === ' ' ? ' ' : randGlyph(c)
       ).join(''));
     }
     rafId = requestAnimationFrame(frame);
@@ -853,13 +852,15 @@ function scrambleLoop(original, setText, stepMs = 25) {
 
 function scrambleResolve(original, setText, steps = 16, stepMs = 25, onComplete) {
   let step = 0, last = 0, rafId;
+  /* starts at stepMs (full speed), slows quadratically to ~2× at the last step */
+  function stepDelay(s) { return stepMs * (1 + Math.pow(s / steps, 2)); }
   function frame(ts) {
-    if (ts - last >= stepMs) {
+    if (ts - last >= stepDelay(step)) {
       last = ts;
       setText(original.split('').map((c, i) => {
         if (c === ' ') return ' ';
         if (i < (step / steps) * original.length) return c;
-        return glyphSet[Math.floor(Math.random() * glyphSet.length)];
+        return randGlyph(c);
       }).join(''));
       if (++step > steps) { setText(original); onComplete?.(); return; }
     }
@@ -869,20 +870,43 @@ function scrambleResolve(original, setText, steps = 16, stepMs = 25, onComplete)
   return () => cancelAnimationFrame(rafId);
 }
 
+/* settle timing scales with character count.
+   stepMs stays at 25 ms (the original per-step speed, unchanged).
+   steps = one per non-space character, so shorter text settles faster and
+   longer text settles slower in exact proportion to their length.
+   Reference: 16-char text → 16 steps × 25 ms = 400 ms (same as original default).
+   Min 6 steps (very short symbols), no meaningful upper cap for typical text.
+   To revert to fixed timing: delete this function and replace every
+   ...settleParams(x) with  16, 25  in the scrambleResolve calls below. */
+function settleParams(text) {
+  const len = text.replace(/ /g, '').length;   /* non-space character count */
+  return [Math.max(6, len), 25];               /* [steps, stepMs] */
+}
+
+/* resolve text that is already actively scrambling — call after stopping a
+   scrambleLoop that ran during an entry animation (page load, panel slide-in, etc.).
+   Same 25 ms/step speed as settleParams; capped at 20 steps so long paragraphs
+   don't drag on appear.  Do NOT call this without a prior scrambleLoop running,
+   or the text will start scrambled for one frame before resolving. */
+function settleIn(text, setText, onComplete) {
+  const steps = Math.max(6, Math.min(20, text.replace(/ /g, '').length));
+  return scrambleResolve(text, setText, steps, 25, onComplete);
+}
+
 /* generic hover-scramble — applies to any static text element */
 function addScrambleHover(el) {
-  let cancel = null, orig = '';
+  const orig = el.textContent;          /* capture once — never re-read during hover */
+  let cancelScramble = null, cancelResolve = null;
   el.addEventListener('mouseenter', () => {
     document.body.classList.add('link-hover');
-    orig = el.textContent;
-    cancel?.();
-    cancel = scrambleLoop(orig, t => { el.textContent = t; }, 30);
+    cancelResolve?.(); cancelResolve = null;  /* stop any in-progress settle */
+    cancelScramble?.();
+    cancelScramble = scrambleLoop(orig, t => { el.textContent = t; }, 30);
   });
   el.addEventListener('mouseleave', () => {
     document.body.classList.remove('link-hover');
-    if (!cancel) return;
-    cancel(); cancel = null;
-    scrambleResolve(orig, t => { el.textContent = t; });
+    cancelScramble?.(); cancelScramble = null;
+    cancelResolve = scrambleResolve(orig, t => { el.textContent = t; }, ...settleParams(orig));
   });
 }
 
@@ -890,7 +914,18 @@ function addScrambleHover(el) {
 const h1El   = document.querySelector('h1');
 const h1Orig = 'CITYSPROBLEM';
 let cancelH1;
+let menuExpanded = false;
+/* start scrambling h1 when its fadeUp delay elapses — no applyH1Centering here
+   to avoid forced-layout on every rAF; the loop runs while h1 fades in, and
+   settleIn resolves it once fadeUp ends */
+setTimeout(() => {
+  if (!menuExpanded) cancelH1 = scrambleLoop(h1Orig, t => { h1El.textContent = t; });
+}, 200);
 h1El.addEventListener('animationend', e => {
+  if (e.animationName === 'fadeUp') {
+    cancelH1?.(); cancelH1 = null;
+    cancelH1 = settleIn(h1Orig, t => { h1El.textContent = t; applyH1Centering(); });
+  }
   if (e.animationName === 'glowFadeIn') {
     h1El.style.opacity = '1';
     h1El.style.animation = 'glowPulse 4s ease-in-out infinite';
@@ -915,7 +950,7 @@ h1El.addEventListener('mouseenter', () => {
 });
 h1El.addEventListener('mouseleave', () => {
   cancelH1?.();
-  cancelH1 = scrambleResolve(h1Orig, t => { h1El.textContent = t; applyH1Centering(); }, 16, 25, () => {
+  cancelH1 = scrambleResolve(h1Orig, t => { h1El.textContent = t; applyH1Centering(); }, ...settleParams(h1Orig), () => {
     h1El.style.transform = '';
     h1El.style.width = '';
     h1El.style.height = '';
@@ -939,7 +974,7 @@ document.querySelectorAll('nav a').forEach(a => {
   });
   a.addEventListener('mouseleave', () => {
     cancelBtn?.();
-    cancelBtn = scrambleResolve(original, t => { span.textContent = t; });
+    cancelBtn = scrambleResolve(original, t => { span.textContent = t; }, ...settleParams(original));
   });
 });
 
@@ -994,7 +1029,7 @@ function loadTrack(idx) {
   audio.src = tracks[trackIdx].url;
   const title = tracks[trackIdx].title;
   playerTrack.classList.remove('scrolling');
-  scrambleResolve(title, t => { playerTrack.textContent = t; }, 16, 25, () => {
+  scrambleResolve(title, t => { playerTrack.textContent = t; }, ...settleParams(title), () => {
     updateMarquee();
   });
   updateCounter();
@@ -1006,8 +1041,29 @@ function setPlaying(v) {
   btnPlay.classList.toggle('playing', v);
 }
 
+let cancelTrackScramble = null;
+let cancelTrackResolve  = null;
+
 if (tracks.length) loadTrack(0);
 else { playerTrack.textContent = '—'; updateCounter(); }
+
+/* scramble during fadeUp, settle when it ends */
+if (tracks.length) {
+  setTimeout(() => {
+    cancelTrackScramble = scrambleLoop(tracks[trackIdx].title, t => { playerTrack.textContent = t; }, 30);
+  }, 0);
+}
+document.getElementById('player').addEventListener('animationend', e => {
+  if (e.animationName !== 'fadeUp') return;
+  if (tracks.length) {
+    const title = tracks[trackIdx].title;
+    cancelTrackScramble?.(); cancelTrackScramble = null;
+    cancelTrackResolve = settleIn(title, t => { playerTrack.textContent = t; }, () => {
+      cancelTrackResolve = null;
+      updateMarquee();
+    });
+  }
+}, { once: true });
 
 btnPlay.addEventListener('click', () => {
   hideTapHint();
@@ -1103,10 +1159,10 @@ window.addEventListener('resize', () => {
 });
 
 /* track title scramble on hover */
-let cancelTrackScramble = null;
 playerTrack.addEventListener('mouseenter', () => {
   document.body.classList.add('link-hover');
   if (!tracks.length || tracks[trackIdx]?.title === undefined) return;
+  cancelTrackResolve?.(); cancelTrackResolve = null;
   cancelTrackScramble?.();
   cancelTrackScramble = scrambleLoop(
     tracks[trackIdx].title,
@@ -1116,11 +1172,10 @@ playerTrack.addEventListener('mouseenter', () => {
 });
 playerTrack.addEventListener('mouseleave', () => {
   document.body.classList.remove('link-hover');
-  if (!cancelTrackScramble) return;
-  cancelTrackScramble();
-  cancelTrackScramble = null;
+  cancelTrackScramble?.(); cancelTrackScramble = null;
   const title = tracks[trackIdx]?.title ?? '—';
-  scrambleResolve(title, t => { playerTrack.textContent = t; }, 16, 25, () => {
+  cancelTrackResolve = scrambleResolve(title, t => { playerTrack.textContent = t; }, ...settleParams(title), () => {
+    cancelTrackResolve = null;
     updateMarquee();
   });
 });
@@ -1141,14 +1196,15 @@ const allPanels   = [
   document.getElementById('socialsPanel'),
 ];
 
-let menuExpanded = false;
 let titleFontSzNatural = 0;
 let cancelFlyer = null;
 let cancelTitleScramble = null;
+let cancelTitleResolve  = null;
 let cancelDdScrambles = [];
 const ddBtnOriginals = ['About', 'Music', 'Socials'];
 
 function startDdScramble() {
+  cancelDdScrambles.forEach(fn => fn?.());
   const btns = menuDropdown.querySelectorAll('button');
   cancelDdScrambles = ddBtnOriginals.map((orig, i) =>
     scrambleLoop(orig, t => { btns[i].textContent = t; }, 35)
@@ -1156,10 +1212,15 @@ function startDdScramble() {
 }
 function stopDdScramble() {
   cancelDdScrambles.forEach(fn => fn?.());
-  cancelDdScrambles = [];
-  menuDropdown.querySelectorAll('button').forEach((btn, i) => {
-    btn.textContent = ddBtnOriginals[i];
-  });
+  /* settle each button left-to-right; keep cancelDdScrambles populated so hover
+     scramble doesn't race until all resolves finish */
+  const btns = menuDropdown.querySelectorAll('button');
+  let done = 0;
+  cancelDdScrambles = ddBtnOriginals.map((orig, i) =>
+    scrambleResolve(orig, t => { btns[i].textContent = t; }, ...settleParams(orig), () => {
+      if (++done >= ddBtnOriginals.length) cancelDdScrambles = [];
+    })
+  );
 }
 
 function expandMenu() {
@@ -1203,13 +1264,15 @@ function expandMenu() {
   /* after flight: stop scramble, hand off from flyer to topbarTitle (inside topbar) */
   setTimeout(() => {
     cancelFlyer?.(); cancelFlyer = null;
-    topbarFlyer.textContent         = h1Orig;
+    /* start topbarTitle showing the last scrambled state, then settle */
+    topbarTitle.textContent         = topbarFlyer.textContent;
     topbarTitle.style.opacity       = '1';
     topbarTitle.style.pointerEvents = 'auto';
     topbarFlyer.style.transition    = 'none';
     topbarFlyer.style.opacity       = '0';
     topbarFlyer.style.transform     = 'translateX(-50%) translateY(-50%)';
     topbarFlyer.style.letterSpacing = '';
+    cancelTitleResolve = scrambleResolve(h1Orig, t => { topbarTitle.textContent = t; }, ...settleParams(h1Orig));
   }, 460);
 
   /* fade out logo */
@@ -1287,7 +1350,8 @@ function collapseMenu() {
   /* after flight: stop scramble, restore h1, reset flyer */
   setTimeout(() => {
     cancelFlyer?.(); cancelFlyer = null;
-    topbarFlyer.textContent         = h1Orig;
+    /* h1 starts showing the last scrambled state, then settles while glow fades in */
+    h1El.textContent = topbarFlyer.textContent;
     topbarFlyer.style.transition    = 'none';
     topbarFlyer.style.opacity       = '0';
     topbarFlyer.style.transform     = 'translateX(-50%) translateY(-50%)';
@@ -1295,7 +1359,10 @@ function collapseMenu() {
     h1El.style.pointerEvents = '';
     h1El.style.opacity       = '1';
     h1El.style.animation     = 'glowFadeIn .9s ease forwards';
-    applyH1Centering();
+    cancelH1 = scrambleResolve(h1Orig, t => { h1El.textContent = t; applyH1Centering(); }, ...settleParams(h1Orig), () => {
+      cancelH1 = null;
+      applyH1Centering();
+    });
   }, 420);
 
   /* restore logo and hamburger */
@@ -1326,15 +1393,14 @@ function collapseMenu() {
 
 topbarTitle.addEventListener('mouseenter', () => {
   document.body.classList.add('link-hover');
+  cancelTitleResolve?.(); cancelTitleResolve = null;
   cancelTitleScramble?.();
   cancelTitleScramble = scrambleLoop(h1Orig, t => { topbarTitle.textContent = t; }, 30);
 });
 topbarTitle.addEventListener('mouseleave', () => {
   document.body.classList.remove('link-hover');
-  if (!cancelTitleScramble) return;
-  cancelTitleScramble();
-  cancelTitleScramble = null;
-  scrambleResolve(h1Orig, t => { topbarTitle.textContent = t; });
+  cancelTitleScramble?.(); cancelTitleScramble = null;
+  cancelTitleResolve = scrambleResolve(h1Orig, t => { topbarTitle.textContent = t; }, ...settleParams(h1Orig));
 });
 
 menuBtn.addEventListener('click', () => {
@@ -1354,22 +1420,185 @@ document.addEventListener('click', e => {
   el.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
 });
 
-function openPanel(panel) {
+function _buildBracketWrap(left, top, W, H, corners, arm, bw) {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = `position:fixed;left:${left}px;top:${top}px;width:${W}px;height:${H}px;z-index:301;pointer-events:none;transform-origin:center center;`;
+  corners.forEach(({ x, y, sides }) => {
+    const el = document.createElement('div');
+    el.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${arm}px;height:${arm}px;border:0 solid rgba(0,212,255,.55);`;
+    sides.forEach(s => { el.style['border' + s + 'Width'] = bw + 'px'; });
+    wrap.appendChild(el);
+  });
+  document.body.appendChild(wrap);
+  return wrap;
+}
+
+function _makeInnerBracketEl(sx, sy, sides, arm, bw) {
+  const el = document.createElement('div');
+  el.style.cssText = `position:fixed;left:${sx}px;top:${sy}px;width:${arm}px;height:${arm}px;border:0 solid rgba(0,212,255,.55);z-index:301;pointer-events:none;`;
+  sides.forEach(s => { el.style['border' + s + 'Width'] = bw + 'px'; });
+  document.body.appendChild(el);
+  return el;
+}
+
+function _innerBracketDefs(tr, br, midBtn, arm) {
+  const defs = [
+    { sx: tr.left,        sy: tr.bottom - arm, sides: ['Bottom', 'Left']  },
+    { sx: tr.right - arm, sy: tr.bottom - arm, sides: ['Bottom', 'Right'] },
+    { sx: br.left,        sy: br.top,          sides: ['Top',    'Left']  },
+    { sx: br.right - arm, sy: br.top,          sides: ['Top',    'Right'] },
+  ];
+  if (midBtn) {
+    const mr = midBtn.getBoundingClientRect();
+    defs.push(
+      { sx: mr.left,        sy: mr.top,          sides: ['Top',    'Left']  },
+      { sx: mr.right - arm, sy: mr.top,          sides: ['Top',    'Right'] },
+      { sx: mr.left,        sy: mr.bottom - arm, sides: ['Bottom', 'Left']  },
+      { sx: mr.right - arm, sy: mr.bottom - arm, sides: ['Bottom', 'Right'] }
+    );
+  }
+  return defs;
+}
+
+function animateBrackets(cursorX, cursorY) {
+  const btns = [...menuDropdown.querySelectorAll('button')];
+  if (!btns.length) return;
+  btns.forEach(b => { b.style.backgroundImage = 'none'; });
+
+  const cssScale = btns[0].getBoundingClientRect().width / btns[0].offsetWidth;
+  const arm = Math.round(11 * cssScale);
+  const bw  = Math.max(1, Math.round(2 * cssScale));
+
+  /* all 4 corners of every button */
+  const defs = [];
+  btns.forEach(btn => {
+    const r = btn.getBoundingClientRect();
+    defs.push(
+      { sx: r.left,        sy: r.top,          sides: ['Top',    'Left']  },
+      { sx: r.right - arm, sy: r.top,          sides: ['Top',    'Right'] },
+      { sx: r.left,        sy: r.bottom - arm, sides: ['Bottom', 'Left']  },
+      { sx: r.right - arm, sy: r.bottom - arm, sides: ['Bottom', 'Right'] }
+    );
+  });
+
+  /* converge toward cursor position at click time; offset so bracket corner lands on cursor */
+  const cxAbs = cursorX - arm / 2;
+  const cyAbs = cursorY - arm / 2;
+
+  /* duration scales linearly with distance — closest brackets are fastest (0.13s),
+     farthest are slowest (0.4s) */
+  const dists   = defs.map(({ sx, sy }) => Math.hypot(cxAbs - sx, cyAbs - sy));
+  const maxDist = Math.max(...dists);
+
+  const els = defs.map(({ sx, sy, sides }) => _makeInnerBracketEl(sx, sy, sides, arm, bw));
+
+  void els[0].offsetHeight;
+  requestAnimationFrame(() => {
+    els.forEach((el, i) => {
+      const t   = maxDist > 0 ? dists[i] / maxDist : 0;
+      const dur = +(0.053 + 0.297 * t).toFixed(3);
+      const fd  = +(Math.max(0, dur - 0.04)).toFixed(3);
+      el.style.transition = `transform ${dur}s ease-in, opacity .10s ease ${fd}s`;
+      el.style.transform  = `translate(${cxAbs - defs[i].sx}px,${cyAbs - defs[i].sy}px)`;
+      el.style.opacity    = '0';
+    });
+  });
+  setTimeout(() => els.forEach(el => el.remove()), 500);
+}
+
+
+const PANEL_TEXT_SEL = '.bio-close, .bio-panel-title, .bio-panel-label, .bio-text, .bio-press-links a';
+function openPanel(panel, cursorX, cursorY) {
+  const ddVisible = menuDropdown.classList.contains('open') || menuDropdown.classList.contains('centered');
+  if (ddVisible) {
+    animateBrackets(cursorX, cursorY);
+    /* fade button text out alongside bracket collapse */
+    menuDropdown.style.transition    = 'opacity .13s ease-in';
+    menuDropdown.style.opacity       = '0';
+    menuDropdown.style.pointerEvents = 'none';
+  }
   allPanels.forEach(p => p.classList.remove('open'));
   panel.classList.add('open');
   bioBackdrop.classList.add('active');
-  menuDropdown.classList.remove('open', 'centered');
-  menuDropdown.style.cssText = '';
+  if (ddVisible) {
+    /* defer class removal until fade completes so display:none doesn't jump */
+    setTimeout(() => { menuDropdown.classList.remove('open', 'centered'); menuDropdown.style.cssText = ''; }, 420);
+  } else {
+    menuDropdown.classList.remove('open', 'centered');
+    menuDropdown.style.cssText = '';
+  }
+  /* scramble all panel text as the panel slides in; resolve once it lands */
+  const els   = [...panel.querySelectorAll(PANEL_TEXT_SEL)];
+  const texts = els.map(el => el.textContent);
+  const loops = els.map((el, i) => scrambleLoop(texts[i], t => { el.textContent = t; }, 30));
+  setTimeout(() => {
+    loops.forEach(c => c());
+    els.forEach((el, i) => settleIn(texts[i], t => { el.textContent = t; }));
+  }, 360);
 }
+function animateBracketsReverse() {
+  const btns = [...menuDropdown.querySelectorAll('button')];
+  if (btns.length < 2) return;
+  btns.forEach(b => { b.style.backgroundImage = 'none'; });
+  const topBtn = btns[0], bottomBtn = btns[btns.length - 1];
+  const midBtn = btns.length >= 3 ? btns[Math.floor(btns.length / 2)] : null;
+  const tr = topBtn.getBoundingClientRect();
+  const br = bottomBtn.getBoundingClientRect();
+
+  const cssScale = tr.width / topBtn.offsetWidth;
+  const arm = Math.round(11 * cssScale);
+  const bw  = Math.max(1, Math.round(2 * cssScale));
+  const OW  = br.right - tr.left, OH = br.bottom - tr.top;
+
+  const outerWrap = _buildBracketWrap(tr.left, tr.top, OW, OH, [
+    { x: 0,        y: 0,        sides: ['Top',    'Left']  },
+    { x: OW - arm, y: 0,        sides: ['Top',    'Right'] },
+    { x: 0,        y: OH - arm, sides: ['Bottom', 'Left']  },
+    { x: OW - arm, y: OH - arm, sides: ['Bottom', 'Right'] },
+  ], arm, bw);
+  outerWrap.style.transform = 'scale(0)';
+
+  /* inner brackets: start at center, translate out to corners preserving shape */
+  const defs = _innerBracketDefs(tr, br, midBtn, arm);
+  const cxAbs = (tr.left + br.right) / 2 - arm / 2;
+  const cyAbs = (tr.top  + br.bottom) / 2 - arm / 2;
+  const innerEls = defs.map(({ sx, sy, sides }) => {
+    const el = _makeInnerBracketEl(sx, sy, sides, arm, bw);
+    const dx = cxAbs - sx, dy = cyAbs - sy;
+    el.style.transform = `translate(${dx}px,${dy}px)`;
+    return el;
+  });
+
+  void outerWrap.offsetHeight;
+  requestAnimationFrame(() => {
+    outerWrap.style.transition = 'transform .4s ease-out';
+    outerWrap.style.transform  = 'scale(1)';
+    innerEls.forEach((el, i) => {
+      const dur = i < 4 ? 0.265 : 0.13;
+      el.style.transition = `transform ${dur}s ease-out`;
+      el.style.transform  = 'translate(0,0)';
+    });
+    menuDropdown.style.transition = 'opacity .13s ease-out';
+    menuDropdown.style.opacity    = '1';
+  });
+
+  setTimeout(() => {
+    outerWrap.remove(); innerEls.forEach(el => el.remove());
+    btns.forEach(b => { b.style.backgroundImage = ''; });
+    menuDropdown.style.transition = '';
+    menuDropdown.style.opacity    = '';
+  }, 450);
+}
+
 function closeAllPanels() {
   allPanels.forEach(p => p.classList.remove('open'));
   bioBackdrop.classList.remove('active');
-  /* reshow dropdown centered instantly (no flight — already in expanded state) */
   menuDropdown.style.cssText    = '';
   menuDropdown.style.animation  = 'none';
   menuDropdown.style.transform  = 'translate(-50%, -50%) scale(2)';
-  menuDropdown.style.opacity    = '1';
+  menuDropdown.style.opacity    = '0';
   menuDropdown.classList.add('open', 'centered');
+  animateBracketsReverse();
 }
 
 bioBackdrop.addEventListener('click', e => { e.stopPropagation(); closeAllPanels(); });
@@ -1383,20 +1612,21 @@ panelTriggers.forEach(({ btnId, panel }, i) => {
   const btn = document.getElementById(btnId);
   const orig = ddBtnOriginals[i];
   let cancelBtnScramble = null;
-  btn.addEventListener('click', () => openPanel(panel));
+  let cancelBtnResolve  = null;
+  btn.addEventListener('click', e => openPanel(panel, e.clientX, e.clientY));
   btn.addEventListener('mouseenter', () => {
     document.body.classList.add('link-hover');
     /* don't fight with the flight scramble */
     if (cancelDdScrambles.length) return;
+    cancelBtnResolve?.(); cancelBtnResolve = null;
     cancelBtnScramble?.();
     cancelBtnScramble = scrambleLoop(orig, t => { btn.textContent = t; }, 30);
   });
   btn.addEventListener('mouseleave', () => {
     document.body.classList.remove('link-hover');
     if (!cancelBtnScramble) return;
-    cancelBtnScramble();
-    cancelBtnScramble = null;
-    scrambleResolve(orig, t => { btn.textContent = t; });
+    cancelBtnScramble(); cancelBtnScramble = null;
+    cancelBtnResolve = scrambleResolve(orig, t => { btn.textContent = t; }, ...settleParams(orig));
   });
 });
 
@@ -1413,7 +1643,6 @@ btnShuffle.addEventListener('click', () => {
   btnShuffle.classList.toggle('active', shuffleOn);
 });
 
-
 /* tap-to-play hint */
 function showTapHint() {
   if (!('ontouchstart' in window)) return;
@@ -1429,6 +1658,16 @@ function hideTapHint() {
   localStorage.setItem('cpPlayHintSeen', '1');
 }
 setTimeout(showTapHint, 2200);
+
+/* restore button bracket backgrounds if a tab-switch interrupted an animation
+   and left backgroundImage:'none' stuck as an inline style */
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    menuDropdown.querySelectorAll('button').forEach(b => {
+      if (b.style.backgroundImage === 'none') b.style.backgroundImage = '';
+    });
+  }
+});
 
 /* apply hover-scramble to all remaining static text elements */
 [
