@@ -19,12 +19,25 @@
   --ice-b: #a78bfa;
 }
 
-html, body {
+html {
   width: 100%; min-height: 100%;
   background-color: #030a14;
-  overflow: hidden;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,212,255,.35) rgba(255,255,255,.08);
+}
+html::-webkit-scrollbar { width: 7px; }
+html::-webkit-scrollbar-track { background: rgba(255,255,255,.08); }
+html::-webkit-scrollbar-thumb {
+  background: rgba(0,212,255,.35);
+  border-radius: 99px;
+}
+html::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,212,255,.6);
 }
 body {
+  min-height: 100%;
+  background-color: #030a14;
   color: var(--text);
   font-family: 'Michroma', sans-serif;
   font-weight: 400;
@@ -273,12 +286,78 @@ body.link-hover #cur-ring { width: 42px; height: 42px; margin: -21px 0 0 -21px; 
 
 main {
   position: relative; z-index: 2;
-  min-height: 100dvh;
   display: flex; flex-direction: column;
-  justify-content: center; align-items: center;
-  padding: 72px min(4vw, 3rem) var(--player-h, 56px);
+  align-items: center;
+  padding: 72px min(4vw, 3rem) 100vh;
   text-align: center;
 }
+.hero {
+  min-height: calc(100dvh - 72px);
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  width: 100%; position: relative;
+  padding-bottom: var(--player-h, 56px);
+}
+.info-section {
+  display: block;
+  margin: 4rem auto;
+  max-width: min(80vw, 1200px);
+  min-width: 260px;
+  transition: width .4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0 3.5rem;
+  border: 1px solid rgba(0,212,255,.14);
+  border-top: 1px solid rgba(0,212,255,.35);
+  border-radius: 10px;
+  background: linear-gradient(160deg, rgba(3,9,24,.25) 0%, rgba(4,6,15,.18) 100%);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  text-align: center;
+  opacity: 0;
+  /* TODO: re-enable internal scrolling once info section has enough content to require it
+  max-height: 70vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,212,255,.3) transparent;
+  */
+}
+/* TODO: re-enable with above
+.info-section::-webkit-scrollbar { width: 4px; }
+.info-section::-webkit-scrollbar-track { background: transparent; }
+.info-section::-webkit-scrollbar-thumb {
+  background: rgba(0,212,255,.3);
+  border-radius: 99px;
+}
+.info-section::-webkit-scrollbar-thumb:hover { background: rgba(0,212,255,.55); }
+*/
+.info-section.visible {
+  animation: fadeUp .9s ease forwards;
+  transition: width .4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.info-block { margin-bottom: 0; }
+.info-block + .info-block { border-top: 1px solid rgba(0,212,255,.08); }
+.info-block:first-child .bio-panel-label { margin-top: 0; }
+.info-block-header {
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  padding: 1.5rem 0;
+}
+.info-toggle {
+  font-family: 'Michroma', sans-serif;
+  font-size: 1.1rem; line-height: 1;
+  color: var(--ice);
+  text-shadow: 0 0 8px rgba(0,212,255,.4);
+  position: absolute; right: -2rem;
+  font-size: 1.5rem;
+  transition: transform .32s ease;
+  user-select: none;
+}
+.info-block.open .info-toggle { transform: rotate(45deg); }
+.info-block-content {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.info-block-content > * { padding-bottom: 1.5rem; }
 
 /* aurora */
 .aurora {
@@ -397,6 +476,10 @@ a:hover .arr { transform: translateX(3px); }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeUpFixed {
+  from { opacity: 0; transform: translateX(-50%) translateY(16px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 /* player */
@@ -519,15 +602,22 @@ a:hover .arr { transform: translateX(3px); }
   .topbar-dropdown.centered { transform: translate(-50%, -50%) scale(1.4); }
 
   /* no custom cursor on touch devices */
-  html, body { cursor: auto; overflow-x: hidden; overflow-y: auto; touch-action: pan-y; overscroll-behavior-x: none; max-width: 100vw; }
+  html { cursor: auto; touch-action: pan-y; overscroll-behavior-x: none; max-width: 100vw; }
+  body { cursor: auto; }
   .topbar { background: linear-gradient(to bottom, #030a14 0%, rgba(4,6,15,.45) 100%); }
   #cur, #cur-ring { display: none; }
 
   main {
-    min-height: 100dvh;
-    justify-content: center;
-    padding: 72px 1.25rem var(--player-h, 48px);
+    padding: 72px 1.25rem 100vh;
     overflow-y: auto;
+  }
+  .hero {
+    min-height: calc(100dvh - 72px);
+    padding-bottom: var(--player-h, 48px);
+  }
+  .info-section {
+    width: 100%;
+    padding: 0 1.5rem;
   }
 
   h1 {
@@ -645,20 +735,27 @@ a:hover .arr { transform: translateX(3px); }
 }
 .bio-panel-label {
   font-family: 'Michroma', sans-serif;
-  font-size: .55rem; letter-spacing: .22em;
-  color: rgba(200,230,255,.35);
-  margin: 2rem 0 .75rem; text-transform: uppercase;
+  font-size: .85rem; letter-spacing: .22em;
+  color: rgba(0,212,255,.75);
+  margin: 0; text-transform: uppercase;
   white-space: nowrap;
+  text-shadow: 0 0 12px rgba(0,212,255,.3);
 }
 .bio-text {
   font-family: 'Michroma', sans-serif;
-  font-size: .7rem; line-height: 2;
-  letter-spacing: .05em; color: rgba(200,230,255,.7);
+  font-size: 1.1rem; line-height: 1.9;
+  letter-spacing: .05em; color: rgba(220,240,255,.88);
 }
-.bio-press-links { display: flex; flex-direction: column; gap: .65rem; }
+.bio-press-links { display: flex; flex-direction: column; gap: .65rem; align-items: center; }
+.bio-press-links a::before {
+  background: linear-gradient(90deg, transparent, rgba(0,212,255,.04), transparent);
+}
 .bio-press-links a {
-  width: auto; padding: .5rem .75rem;
-  font-size: .58rem; letter-spacing: .13em;
+  width: auto; padding: .5rem 1.4rem;
+  font-size: .9rem; letter-spacing: .13em;
+  justify-content: center;
+}
+.info-section .bio-press-links a {
   justify-content: flex-start;
 }
 
@@ -713,32 +810,54 @@ a:hover .arr { transform: translateX(3px); }
 </div>
 
 <main>
-  <div class="aurora"></div>
-  <h1>CITYSPROBLEM</h1>
-  <span class="scroll-arrow"></span>
-  <!--
-  <nav>
-    <a href="https://www.instagram.com/itsthecitysproblemnow" target="_blank">
-      Instagram
-    </a>
-    <a href="https://open.spotify.com/artist/672iTns9P1RuXRG0AcIhcn?si=rjl7Ou1SQx6BWd0GUQiVQg" target="_blank">
-      Spotify
-    </a>
-    <a href="https://soundcloud.com/citysproblem" target="_blank">
-      SoundCloud
-    </a>
-    <a href="https://itsthecitysproblemnow.bandcamp.com/" target="_blank">
-      Bandcamp
-    </a>
-    <a href="https://www.youtube.com/@citysproblem" target="_blank">
-      YouTube
-    </a>
-    <a href="mailto:dj@citysproblem.com">
-      Contact
-    </a>
-  </nav>
-  -->
+  <div class="hero">
+    <div class="aurora"></div>
+    <h1>CITYSPROBLEM</h1>
+    <span class="scroll-arrow"></span>
+  </div>
 
+  <section class="info-section" id="infoSection">
+    <div class="info-block">
+      <div class="info-block-header">
+        <p class="bio-panel-label">About</p>
+        <span class="info-toggle" aria-hidden="true">+</span>
+      </div>
+      <div class="info-block-content">
+        <p class="bio-text">[ Your bio here — who you are, where you're from, what you make, what drives the sound. ]</p>
+      </div>
+    </div>
+    <div class="info-block">
+      <div class="info-block-header">
+        <p class="bio-panel-label">Press</p>
+        <span class="info-toggle" aria-hidden="true">+</span>
+      </div>
+      <div class="info-block-content">
+        <div class="bio-press-links">
+          <a href="https://www.ninaprotocol.com/posts/citysproblem-sidewinder" target="_blank">Nina Protocol — "Sidewinder"</a>
+        </div>
+      </div>
+    </div>
+    <div class="info-block">
+      <div class="info-block-header">
+        <p class="bio-panel-label">Label Releases</p>
+        <span class="info-toggle" aria-hidden="true">+</span>
+      </div>
+      <div class="info-block-content">
+        <div class="bio-press-links">
+        <a href="https://soundcloud.com/upszn-899186374/sets/up007-citysproblem-sidewinder" target="_blank">#UPSZN! — Sidewinder EP</a>
+        <a href="https://soundcloud.com/united-jump-front/citysproblem-jump-19-7?in=citysproblem/sets/releases&si=83200132dcaa4af18ca36d6565a5dab6&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">United Jump Front — Jump 1.9</a>
+        <a href="https://soundcloud.com/formforum/xxhardbit3s-citysproblem-apart-extended-dnb-mix-2?in=citysproblem/sets/releases&si=6ddd15c9ec434f48aafdd511694cb2ed&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">formforum — Apart [Extended DNB Mix]</a>
+        <a href="https://soundcloud.com/909worldwide/circular-saw-38?in=citysproblem/sets/releases&si=ea242d8c46684667b56c7c0a16b13c11&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">909 Worldwide — Circular Saw</a>
+        <a href="https://soundcloud.com/laeuphoria/citysproblem-finality-2?in=citysproblem/sets/releases&si=64b822c2767b453f8910ca9618aa081d&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">La Euphoria — Finality</a>
+        <a href="https://soundcloud.com/soymakinero/08-citysproblem-baby-tonight-8?in=citysproblem/sets/releases&si=b7ccfcee831847d189024ef55d853944&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">SOY MAKINERO — Baby Tonight</a>
+        <a href="https://soundcloud.com/vitesse-rec-augsburg/cyntheszr-citysproblem-anhedonia-vit-srs004" target="_blank">Vitesse Records — Anhedonia</a>
+        <a href="https://soundcloud.com/extremely-gone/pinkpantheres-another-life-citysproblem-remix?in=citysproblem/sets/releases&si=6a5f507a05cf441e8d3e59679839a4a9&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">Extremely Gone — Another Life (CITYSPROBLEM Remix)</a>
+        <a href="https://soundcloud.com/909worldwide/bellator?in=citysproblem/sets/releases&si=24fc4ceb4ace40a693f7a82df4cfaec7&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">909 Worldwide — Bellator</a>
+        <a href="https://soundcloud.com/united-jump-front/citysproblem-the-hunt?in=citysproblem/sets/releases&si=6a8de87a24fb4b9da0f3ae7bdb797396&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">United Jump Front — The Hunt</a>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <div class="player" id="player">
@@ -776,8 +895,16 @@ a:hover .arr { transform: translateX(3px); }
   <p class="bio-panel-label">Label Releases</p>
   <div class="bio-press-links">
     <!-- EDIT: Add your label links here -->
-    <a href="https://soundcloud.com/upszn-899186374/sets/up007-citysproblem-sidewinder" target="_blank">[UP007] — Sidewinder EP</a>
-    <a href="https://soundcloud.com/vitesse-rec-augsburg/cyntheszr-citysproblem-anhedonia-vit-srs004" target="_blank">[VIT-SRS004] — Anhedonia</a>
+    <a href="https://soundcloud.com/upszn-899186374/sets/up007-citysproblem-sidewinder" target="_blank">#UPSZN! — Sidewinder EP</a>
+    <a href="https://soundcloud.com/united-jump-front/citysproblem-jump-19-7?in=citysproblem/sets/releases&si=83200132dcaa4af18ca36d6565a5dab6&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">United Jump Front — Jump 1.9</a>
+    <a href="https://soundcloud.com/formforum/xxhardbit3s-citysproblem-apart-extended-dnb-mix-2?in=citysproblem/sets/releases&si=6ddd15c9ec434f48aafdd511694cb2ed&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">formforum — Apart [Extended DNB Mix]</a>
+    <a href="https://soundcloud.com/909worldwide/circular-saw-38?in=citysproblem/sets/releases&si=ea242d8c46684667b56c7c0a16b13c11&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">909 Worldwide — Circular Saw</a>
+    <a href="https://soundcloud.com/laeuphoria/citysproblem-finality-2?in=citysproblem/sets/releases&si=64b822c2767b453f8910ca9618aa081d&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">La Euphoria — Finality</a>
+    <a href="https://soundcloud.com/soymakinero/08-citysproblem-baby-tonight-8?in=citysproblem/sets/releases&si=b7ccfcee831847d189024ef55d853944&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">SOY MAKINERO — Baby Tonight</a>
+    <a href="https://soundcloud.com/vitesse-rec-augsburg/cyntheszr-citysproblem-anhedonia-vit-srs004" target="_blank">Vitesse Records — Anhedonia</a>
+    <a href="https://soundcloud.com/extremely-gone/pinkpantheres-another-life-citysproblem-remix?in=citysproblem/sets/releases&si=6a5f507a05cf441e8d3e59679839a4a9&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">Extremely Gone — Another Life (CITYSPROBLEM Remix)</a>
+    <a href="https://soundcloud.com/909worldwide/bellator?in=citysproblem/sets/releases&si=24fc4ceb4ace40a693f7a82df4cfaec7&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">909 Worldwide — Bellator</a>
+    <a href="https://soundcloud.com/united-jump-front/citysproblem-the-hunt?in=citysproblem/sets/releases&si=6a8de87a24fb4b9da0f3ae7bdb797396&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">United Jump Front — The Hunt</a>
   </div>
 </div>
 
@@ -1143,9 +1270,10 @@ updateVolTrack();
 const playerEl   = document.getElementById('player');
 const scrollArrowEl = document.querySelector('.scroll-arrow');
 function syncPlayerWidth() {
+  const infoSectionEl = document.getElementById('infoSection');
   const w = window.innerWidth <= 768
     ? playerEl.offsetWidth
-    : h1El.offsetWidth;
+    : infoSectionEl.offsetWidth;
   playerEl.style.setProperty('--player-content-w', w + 'px');
   document.documentElement.style.setProperty('--player-h', playerEl.offsetHeight + 'px');
   const h1Bottom     = h1El.getBoundingClientRect().bottom;
@@ -1724,16 +1852,203 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-/* apply hover-scramble to all remaining static text elements */
+/* hide scroll arrow once user has scrolled past the hero */
+window.addEventListener('scroll', () => {
+  scrollArrowEl.style.transition = 'opacity .4s ease';
+  scrollArrowEl.style.opacity = window.scrollY > 80 ? '0' : '';
+}, { passive: true });
+
+/* info section scramble — apply hover-scramble after DOM ready */
+const infoSection = document.getElementById('infoSection');
+
+/* reveal info section once it scrolls into view */
+{
+  const infoLabelEls = Array.from(infoSection.querySelectorAll('.bio-panel-label'));
+  const infoLabelOrig = infoLabelEls.map(el => el.textContent);
+  let infoLoops = null;
+
+  function revealInfo() {
+    infoLoops = infoLabelEls.map((el, i) => scrambleLoop(infoLabelOrig[i], t => { el.textContent = t; }, 30));
+    infoSection.classList.add('visible');
+    infoSection.addEventListener('animationend', e => {
+      if (e.animationName !== 'fadeUp') return;
+      infoLoops.forEach(c => c()); infoLoops = null;
+      infoLabelEls.forEach((el, i) => settleIn(infoLabelOrig[i], t => { el.textContent = t; }));
+      infoSection.style.animation = 'none';
+      infoSection.style.opacity = '1';
+    }, { once: true });
+  }
+
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) { revealInfo(); observer.disconnect(); }
+  }, { threshold: 0.1 });
+  observer.observe(infoSection);
+}
+
+/* auto-center to whichever section has majority viewport presence when scrolling stops */
+{
+  const heroEl = document.querySelector('.hero');
+  let scrollTimer = null;
+  window.addEventListener('scroll', () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      const vh = window.innerHeight;
+      const heroRect = heroEl.getBoundingClientRect();
+      const infoRect = infoSection.getBoundingClientRect();
+      const mid = vh / 2;
+      const heroCenterDist = Math.abs((heroRect.top + heroEl.offsetHeight / 2) - mid);
+      const infoCenterDist = Math.abs((infoRect.top + infoSection.offsetHeight / 2) - mid);
+      if (heroCenterDist <= infoCenterDist) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        const top = window.scrollY + infoRect.top - (vh - infoSection.offsetHeight) / 2;
+        window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      }
+    }, 150);
+  }, { passive: true });
+}
+
+let narrowW = 0, expandedW = 0;
+
+function initLayout() {
+  const mobile = window.innerWidth <= 768;
+  if (mobile) {
+    infoSection.style.width = '';
+    infoSection.style.transition = 'none';
+    return;
+  }
+
+  /* disable transition during measurement */
+  infoSection.style.transition = 'none';
+  infoSection.style.width = Math.min(window.innerWidth * 0.8, 1200) + 'px';
+  infoSection.offsetWidth; /* force reflow */
+
+  /* equalize link widths at full measure width */
+  const links = Array.from(infoSection.querySelectorAll('.bio-press-links a'));
+  links.forEach(a => { a.style.width = 'auto'; });
+  infoSection.offsetWidth;
+  const maxLinkW = links.reduce((m, a) => Math.max(m, a.offsetWidth), 0);
+  if (maxLinkW > 0) links.forEach(a => { a.style.width = maxLinkW + 'px'; });
+
+  /* measure label widths for narrow (collapsed) state */
+  const labels = Array.from(infoSection.querySelectorAll('.bio-panel-label'));
+  const maxLabelW = labels.reduce((m, el) => Math.max(m, el.offsetWidth), 0);
+  const hPad = parseFloat(getComputedStyle(infoSection).paddingLeft) * 2;
+
+  expandedW = Math.min(maxLinkW + hPad, window.innerWidth * 0.8);
+  narrowW = Math.max(280, maxLabelW + hPad + 40); /* +40 for toggle icon */
+
+  /* set correct width for current state — no transition yet */
+  const isExpanded = !!infoSection.querySelector('.info-block.open');
+  infoSection.style.width = (isExpanded ? expandedW : narrowW) + 'px';
+  infoSection.offsetWidth;
+
+  /* re-enable transition — future width changes will animate */
+  infoSection.style.transition = '';
+}
+
+document.fonts.ready.then(initLayout);
+window.addEventListener('resize', initLayout, { passive: true });
+
+/* hide all blocks except the given one with a smooth height+opacity collapse */
+function hideOtherBlocks(openBlock) {
+  Array.from(infoSection.querySelectorAll('.info-block'))
+    .filter(b => b !== openBlock)
+    .forEach(b => {
+      const h = b.offsetHeight;
+      b.style.overflow = 'hidden';
+      b.style.transition = 'none';
+      b.style.maxHeight = h + 'px';
+      b.style.opacity = '1';
+      b.offsetHeight; /* force reflow */
+      b.style.transition = 'max-height .35s ease, opacity .25s ease';
+      b.style.maxHeight = '0';
+      b.style.opacity = '0';
+      b.style.pointerEvents = 'none';
+    });
+}
+
+/* reveal all hidden blocks back to their header height */
+function showAllBlocks() {
+  Array.from(infoSection.querySelectorAll('.info-block')).forEach(b => {
+    if (!b.style.maxHeight || b.style.maxHeight === '') return; /* already visible */
+    const targetH = b.querySelector('.info-block-header').offsetHeight;
+    b.style.transition = 'max-height .35s ease, opacity .25s ease';
+    b.style.maxHeight = targetH + 'px';
+    b.style.opacity = '1';
+    b.style.pointerEvents = '';
+    setTimeout(() => {
+      b.style.transition = '';
+      b.style.maxHeight = '';
+      b.style.opacity = '';
+      b.style.overflow = '';
+    }, 370);
+  });
+}
+
+/* accordion */
+infoSection.querySelectorAll('.info-block-header').forEach(header => {
+  header.addEventListener('click', () => {
+    const block = header.closest('.info-block');
+    const isOpen = block.classList.contains('open');
+
+    /* close any open block */
+    infoSection.querySelectorAll('.info-block.open').forEach(b => {
+      b.classList.remove('open');
+      b.querySelector('.info-block-content').style.maxHeight = '0px';
+    });
+
+    if (isOpen) {
+      /* closing — reveal other blocks and narrow the box */
+      showAllBlocks();
+      if (window.innerWidth > 768) infoSection.style.width = narrowW + 'px';
+      /* scroll to keep box centered throughout the collapse animation */
+      const startTimeClose = performance.now();
+      const closeFrame = () => {
+        const top = window.scrollY + infoSection.getBoundingClientRect().top
+                    - (window.innerHeight - infoSection.offsetHeight) / 2;
+        window.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
+        if (performance.now() - startTimeClose < 420) requestAnimationFrame(closeFrame);
+      };
+      requestAnimationFrame(closeFrame);
+    } else {
+      /* opening — hide other blocks, expand box, open content */
+      hideOtherBlocks(block);
+      if (window.innerWidth > 768) infoSection.style.width = expandedW + 'px';
+      const content = block.querySelector('.info-block-content');
+      const textEls = Array.from(content.querySelectorAll('.bio-text, .bio-press-links a'));
+      const textOrig = textEls.map(el => el.textContent);
+      const loops = textEls.map((el, i) => scrambleLoop(textOrig[i], t => { el.textContent = t; }, 30));
+      block.classList.add('open');
+      content.style.maxHeight = content.scrollHeight + 'px';
+      /* settle starts immediately, 16 steps × 20ms ≈ 417ms — matches the 400ms expand animation */
+      loops.forEach(c => c());
+      textEls.forEach((el, i) => scrambleResolve(textOrig[i], t => { el.textContent = t; }, 16, 20));
+      /* scroll to keep box centered throughout the expand animation */
+      const startTime = performance.now();
+      const animFrame = () => {
+        const top = window.scrollY + infoSection.getBoundingClientRect().top
+                    - (window.innerHeight - infoSection.offsetHeight) / 2;
+        window.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
+        if (performance.now() - startTime < 420) requestAnimationFrame(animFrame);
+      };
+      requestAnimationFrame(animFrame);
+    }
+  });
+});
+
+/* apply hover-scramble to all remaining static text elements
+   (info section elements are excluded — no hover scramble there) */
+const infoSectionEls = new Set(infoSection.querySelectorAll('.bio-panel-label, .bio-text, .bio-press-links a'));
 [
   /* panel close buttons */
   ...document.querySelectorAll('.bio-close'),
-  /* panel titles + labels */
-  ...document.querySelectorAll('.bio-panel-title, .bio-panel-label'),
-  /* bio body text (wrapping is fine — scramble preserves character count) */
-  ...document.querySelectorAll('.bio-text'),
-  /* all panel links */
-  ...document.querySelectorAll('.bio-press-links a'),
+  /* panel titles + labels (excluding info section) */
+  ...Array.from(document.querySelectorAll('.bio-panel-title, .bio-panel-label')).filter(el => !infoSectionEls.has(el)),
+  /* bio body text (excluding info section) */
+  ...Array.from(document.querySelectorAll('.bio-text')).filter(el => !infoSectionEls.has(el)),
+  /* all panel links (excluding info section) */
+  ...Array.from(document.querySelectorAll('.bio-press-links a')).filter(el => !infoSectionEls.has(el)),
   /* corner close button */
   document.getElementById('menuCloseBtn'),
 ].forEach(addScrambleHover);
