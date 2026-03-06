@@ -212,6 +212,78 @@ body.link-hover #cur-ring { width: 42px; height: 42px; margin: -21px 0 0 -21px; 
 }
 .topbar-dropdown button:hover::before { animation: btnSweep .55s ease forwards; }
 
+/* expanded menu: topbar title (settled state, inside topbar stacking context) */
+.topbar-title {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  font-family: 'Michroma', sans-serif;
+  font-size: clamp(.55rem, 1.1vw, .75rem);
+  letter-spacing: .14em;
+  color: var(--text);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  text-shadow: 0 0 14px rgba(0,212,255,.3);
+  transition: opacity .12s ease;
+}
+
+/* flyer handles the motion — lives outside topbar so it stays behind
+   vignette (8), grain (9), and scan lines (10), matching the h1 treatment */
+.topbar-flyer {
+  position: fixed;
+  top: 36px; left: 50%; /* 36px = topbar vertical centre */
+  transform: translateX(-50%) translateY(-50%);
+  z-index: 3;
+  font-family: 'Michroma', sans-serif;
+  font-size: clamp(1rem, 5vw, 4rem); /* matches h1 exactly */
+  letter-spacing: .04em;             /* matches h1 exactly */
+  color: var(--text);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  text-shadow: 0 0 18px rgba(0,212,255,.35), 0 0 40px rgba(0,212,255,.15);
+  /* transition handled by JS */
+}
+
+/* expanded menu: centered dropdown */
+.topbar-dropdown.centered {
+  top: 50%; left: 50%; right: auto;
+  transform: translate(-50%, -50%) scale(2);
+  width: 220px;
+  background: none;
+  border: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.topbar-dropdown.centered.open {
+  animation: dropCenterIn .3s ease forwards;
+}
+@keyframes dropCenterIn {
+  from { opacity: 0; transform: translate(-50%, calc(-50% - 10px)); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+/* expanded menu: corner close button */
+.menu-x-btn {
+  position: fixed;
+  top: 0; right: 0;
+  width: 72px; height: 72px;
+  z-index: 210;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none;
+  color: var(--ice);
+  font-family: 'Michroma', sans-serif;
+  font-size: 1rem;
+  letter-spacing: .05em;
+  text-shadow: 0 0 8px rgba(0,212,255,.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+.menu-x-btn.visible { opacity: 1; pointer-events: auto; }
+.menu-x-btn:hover { opacity: .7; }
+
 main {
   position: relative; z-index: 2;
   min-height: 100dvh;
@@ -244,7 +316,7 @@ h1 {
   white-space: nowrap;
   text-align: center;
   color: var(--text);
-  margin-bottom: clamp(2rem, 5vh, 4rem);
+  margin-bottom: 0;
   opacity: 0;
   will-change: opacity, transform;
   text-shadow: none;
@@ -513,6 +585,27 @@ a:hover .arr { transform: translateX(3px); }
   .player-vol-slider::-moz-range-thumb { cursor: auto; }
 }
 
+/* ── scroll arrow ─────────────────────────────────── */
+.scroll-arrow {
+  position: fixed;
+  left: 50%; margin-left: -7px;
+  width: 14px; height: 14px;
+  border-right: 1.5px solid rgba(0,212,255,.45);
+  border-bottom: 1.5px solid rgba(0,212,255,.45);
+  opacity: 0;
+  animation: arrowFadeUp .9s .9s ease forwards, arrowBob 2.2s 1.8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 50;
+}
+@keyframes arrowFadeUp {
+  from { opacity: 0; transform: rotate(45deg) translateY(16px); }
+  to   { opacity: 1; transform: rotate(45deg) translateY(0); }
+}
+@keyframes arrowBob {
+  0%, 100% { transform: rotate(45deg) translateY(0); }
+  50%       { transform: rotate(45deg) translateY(6px); }
+}
+
 /* ── shuffle active state ─────────────────────────── */
 .player-btn-shuffle.active { color: var(--ice); text-shadow: 0 0 8px rgba(0,212,255,.5); }
 
@@ -550,6 +643,7 @@ a:hover .arr { transform: translateX(3px); }
   font-size: .6rem; letter-spacing: .15em;
   color: rgba(200,230,255,.4); padding: .4rem .6rem;
   transition: color .2s;
+  white-space: nowrap;
 }
 .bio-close:hover { color: var(--ice); }
 .bio-panel-title {
@@ -558,12 +652,14 @@ a:hover .arr { transform: translateX(3px); }
   letter-spacing: .12em; color: var(--ice);
   margin-bottom: 1.5rem;
   text-shadow: 0 0 18px rgba(0,212,255,.35);
+  white-space: nowrap;
 }
 .bio-panel-label {
   font-family: 'Michroma', sans-serif;
   font-size: .55rem; letter-spacing: .22em;
   color: rgba(200,230,255,.35);
   margin: 2rem 0 .75rem; text-transform: uppercase;
+  white-space: nowrap;
 }
 .bio-text {
   font-family: 'Michroma', sans-serif;
@@ -613,23 +709,25 @@ a:hover .arr { transform: translateX(3px); }
 
 <header class="topbar">
   <img class="topbar-logo" src="IMAGES/logo_white.png" alt="CITYSPROBLEM">
+  <div class="topbar-title" id="topbarTitle">CITYSPROBLEM</div>
   <button class="topbar-menu-btn" id="menuBtn" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
 </header>
+<!-- flyer sits outside the topbar so it falls behind vignette/grain/scan-lines (z-index 3) -->
+<div class="topbar-flyer" id="topbarFlyer">CITYSPROBLEM</div>
+<button class="menu-x-btn" id="menuCloseBtn" aria-label="Close menu">✕</button>
 <div class="topbar-dropdown" id="menuDropdown">
   <button id="menuBioBtn">About</button>
-  <button id="menuInstagram">Instagram</button>
-  <button id="menuSpotify">Spotify</button>
-  <button id="menuSoundcloud">SoundCloud</button>
-  <button id="menuBandcamp">Bandcamp</button>
-  <button id="menuYoutube">YouTube</button>
-  <button id="menuContact">Contact</button>
+  <button id="menuMusicBtn">Music</button>
+  <button id="menuSocialsBtn">Socials</button>
 </div>
 
 <main>
   <div class="aurora"></div>
   <h1>CITYSPROBLEM</h1>
+  <span class="scroll-arrow"></span>
+  <!--
   <nav>
     <a href="https://www.instagram.com/itsthecitysproblemnow" target="_blank">
       Instagram
@@ -650,6 +748,7 @@ a:hover .arr { transform: translateX(3px); }
       Contact
     </a>
   </nav>
+  -->
 
 </main>
 
@@ -683,8 +782,33 @@ a:hover .arr { transform: translateX(3px); }
   <p class="bio-text">[ Your bio here — who you are, where you're from, what you make, what drives the sound. ]</p>
   <p class="bio-panel-label">Press</p>
   <div class="bio-press-links">
-    <!-- EDIT: Replace these with your actual press links -->
     <a href="https://www.ninaprotocol.com/posts/citysproblem-sidewinder" target="_blank">Nina Protocol — "Sidewinder"</a>
+  </div>
+  <p class="bio-panel-label">Label Releases</p>
+  <div class="bio-press-links">
+    <!-- EDIT: Add your label links here -->
+    <a href="https://soundcloud.com/upszn-899186374/sets/up007-citysproblem-sidewinder" target="_blank">[UP007] — Sidewinder EP</a>
+    <a href="https://soundcloud.com/vitesse-rec-augsburg/cyntheszr-citysproblem-anhedonia-vit-srs004" target="_blank">[VIT-SRS004] — Anhedonia</a>
+  </div>
+</div>
+
+<div class="bio-panel" id="musicPanel">
+  <button class="bio-close" id="musicClose">✕ CLOSE</button>
+  <p class="bio-panel-title">MUSIC</p>
+  <div class="bio-press-links">
+    <a href="https://open.spotify.com/artist/672iTns9P1RuXRG0AcIhcn?si=rjl7Ou1SQx6BWd0GUQiVQg" target="_blank">Spotify</a>
+    <a href="https://soundcloud.com/citysproblem" target="_blank">SoundCloud</a>
+    <a href="https://itsthecitysproblemnow.bandcamp.com/" target="_blank">Bandcamp</a>
+    <a href="https://www.youtube.com/@citysproblem" target="_blank">YouTube</a>
+  </div>
+</div>
+
+<div class="bio-panel" id="socialsPanel">
+  <button class="bio-close" id="socialsClose">✕ CLOSE</button>
+  <p class="bio-panel-title">SOCIALS</p>
+  <div class="bio-press-links">
+    <a href="https://www.instagram.com/itsthecitysproblemnow" target="_blank">Instagram</a>
+    <a href="mailto:dj@citysproblem.com">Contact</a>
   </div>
 </div>
 
@@ -743,6 +867,23 @@ function scrambleResolve(original, setText, steps = 16, stepMs = 25, onComplete)
   }
   rafId = requestAnimationFrame(frame);
   return () => cancelAnimationFrame(rafId);
+}
+
+/* generic hover-scramble — applies to any static text element */
+function addScrambleHover(el) {
+  let cancel = null, orig = '';
+  el.addEventListener('mouseenter', () => {
+    document.body.classList.add('link-hover');
+    orig = el.textContent;
+    cancel?.();
+    cancel = scrambleLoop(orig, t => { el.textContent = t; }, 30);
+  });
+  el.addEventListener('mouseleave', () => {
+    document.body.classList.remove('link-hover');
+    if (!cancel) return;
+    cancel(); cancel = null;
+    scrambleResolve(orig, t => { el.textContent = t; });
+  });
 }
 
 /* h1 scramble + chromatic aberration */
@@ -937,12 +1078,16 @@ updateVolTrack();
 
 /* sync player width to h1 */
 const playerEl   = document.getElementById('player');
+const scrollArrowEl = document.querySelector('.scroll-arrow');
 function syncPlayerWidth() {
   const w = window.innerWidth <= 768
     ? playerEl.offsetWidth
     : h1El.offsetWidth;
   playerEl.style.setProperty('--player-content-w', w + 'px');
   document.documentElement.style.setProperty('--player-h', playerEl.offsetHeight + 'px');
+  const h1Bottom     = h1El.getBoundingClientRect().bottom;
+  const playerTop    = playerEl.getBoundingClientRect().top;
+  scrollArrowEl.style.top = ((h1Bottom + playerTop) / 2 - 7) + 'px';
 }
 document.fonts.ready.then(syncPlayerWidth);
 let resizePlayerTimer;
@@ -957,55 +1102,309 @@ window.addEventListener('resize', () => {
   el.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
 });
 
-/* topbar menu */
-const menuBtn      = document.getElementById('menuBtn');
-const menuDropdown = document.getElementById('menuDropdown');
-function closeMenu() {
-  if (!menuDropdown.classList.contains('open')) return;
-  menuDropdown.classList.add('closing');
-  menuBtn.classList.remove('open');
-  setTimeout(() => { menuDropdown.classList.remove('open', 'closing'); }, 200);
-}
-menuBtn.addEventListener('click', () => {
-  menuDropdown.classList.contains('open') ? closeMenu() : (menuDropdown.classList.add('open'), menuBtn.classList.add('open'));
+/* track title scramble on hover */
+let cancelTrackScramble = null;
+playerTrack.addEventListener('mouseenter', () => {
+  document.body.classList.add('link-hover');
+  if (!tracks.length || tracks[trackIdx]?.title === undefined) return;
+  cancelTrackScramble?.();
+  cancelTrackScramble = scrambleLoop(
+    tracks[trackIdx].title,
+    t => { playerTrack.textContent = t; },
+    30
+  );
 });
-document.addEventListener('click', e => {
-  if (!menuBtn.contains(e.target) && !menuDropdown.contains(e.target)) closeMenu();
-});
-[menuBtn, ...menuDropdown.querySelectorAll('button')].forEach(el => {
-  el.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
-  el.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
-});
-
-/* dropdown nav links */
-const menuLinks = {
-  menuInstagram: 'https://www.instagram.com/itsthecitysproblemnow',
-  menuSpotify:   'https://open.spotify.com/artist/672iTns9P1RuXRG0AcIhcn?si=rjl7Ou1SQx6BWd0GUQiVQg',
-  menuSoundcloud:'https://soundcloud.com/citysproblem',
-  menuBandcamp:  'https://itsthecitysproblemnow.bandcamp.com/',
-  menuYoutube:   'https://www.youtube.com/@citysproblem',
-  menuContact:   'mailto:dj@citysproblem.com',
-};
-Object.entries(menuLinks).forEach(([id, url]) => {
-  document.getElementById(id).addEventListener('click', () => {
-    closeMenu();
-    window.open(url, url.startsWith('mailto') ? '_self' : '_blank');
+playerTrack.addEventListener('mouseleave', () => {
+  document.body.classList.remove('link-hover');
+  if (!cancelTrackScramble) return;
+  cancelTrackScramble();
+  cancelTrackScramble = null;
+  const title = tracks[trackIdx]?.title ?? '—';
+  scrambleResolve(title, t => { playerTrack.textContent = t; }, 16, 25, () => {
+    updateMarquee();
   });
 });
 
-/* bio panel */
-const bioPanel    = document.getElementById('bioPanel');
+/* topbar menu */
+const menuBtn        = document.getElementById('menuBtn');
+const menuDropdown   = document.getElementById('menuDropdown');
+const menuCloseBtnEl = document.getElementById('menuCloseBtn');
+const topbarTitle    = document.getElementById('topbarTitle');
+const topbarFlyer    = document.getElementById('topbarFlyer');
+const logoEl         = document.querySelector('.topbar-logo');
+
+/* slide-in panels — defined early so collapseMenu can close them */
 const bioBackdrop = document.getElementById('bioBackdrop');
-const bioClose    = document.getElementById('bioClose');
-const menuBioBtn  = document.getElementById('menuBioBtn');
-function openBio()  { bioPanel.classList.add('open'); bioBackdrop.classList.add('active'); closeMenu(); }
-function closeBio() { bioPanel.classList.remove('open'); bioBackdrop.classList.remove('active'); }
-menuBioBtn.addEventListener('click', openBio);
-bioClose.addEventListener('click', closeBio);
-bioBackdrop.addEventListener('click', closeBio);
-[bioClose, menuBioBtn].forEach(el => {
+const allPanels   = [
+  document.getElementById('bioPanel'),
+  document.getElementById('musicPanel'),
+  document.getElementById('socialsPanel'),
+];
+
+let menuExpanded = false;
+let titleFontSzNatural = 0;
+let cancelFlyer = null;
+let cancelTitleScramble = null;
+let cancelDdScrambles = [];
+const ddBtnOriginals = ['About', 'Music', 'Socials'];
+
+function startDdScramble() {
+  const btns = menuDropdown.querySelectorAll('button');
+  cancelDdScrambles = ddBtnOriginals.map((orig, i) =>
+    scrambleLoop(orig, t => { btns[i].textContent = t; }, 35)
+  );
+}
+function stopDdScramble() {
+  cancelDdScrambles.forEach(fn => fn?.());
+  cancelDdScrambles = [];
+  menuDropdown.querySelectorAll('button').forEach((btn, i) => {
+    btn.textContent = ddBtnOriginals[i];
+  });
+}
+
+function expandMenu() {
+  if (menuExpanded) return;
+  menuExpanded = true;
+
+  /* stop any active scramble and restore text */
+  cancelH1?.();
+  cancelH1 = null;
+  h1El.textContent = h1Orig;
+
+  /* measure positions for flyer animation */
+  const h1Rect    = h1El.getBoundingClientRect();
+  const h1CenterY = h1Rect.top + h1Rect.height / 2;
+  titleFontSzNatural = parseFloat(getComputedStyle(topbarTitle).fontSize);
+  const endScale  = titleFontSzNatural / parseFloat(getComputedStyle(topbarFlyer).fontSize);
+  const startDY   = h1CenterY - 36; /* offset from topbar centre to h1 centre */
+
+  /* hide h1 instantly and block pointer events so hover can't restore it */
+  h1El.style.animation      = 'none';
+  h1El.style.opacity        = '0';
+  h1El.style.pointerEvents  = 'none';
+
+  /* topbarFlyer has h1's font-size in CSS — no font-size override needed.
+     Snap it to h1's position at scale(1) so it looks exactly like the h1. */
+  topbarFlyer.style.transition    = 'none';
+  topbarFlyer.style.transform     = `translateX(-50%) translateY(calc(-50% + ${startDY}px))`;
+  topbarFlyer.style.letterSpacing = '';
+  topbarFlyer.style.opacity       = '1';
+  cancelFlyer = scrambleLoop(h1Orig, t => { topbarFlyer.textContent = t; }, 30);
+
+  /* fly up and scale down to topbar size, easing letter-spacing to match topbarTitle */
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      topbarFlyer.style.transition    = 'transform .45s cubic-bezier(.4,0,.2,1), letter-spacing .45s cubic-bezier(.4,0,.2,1)';
+      topbarFlyer.style.transform     = `translateX(-50%) translateY(-50%) scale(${endScale})`;
+      topbarFlyer.style.letterSpacing = '0.14em';
+    });
+  });
+
+  /* after flight: stop scramble, hand off from flyer to topbarTitle (inside topbar) */
+  setTimeout(() => {
+    cancelFlyer?.(); cancelFlyer = null;
+    topbarFlyer.textContent         = h1Orig;
+    topbarTitle.style.opacity       = '1';
+    topbarTitle.style.pointerEvents = 'auto';
+    topbarFlyer.style.transition    = 'none';
+    topbarFlyer.style.opacity       = '0';
+    topbarFlyer.style.transform     = 'translateX(-50%) translateY(-50%)';
+    topbarFlyer.style.letterSpacing = '';
+  }, 460);
+
+  /* fade out logo */
+  logoEl.style.transition    = 'opacity .3s ease';
+  logoEl.style.opacity       = '0';
+  logoEl.style.pointerEvents = 'none';
+
+  /* show ✕ button, hide hamburger */
+  menuBtn.style.opacity       = '0';
+  menuBtn.style.pointerEvents = 'none';
+  menuCloseBtnEl.classList.add('visible');
+
+  /* show dropdown centered so we can measure it, suppress keyframe */
+  menuDropdown.classList.add('open', 'centered');
+  menuDropdown.style.animation = 'none';
+
+  /* compute offset from hamburger position to centered position */
+  const ddRect      = menuDropdown.getBoundingClientRect();
+  const startCX     = window.innerWidth  - ddRect.width  / 2; /* hamburger: right-aligned */
+  const startCY     = 72                 + ddRect.height / 2; /* hamburger: below topbar  */
+  const centeredCX  = ddRect.left + ddRect.width  / 2;
+  const centeredCY  = ddRect.top  + ddRect.height / 2;
+  const offsetX     = startCX - centeredCX;
+  const offsetY     = startCY - centeredCY;
+
+  /* snap dropdown to hamburger position, scramble buttons, then fly to center */
+  menuDropdown.style.transition = 'none';
+  menuDropdown.style.transform  = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))`;
+  menuDropdown.style.opacity    = '0';
+  startDdScramble();
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      menuDropdown.style.transition = 'transform .45s cubic-bezier(.4,0,.2,1), opacity .3s ease';
+      menuDropdown.style.transform  = 'translate(-50%, -50%) scale(2)';
+      menuDropdown.style.opacity    = '1';
+    });
+  });
+  setTimeout(stopDdScramble, 460);
+}
+
+function collapseMenu() {
+  if (!menuExpanded) return;
+  menuExpanded = false;
+
+  /* close any open panels */
+  allPanels.forEach(p => p.classList.remove('open'));
+  bioBackdrop.classList.remove('active');
+
+  /* measure h1's position (still in layout even with opacity:0) */
+  const h1Rect    = h1El.getBoundingClientRect();
+  const h1CenterY = h1Rect.top + h1Rect.height / 2;
+  const endDY     = h1CenterY - 36;
+  const flyerStartScale = titleFontSzNatural / parseFloat(getComputedStyle(topbarFlyer).fontSize);
+
+  /* hand off from topbarTitle to topbarFlyer at the same visual position */
+  cancelTitleScramble?.(); cancelTitleScramble = null;
+  topbarTitle.textContent         = h1Orig;
+  topbarTitle.style.pointerEvents = 'none';
+  topbarTitle.style.opacity       = '0';
+  topbarFlyer.style.transition    = 'none';
+  topbarFlyer.style.transform     = `translateX(-50%) translateY(-50%) scale(${flyerStartScale})`;
+  topbarFlyer.style.letterSpacing = '0.14em';
+  topbarFlyer.style.opacity       = '1';
+  cancelFlyer = scrambleLoop(h1Orig, t => { topbarFlyer.textContent = t; }, 30);
+
+  /* fly down to h1's position at h1's natural scale */
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      topbarFlyer.style.transition    = 'transform .4s cubic-bezier(.4,0,.2,1), letter-spacing .4s cubic-bezier(.4,0,.2,1)';
+      topbarFlyer.style.transform     = `translateX(-50%) translateY(calc(-50% + ${endDY}px))`;
+      topbarFlyer.style.letterSpacing = '';
+    });
+  });
+
+  /* after flight: stop scramble, restore h1, reset flyer */
+  setTimeout(() => {
+    cancelFlyer?.(); cancelFlyer = null;
+    topbarFlyer.textContent         = h1Orig;
+    topbarFlyer.style.transition    = 'none';
+    topbarFlyer.style.opacity       = '0';
+    topbarFlyer.style.transform     = 'translateX(-50%) translateY(-50%)';
+    topbarFlyer.style.letterSpacing = '';
+    h1El.style.pointerEvents = '';
+    h1El.style.opacity       = '1';
+    h1El.style.animation     = 'glowFadeIn .9s ease forwards';
+    applyH1Centering();
+  }, 420);
+
+  /* restore logo and hamburger */
+  logoEl.style.opacity        = '1';
+  logoEl.style.pointerEvents  = '';
+  menuBtn.style.opacity       = '';
+  menuBtn.style.pointerEvents = '';
+  menuCloseBtnEl.classList.remove('visible');
+
+  /* scramble buttons then fly dropdown back to hamburger position */
+  startDdScramble();
+  const ddRect     = menuDropdown.getBoundingClientRect();
+  const endCX      = window.innerWidth  - ddRect.width  / 2;
+  const endCY      = 72                 + ddRect.height / 2;
+  const curCX      = ddRect.left + ddRect.width  / 2;
+  const curCY      = ddRect.top  + ddRect.height / 2;
+  const offX       = endCX - curCX;
+  const offY       = endCY - curCY;
+  menuDropdown.style.transition = 'transform .35s cubic-bezier(.4,0,.2,1), opacity .25s ease';
+  menuDropdown.style.transform  = `translate(calc(-50% + ${offX}px), calc(-50% + ${offY}px)) scale(1)`;
+  menuDropdown.style.opacity    = '0';
+  setTimeout(() => {
+    stopDdScramble();
+    menuDropdown.classList.remove('open', 'centered');
+    menuDropdown.style.cssText = '';
+  }, 370);
+}
+
+topbarTitle.addEventListener('mouseenter', () => {
+  document.body.classList.add('link-hover');
+  cancelTitleScramble?.();
+  cancelTitleScramble = scrambleLoop(h1Orig, t => { topbarTitle.textContent = t; }, 30);
+});
+topbarTitle.addEventListener('mouseleave', () => {
+  document.body.classList.remove('link-hover');
+  if (!cancelTitleScramble) return;
+  cancelTitleScramble();
+  cancelTitleScramble = null;
+  scrambleResolve(h1Orig, t => { topbarTitle.textContent = t; });
+});
+
+menuBtn.addEventListener('click', () => {
+  menuExpanded ? collapseMenu() : expandMenu();
+});
+menuCloseBtnEl.addEventListener('click', e => { e.stopPropagation(); collapseMenu(); });
+document.addEventListener('click', e => {
+  if (menuExpanded
+    && !menuBtn.contains(e.target)
+    && !menuDropdown.contains(e.target)
+    && !menuCloseBtnEl.contains(e.target)) {
+    collapseMenu();
+  }
+});
+[menuBtn, menuCloseBtnEl, ...menuDropdown.querySelectorAll('button')].forEach(el => {
   el.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
   el.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
+});
+
+function openPanel(panel) {
+  allPanels.forEach(p => p.classList.remove('open'));
+  panel.classList.add('open');
+  bioBackdrop.classList.add('active');
+  menuDropdown.classList.remove('open', 'centered');
+  menuDropdown.style.cssText = '';
+}
+function closeAllPanels() {
+  allPanels.forEach(p => p.classList.remove('open'));
+  bioBackdrop.classList.remove('active');
+  /* reshow dropdown centered instantly (no flight — already in expanded state) */
+  menuDropdown.style.cssText    = '';
+  menuDropdown.style.animation  = 'none';
+  menuDropdown.style.transform  = 'translate(-50%, -50%) scale(2)';
+  menuDropdown.style.opacity    = '1';
+  menuDropdown.classList.add('open', 'centered');
+}
+
+bioBackdrop.addEventListener('click', e => { e.stopPropagation(); closeAllPanels(); });
+
+const panelTriggers = [
+  { btnId: 'menuBioBtn',     panel: allPanels[0] },
+  { btnId: 'menuMusicBtn',   panel: allPanels[1] },
+  { btnId: 'menuSocialsBtn', panel: allPanels[2] },
+];
+panelTriggers.forEach(({ btnId, panel }, i) => {
+  const btn = document.getElementById(btnId);
+  const orig = ddBtnOriginals[i];
+  let cancelBtnScramble = null;
+  btn.addEventListener('click', () => openPanel(panel));
+  btn.addEventListener('mouseenter', () => {
+    document.body.classList.add('link-hover');
+    /* don't fight with the flight scramble */
+    if (cancelDdScrambles.length) return;
+    cancelBtnScramble?.();
+    cancelBtnScramble = scrambleLoop(orig, t => { btn.textContent = t; }, 30);
+  });
+  btn.addEventListener('mouseleave', () => {
+    document.body.classList.remove('link-hover');
+    if (!cancelBtnScramble) return;
+    cancelBtnScramble();
+    cancelBtnScramble = null;
+    scrambleResolve(orig, t => { btn.textContent = t; });
+  });
+});
+
+['bioClose', 'musicClose', 'socialsClose'].forEach(id => {
+  const btn = document.getElementById(id);
+  btn.addEventListener('click', e => { e.stopPropagation(); closeAllPanels(); });
+  btn.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
+  btn.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
 });
 
 /* shuffle button */
@@ -1030,6 +1429,20 @@ function hideTapHint() {
   localStorage.setItem('cpPlayHintSeen', '1');
 }
 setTimeout(showTapHint, 2200);
+
+/* apply hover-scramble to all remaining static text elements */
+[
+  /* panel close buttons */
+  ...document.querySelectorAll('.bio-close'),
+  /* panel titles + labels */
+  ...document.querySelectorAll('.bio-panel-title, .bio-panel-label'),
+  /* bio body text (wrapping is fine — scramble preserves character count) */
+  ...document.querySelectorAll('.bio-text'),
+  /* all panel links */
+  ...document.querySelectorAll('.bio-press-links a'),
+  /* corner close button */
+  document.getElementById('menuCloseBtn'),
+].forEach(addScrambleHover);
 
 /* star field + shooting stars */
 const sc  = document.getElementById('stars');
