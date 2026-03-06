@@ -513,16 +513,6 @@ a:hover .arr { transform: translateX(3px); }
   .player-vol-slider::-moz-range-thumb { cursor: auto; }
 }
 
-/* ── logo glitch on hover ─────────────────────────── */
-@keyframes logoGlitch {
-  0%,100% { filter: brightness(0) invert(1) opacity(.96) sepia(.03); transform: translate(0,0); }
-  15%  { filter: brightness(1.5) invert(.9) hue-rotate(60deg) opacity(1); transform: translate(-3px,0); }
-  30%  { filter: brightness(0) invert(1) opacity(.5) saturate(5); transform: translate(3px,0); }
-  50%  { filter: brightness(2.5) invert(1) opacity(1); transform: translate(-2px,1px); }
-  70%  { filter: brightness(0) invert(1) opacity(.85); transform: translate(1px,-1px); }
-}
-.topbar-logo:hover { animation: logoGlitch .38s steps(1) forwards; }
-
 /* ── shuffle active state ─────────────────────────── */
 .player-btn-shuffle.active { color: var(--ice); text-shadow: 0 0 8px rgba(0,212,255,.5); }
 
@@ -695,7 +685,6 @@ a:hover .arr { transform: translateX(3px); }
   <div class="bio-press-links">
     <!-- EDIT: Replace these with your actual press links -->
     <a href="https://www.ninaprotocol.com/posts/citysproblem-sidewinder" target="_blank">Nina Protocol — "Sidewinder"</a>
-    <a href="#" target="_blank">Publication — "Article Title"</a>
   </div>
 </div>
 
@@ -1025,9 +1014,6 @@ btnShuffle.addEventListener('click', () => {
   btnShuffle.classList.toggle('active', shuffleOn);
 });
 
-/* logo hover cursor */
-document.querySelector('.topbar-logo').addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
-document.querySelector('.topbar-logo').addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
 
 /* tap-to-play hint */
 function showTapHint() {
