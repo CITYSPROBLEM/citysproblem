@@ -912,22 +912,32 @@ const h1El   = document.querySelector('h1');
 const h1Orig = 'CITYSPROBLEM';
 let cancelH1;
 let menuExpanded = false;
-/* start scrambling h1 when its fadeUp delay elapses — no applyH1Centering here
-   to avoid forced-layout on every rAF; the loop runs while h1 fades in, and
-   settleIn resolves it once fadeUp ends */
+let h1FadeUpDone = false;
+
+function h1Settle() {
+  if (h1FadeUpDone || menuExpanded) return;
+  h1FadeUpDone = true;
+  cancelH1?.(); cancelH1 = null;
+  h1El.style.opacity = '1';
+  cancelH1 = settleIn(h1Orig, t => { h1El.textContent = t; applyH1Centering(); });
+}
+
 setTimeout(() => {
   if (!menuExpanded) cancelH1 = scrambleLoop(h1Orig, t => { h1El.textContent = t; });
 }, 200);
 h1El.addEventListener('animationend', e => {
-  if (e.animationName === 'fadeUp') {
-    cancelH1?.(); cancelH1 = null;
-    cancelH1 = settleIn(h1Orig, t => { h1El.textContent = t; applyH1Centering(); });
-  }
+  if (e.animationName === 'fadeUp') h1Settle();
   if (e.animationName === 'glowFadeIn') {
     h1El.style.opacity = '1';
     h1El.style.animation = 'glowPulse 4s ease-in-out infinite';
   }
 });
+
+/* fallback: if page loaded in a background tab, fadeUp is suspended and
+   animationend never fires — settle once the tab becomes visible */
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) h1Settle();
+}, { once: true });
 function applyH1Centering() {
   const overflow = h1El.scrollWidth - h1El.clientWidth;
   h1El.style.transform = overflow > 0 ? `translateX(${-(overflow / 2)}px)` : '';
