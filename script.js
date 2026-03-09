@@ -2,15 +2,24 @@
 const cur  = document.getElementById('cur');
 const ring = document.getElementById('cur-ring');
 const isCoarsePointer = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+const LINK_HOVER_SELECTOR = 'a, button, .player-progress, .player-vol-slider, .player-track-name, .glitch-wrap, .release-card, .featured-link';
 let mx = 0, my = 0, rx = 0, ry = 0;
 if (!isCoarsePointer) {
   document.addEventListener('mousemove', e => {
     mx = e.clientX; my = e.clientY;
     cur.style.transform = `translate(${mx}px,${my}px)`;
   });
-  document.querySelectorAll('a').forEach(a => {
-    a.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
-    a.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
+  document.addEventListener('mouseover', e => {
+    if (!(e.target instanceof Element)) return;
+    if (e.target.closest(LINK_HOVER_SELECTOR)) document.body.classList.add('link-hover');
+  });
+  document.addEventListener('mouseout', e => {
+    if (!(e.target instanceof Element)) return;
+    const from = e.target.closest(LINK_HOVER_SELECTOR);
+    if (!from) return;
+    const to = e.relatedTarget;
+    if (to && to.closest && to.closest(LINK_HOVER_SELECTOR)) return;
+    document.body.classList.remove('link-hover');
   });
 }
 
@@ -424,12 +433,6 @@ let resizePlayerTimer;
 window.addEventListener('resize', () => {
   clearTimeout(resizePlayerTimer);
   resizePlayerTimer = setTimeout(syncPlayerWidth, 100);
-});
-
-/* cursor hover for player controls */
-[btnPlay, btnPrev, btnNext, btnShuffle, playerProg, volSlider].forEach(el => {
-  el.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
-  el.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
 });
 
 /* hover-scramble for player track name */
@@ -877,8 +880,6 @@ infoSection.querySelectorAll('.label-group').forEach(group => {
     }
   });
 
-  btn.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
-  btn.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
 });
 
 /* click outside info section to collapse open accordion */
@@ -1038,21 +1039,11 @@ pastShowsYears.forEach(group => {
     resetPastShowsAccordion();
   });
 
-  btn.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
-  btn.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
-  backBtn.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
-  backBtn.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
 });
 document.addEventListener('click', e => {
   const openGroup = pastShowsSection.querySelector('.past-shows-year.open');
   if (!openGroup || pastShowsSection.contains(e.target)) return;
   resetPastShowsAccordion(false);
-});
-
-/* cursor hover for new interactive elements */
-document.querySelectorAll('.release-card, .glitch-wrap, .featured-link').forEach(el => {
-  el.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
-  el.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
 });
 
 /* cursor ring spring + grain sync loop */
