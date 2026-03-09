@@ -1165,7 +1165,7 @@ a:hover .arr { transform: translateX(3px); }
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(.5rem, 2vw, 1rem);
+  gap: clamp(.3rem, 1.1vw, .65rem);
   padding: .6rem 0;
   border-bottom: 1px solid rgba(0,212,255,.08);
 }
