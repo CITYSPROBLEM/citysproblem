@@ -155,10 +155,15 @@ const h1El   = document.querySelector('h1');
 const h1Orig = 'CITYSPROBLEM';
 let cancelH1;
 let h1FadeUpDone = false;
+let h1SettleFallbackTimer = null;
 
 function h1Settle() {
   if (h1FadeUpDone) return;
   h1FadeUpDone = true;
+  if (h1SettleFallbackTimer) {
+    clearTimeout(h1SettleFallbackTimer);
+    h1SettleFallbackTimer = null;
+  }
   cancelH1?.(); cancelH1 = null;
   h1El.style.opacity = '1';
   cancelH1 = settleIn(h1Orig, t => { h1El.textContent = t; applyH1Centering(); });
@@ -180,6 +185,9 @@ h1El.addEventListener('animationend', e => {
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) h1Settle();
 }, { once: true });
+window.addEventListener('pageshow', h1Settle, { once: true });
+/* mobile fallback: if animation callbacks are skipped, force settle */
+h1SettleFallbackTimer = setTimeout(h1Settle, 1600);
 function applyH1Centering() {
   const overflow = h1El.scrollWidth - h1El.clientWidth;
   h1El.style.transform = overflow > 0 ? `translateX(${-(overflow / 2)}px)` : '';
