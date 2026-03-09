@@ -472,6 +472,80 @@ window.addEventListener('resize', () => {
   };
 }
 
+/* noise + parallax dust */
+{
+  const dustCanvas = document.getElementById('dustLayer');
+  const dustCtx = dustCanvas ? dustCanvas.getContext('2d') : null;
+  let dustW = 0, dustH = 0;
+  let dustOffsetX = 0, dustOffsetY = 0;
+  let dustTargetX = 0, dustTargetY = 0;
+  let dustTick = 0;
+  let dustPoints = [];
+
+  function makeDustPoints() {
+    if (!dustCanvas) return;
+    const count = window.innerWidth <= 768 ? 34 : 70;
+    dustPoints = Array.from({ length: count }, () => ({
+      x: Math.random() * dustW,
+      y: Math.random() * dustH,
+      vx: (Math.random() - 0.5) * 0.09,
+      vy: (Math.random() - 0.5) * 0.09,
+      r: 0.45 + Math.random() * 1.35,
+      twinkle: 0.25 + Math.random() * 0.75,
+      phase: Math.random() * Math.PI * 2,
+      depth: 0.22 + Math.random() * 0.78
+    }));
+  }
+
+  function resizeDust() {
+    if (!dustCanvas || !dustCtx) return;
+    const dpr = window.devicePixelRatio || 1;
+    dustW = window.innerWidth;
+    dustH = window.innerHeight;
+    dustCanvas.width = Math.floor(dustW * dpr);
+    dustCanvas.height = Math.floor(dustH * dpr);
+    dustCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    makeDustPoints();
+  }
+
+  if (dustCanvas && dustCtx) {
+    resizeDust();
+    window.addEventListener('resize', resizeDust, { passive: true });
+    document.addEventListener('mousemove', e => {
+      const nx = (e.clientX / window.innerWidth) - 0.5;
+      const ny = (e.clientY / window.innerHeight) - 0.5;
+      dustTargetX = nx * 26;
+      dustTargetY = ny * 20;
+    }, { passive: true });
+  }
+
+  window.drawDust = function() {
+    if (!dustCanvas || !dustCtx || !dustPoints.length) return;
+    dustCtx.clearRect(0, 0, dustW, dustH);
+    dustOffsetX += (dustTargetX - dustOffsetX) * 0.05;
+    dustOffsetY += (dustTargetY - dustOffsetY) * 0.05;
+    dustTick += 0.012;
+
+    for (const p of dustPoints) {
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < -10) p.x = dustW + 10;
+      if (p.x > dustW + 10) p.x = -10;
+      if (p.y < -10) p.y = dustH + 10;
+      if (p.y > dustH + 10) p.y = -10;
+
+      const alpha = (0.1 + 0.28 * p.twinkle) * (0.55 + 0.45 * Math.sin(dustTick * (1.2 + p.twinkle) + p.phase));
+      const dx = p.x + dustOffsetX * p.depth;
+      const dy = p.y + dustOffsetY * p.depth;
+
+      dustCtx.beginPath();
+      dustCtx.fillStyle = `rgba(182, 239, 255, ${Math.max(0.03, alpha).toFixed(3)})`;
+      dustCtx.arc(dx, dy, p.r, 0, Math.PI * 2);
+      dustCtx.fill();
+    }
+  };
+}
+
 /* hide scroll arrow once user has scrolled past the hero */
 window.addEventListener('scroll', () => {
   scrollArrowEl.style.transition = 'opacity .4s ease';
@@ -1001,7 +1075,8 @@ const isMobile = window.matchMedia('(hover: none) and (pointer: coarse)').matche
     ring.style.transform = `translate(${rx}px,${ry}px)`;
     if (++grainFrame % 6 === 0)
       turbEl.setAttribute('seed', (noiseSeed = (noiseSeed + 1) % 200));
-    drawVisualizer();
+    window.drawVisualizer();
+    window.drawDust();
   }
   requestAnimationFrame(tick);
 })();
