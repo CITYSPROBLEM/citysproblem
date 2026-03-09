@@ -955,6 +955,24 @@ initSectionReveal('releasesSection', '.section-label, .release-card-title, .rele
 initSectionReveal('datesSection', '.section-label, .dates-empty, .date-date, .date-venue');
 initSectionReveal('pastShowsSection', '.section-label, .past-shows-year-btn, .past-shows-back-btn, .past-shows-list .date-date, .past-shows-list .date-venue');
 
+/* keep upcoming date text from shifting during scramble */
+const upcomingDateEls = Array.from(document.querySelectorAll('#datesSection .date-date, #datesSection .date-venue'));
+function lockUpcomingDateWidths() {
+  upcomingDateEls.forEach(el => { el.style.minWidth = ''; });
+  requestAnimationFrame(() => {
+    upcomingDateEls.forEach(el => {
+      el.style.display = 'inline-block';
+      el.style.minWidth = `${Math.ceil(el.getBoundingClientRect().width)}px`;
+    });
+  });
+}
+lockUpcomingDateWidths();
+let upcomingResizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(upcomingResizeTimer);
+  upcomingResizeTimer = setTimeout(lockUpcomingDateWidths, 90);
+}, { passive: true });
+
 /* hover-scramble for new static text elements */
 document.querySelectorAll(
   '.featured-title, .featured-meta, .featured-link, .release-card-title, .release-card-meta, .dates-empty, #datesSection .date-date, #datesSection .date-venue'
