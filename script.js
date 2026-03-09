@@ -881,13 +881,15 @@ document.querySelectorAll('.ticker').forEach(t => {
 initSectionReveal('featuredRelease', '.section-label, .featured-title, .featured-meta');
 initSectionReveal('releasesSection', '.section-label, .release-card-title, .release-card-meta');
 initSectionReveal('datesSection', '.section-label, .dates-empty, .date-date, .date-venue');
-initSectionReveal('pastShowsSection', '.section-label');
+initSectionReveal('pastShowsSection', '.section-label, .past-shows-year-btn, .past-shows-back-btn, .past-shows-list .date-date, .past-shows-list .date-venue');
 
 /* hover-scramble for new static text elements */
 document.querySelectorAll(
   '.featured-title, .featured-meta, .featured-link, .release-card-title, .release-card-meta, .dates-empty, #datesSection .date-date, #datesSection .date-venue'
 ).forEach(addScrambleHover);
-document.querySelectorAll('.section-label').forEach(addScrambleHover);
+Array.from(document.querySelectorAll('.section-label'))
+  .filter(el => !pastShowsSection.contains(el))
+  .forEach(addScrambleHover);
 
 /* past shows year accordion */
 const pastShowsYears = Array.from(document.querySelectorAll('.past-shows-year'));
@@ -970,10 +972,6 @@ pastShowsYears.forEach(group => {
   backBtn.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
   backBtn.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
 });
-/* hover-scramble for past shows elements */
-document.querySelectorAll('.past-shows-year-btn').forEach(addScrambleHover);
-document.querySelectorAll('.past-shows-back-btn').forEach(addScrambleHover);
-
 document.addEventListener('click', e => {
   const openGroup = pastShowsSection.querySelector('.past-shows-year.open');
   if (!openGroup || pastShowsSection.contains(e.target)) return;
