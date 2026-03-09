@@ -546,41 +546,26 @@ function applyTopbarProgress(hideProgress) {
 }
 
 let topbarRafPending = false;
-let topbarMotionRaf = 0;
 let topbarProgress = 0;
-let topbarTargetProgress = 0;
-
-function animateTopbarProgress() {
-  const delta = topbarTargetProgress - topbarProgress;
-  if (Math.abs(delta) < 0.002) {
-    topbarProgress = topbarTargetProgress;
-    applyTopbarProgress(topbarProgress);
-    topbarMotionRaf = 0;
-    return;
-  }
-  topbarProgress += delta * 0.16;
-  applyTopbarProgress(topbarProgress);
-  topbarMotionRaf = requestAnimationFrame(animateTopbarProgress);
-}
 
 function scheduleTopbarPositionUpdate() {
   if (topbarRafPending) return;
   topbarRafPending = true;
   requestAnimationFrame(() => {
     topbarRafPending = false;
-    topbarTargetProgress = topbarTargetFromHero();
-    if (!topbarMotionRaf) topbarMotionRaf = requestAnimationFrame(animateTopbarProgress);
+    const target = topbarTargetFromHero();
+    const delta = target - topbarProgress;
+    topbarProgress = Math.abs(delta) < 0.001 ? target : (topbarProgress + delta * 0.22);
+    applyTopbarProgress(topbarProgress);
   });
 }
 window.addEventListener('scroll', scheduleTopbarPositionUpdate, { passive: true });
 window.addEventListener('resize', scheduleTopbarPositionUpdate, { passive: true });
 document.fonts.ready.then(() => {
-  topbarTargetProgress = topbarTargetFromHero();
-  topbarProgress = topbarTargetProgress;
+  topbarProgress = topbarTargetFromHero();
   applyTopbarProgress(topbarProgress);
 });
-topbarTargetProgress = topbarTargetFromHero();
-topbarProgress = topbarTargetProgress;
+topbarProgress = topbarTargetFromHero();
 applyTopbarProgress(topbarProgress);
 
 /* info section scramble — apply hover-scramble after DOM ready */
