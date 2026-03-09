@@ -554,8 +554,7 @@ function scheduleTopbarPositionUpdate() {
   requestAnimationFrame(() => {
     topbarRafPending = false;
     const target = topbarTargetFromHero();
-    const delta = target - topbarProgress;
-    topbarProgress = Math.abs(delta) < 0.001 ? target : (topbarProgress + delta * 0.22);
+    topbarProgress = target;
     applyTopbarProgress(topbarProgress);
   });
 }
