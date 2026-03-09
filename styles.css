@@ -976,13 +976,22 @@ a:hover .arr { transform: translateX(3px); }
   width: 100%;
   overflow: hidden;
   padding: 1.4rem 0;
-  border-top: 1px solid rgba(0,212,255,.16);
-  border-bottom: 1px solid rgba(0,212,255,.16);
-  background:
-    linear-gradient(145deg, rgba(1,16,31,.7), rgba(4,8,24,.95)),
-    radial-gradient(circle at 15% 30%, rgba(0,212,255,.18), transparent 60%);
-  box-shadow: inset 0 0 12px rgba(0,212,255,.15), 0 0 40px rgba(0,212,255,.3);
+  border-top: 1px solid rgba(0,212,255,.14);
+  border-bottom: 1px solid rgba(0,212,255,.14);
+  position: relative;
   opacity: 0;
+}
+.ticker::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  inset: 0;
+  background: linear-gradient(145deg, rgba(1,16,31,.1), rgba(4,8,24,.1));
+  box-shadow: inset 0 0 12px rgba(0,212,255,.08), 0 0 20px rgba(0,212,255,.15);
+  z-index: 0;
+  pointer-events: none;
 }
 .ticker.visible { animation: fadeUp .9s ease forwards; }
 .ticker-track {
@@ -992,6 +1001,8 @@ a:hover .arr { transform: translateX(3px); }
   animation: tickerScroll 22s linear infinite;
   will-change: transform;
   text-shadow: 0 0 12px rgba(0,212,255,.45);
+  position: relative;
+  z-index: 1;
 }
 .ticker-reverse .ticker-track {
   animation: tickerScrollReverse 30s linear infinite;
