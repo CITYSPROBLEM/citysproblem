@@ -1015,6 +1015,10 @@ initSectionReveal('featuredRelease', '.section-label, .featured-title, .featured
 initSectionReveal('releasesSection', '.section-label, .release-card-title, .release-card-meta');
 initSectionReveal('datesSection', '.section-label, .dates-empty, .date-date, .date-venue');
 initSectionReveal('pastShowsSection', '.section-label, .past-shows-year-btn, .past-shows-back-btn, .past-shows-list .date-date, .past-shows-list .date-venue');
+initSectionReveal('bookingSection', '.section-label, .portfolio-title, .portfolio-meta, .portfolio-link');
+initSectionReveal('epkSection', '.section-label, .portfolio-title, .portfolio-meta');
+initSectionReveal('quotesSection', '.section-label, .quote-line, .quote-source');
+initSectionReveal('newsletterSection', '.section-label, .portfolio-title, .portfolio-meta, .portfolio-link');
 
 /* keep upcoming date text from shifting during scramble */
 const upcomingDateEls = Array.from(document.querySelectorAll('#datesSection .date-date, #datesSection .date-venue'));
@@ -1045,7 +1049,7 @@ window.addEventListener('resize', () => {
 
 /* hover-scramble for new static text elements */
 document.querySelectorAll(
-  '.featured-title, .featured-meta, .featured-link, .release-card-title, .release-card-meta, .dates-empty, #datesSection .date-date, #datesSection .date-venue'
+  '.featured-title, .featured-meta, .featured-link, .release-card-title, .release-card-meta, .dates-empty, #datesSection .date-date, #datesSection .date-venue, .portfolio-title, .portfolio-meta, .portfolio-link, .quote-line, .quote-source'
 ).forEach(addScrambleHover);
 Array.from(document.querySelectorAll('.section-label'))
   .filter(el => !pastShowsSection.contains(el))
