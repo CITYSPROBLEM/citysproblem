@@ -1243,13 +1243,13 @@ a:hover .arr { transform: translateX(3px); }
 }
 .past-shows-list .date-date {
   font-size: clamp(.55rem, 1.6vw, .8rem);
-  color: rgba(0,212,255,.55);
+  color: rgba(0,212,255,.35);
   min-width: 3.5rem;
   text-align: left;
 }
 .past-shows-list .date-venue {
   font-size: clamp(.55rem, 1.6vw, .8rem);
-  color: rgba(200,230,255,.7);
+  color: rgba(200,230,255,.45);
   text-align: left;
   white-space: normal;
 }
