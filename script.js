@@ -170,6 +170,7 @@ function h1Settle() {
 }
 
 setTimeout(() => {
+  if (h1FadeUpDone) return;
   cancelH1 = scrambleLoop(h1Orig, t => { h1El.textContent = t; });
 }, 200);
 h1El.addEventListener('animationend', e => {
