@@ -490,7 +490,12 @@ window.addEventListener('resize', () => {
       y: Math.random() * dustH,
       vx: (Math.random() - 0.5) * 0.16,
       vy: (Math.random() - 0.5) * 0.16,
-      r: 0.7 + Math.random() * 1.8,
+      len: 1.8 + Math.random() * 4.4,
+      width: 0.35 + Math.random() * 0.95,
+      angle: Math.random() * Math.PI * 2,
+      wobble: 0.2 + Math.random() * 0.5,
+      spin: 0.55 + Math.random() * 1.1,
+      split: 0.5 + Math.random() * 1.2,
       twinkle: 0.25 + Math.random() * 0.75,
       phase: Math.random() * Math.PI * 2,
       depth: 0.22 + Math.random() * 0.78
@@ -529,19 +534,41 @@ window.addEventListener('resize', () => {
     for (const p of dustPoints) {
       p.x += p.vx;
       p.y += p.vy;
-      if (p.x < -10) p.x = dustW + 10;
-      if (p.x > dustW + 10) p.x = -10;
-      if (p.y < -10) p.y = dustH + 10;
-      if (p.y > dustH + 10) p.y = -10;
+      if (p.x < -20) p.x = dustW + 20;
+      if (p.x > dustW + 20) p.x = -20;
+      if (p.y < -20) p.y = dustH + 20;
+      if (p.y > dustH + 20) p.y = -20;
 
       const alpha = (0.2 + 0.42 * p.twinkle) * (0.55 + 0.45 * Math.sin(dustTick * (1.2 + p.twinkle) + p.phase));
       const dx = p.x + dustOffsetX * p.depth;
       const dy = p.y + dustOffsetY * p.depth;
+      const a = p.angle + Math.sin(dustTick * p.spin + p.phase) * p.wobble;
+      const ux = Math.cos(a);
+      const uy = Math.sin(a);
+      const half = p.len * 0.5;
+      const x1 = dx - ux * half;
+      const y1 = dy - uy * half;
+      const x2 = dx + ux * half;
+      const y2 = dy + uy * half;
+      const strokeAlpha = Math.max(0.09, alpha).toFixed(3);
 
+      dustCtx.strokeStyle = `rgba(182, 239, 255, ${strokeAlpha})`;
+      dustCtx.lineWidth = p.width;
+      dustCtx.lineCap = 'round';
       dustCtx.beginPath();
-      dustCtx.fillStyle = `rgba(182, 239, 255, ${Math.max(0.08, alpha).toFixed(3)})`;
-      dustCtx.arc(dx, dy, p.r, 0, Math.PI * 2);
-      dustCtx.fill();
+      dustCtx.moveTo(x1, y1);
+      dustCtx.lineTo(x2, y2);
+      dustCtx.stroke();
+
+      /* faint sister stroke to create clustered "tuft" texture */
+      const px = -uy * p.split;
+      const py = ux * p.split;
+      dustCtx.strokeStyle = `rgba(182, 239, 255, ${Math.max(0.05, alpha * 0.6).toFixed(3)})`;
+      dustCtx.lineWidth = Math.max(0.3, p.width * 0.72);
+      dustCtx.beginPath();
+      dustCtx.moveTo(x1 + px, y1 + py);
+      dustCtx.lineTo(x2 + px * 0.7, y2 + py * 0.7);
+      dustCtx.stroke();
     }
   };
 }
