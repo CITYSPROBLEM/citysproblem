@@ -194,12 +194,6 @@ main {
 .info-block { margin-bottom: 0; }
 .info-block + .info-block { border-top: 1px solid rgba(0,212,255,.08); }
 .info-block:first-child .bio-panel-label { margin-top: 0; }
-.bio-panel-title,
-.bio-panel-label,
-.bio-text,
-.bio-press-links a {
-  text-transform: uppercase;
-}
 .info-block-header {
   display: flex; align-items: center; justify-content: center;
   position: relative;
