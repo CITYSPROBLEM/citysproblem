@@ -1186,6 +1186,30 @@ document.addEventListener('click', e => {
   resetPastShowsAccordion(false);
 });
 
+/* ── magnetic hover on CTA buttons ─────────────────── */
+if (!isCoarsePointer) {
+  const magnetEls = document.querySelectorAll('.booking-cta, .featured-link');
+  const MAGNET_RADIUS = 80;   /* px — activation distance from element centre */
+  const MAGNET_STRENGTH = 0.35; /* 0-1 — how far the element pulls toward cursor */
+
+  magnetEls.forEach(el => {
+    el.style.transition = 'transform .25s ease-out';
+
+    el.addEventListener('mousemove', e => {
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top  + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      el.style.transform = `translate(${dx * MAGNET_STRENGTH}px, ${dy * MAGNET_STRENGTH}px)`;
+    });
+
+    el.addEventListener('mouseleave', () => {
+      el.style.transform = '';
+    });
+  });
+}
+
 /* ── 3D tilt on release cards + featured artwork ──── */
 if (!isCoarsePointer) {
   function addTiltHover(el, maxDeg = 8) {
