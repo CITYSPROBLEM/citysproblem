@@ -3,14 +3,16 @@ const cur  = document.getElementById('cur');
 const ring = document.getElementById('cur-ring');
 const isCoarsePointer = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 let mx = 0, my = 0, rx = 0, ry = 0;
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  cur.style.transform = `translate(${mx}px,${my}px)`;
-});
-document.querySelectorAll('a').forEach(a => {
-  a.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
-  a.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
-});
+if (!isCoarsePointer) {
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cur.style.transform = `translate(${mx}px,${my}px)`;
+  });
+  document.querySelectorAll('a').forEach(a => {
+    a.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
+    a.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
+  });
+}
 
 /* film grain — driven by draw loop, no extra timer */
 const turbEl = document.querySelector('#noise feTurbulence');
@@ -264,27 +266,6 @@ if (!isCoarsePointer) {
   });
 }
 
-/* button scramble */
-document.querySelectorAll('nav a').forEach(a => {
-  const textNode = [...a.childNodes].find(n => n.nodeType === 3 && n.textContent.trim());
-  if (!textNode) return;
-  const original = textNode.textContent.trim();
-  const span = document.createElement('span');
-  span.style.display = 'inline-block';
-  span.textContent = original;
-  textNode.replaceWith(span);
-  requestAnimationFrame(() => { span.style.minWidth = span.offsetWidth + 'px'; });
-  let cancelBtn;
-  a.addEventListener('mouseenter', () => {
-    cancelBtn?.();
-    cancelBtn = scrambleLoop(original, t => { span.textContent = t; });
-  });
-  a.addEventListener('mouseleave', () => {
-    cancelBtn?.();
-    cancelBtn = scrambleResolve(original, t => { span.textContent = t; }, ...settleParams(original));
-  });
-});
-
 /* scroll arrow positioning */
 const playerEl      = document.getElementById('player');
 const scrollArrowEl = document.querySelector('.scroll-arrow');
@@ -531,9 +512,13 @@ window.addEventListener('resize', () => {
 }
 
 /* hide scroll arrow once user has scrolled past the hero */
+let scrollArrowHidden = null;
+scrollArrowEl.style.transition = 'opacity .4s ease';
 window.addEventListener('scroll', () => {
-  scrollArrowEl.style.transition = 'opacity .4s ease';
-  scrollArrowEl.style.opacity = window.scrollY > 80 ? '0' : '';
+  const hidden = window.scrollY > 80;
+  if (hidden === scrollArrowHidden) return;
+  scrollArrowHidden = hidden;
+  scrollArrowEl.style.opacity = hidden ? '0' : '';
 }, { passive: true });
 
 /* info section scramble — apply hover-scramble after DOM ready */
@@ -629,8 +614,14 @@ function initLayout() {
 
 document.fonts.ready.then(initLayout);
 document.fonts.ready.then(syncCenterScrollSpacer);
-window.addEventListener('resize', initLayout, { passive: true });
-window.addEventListener('resize', syncCenterScrollSpacer, { passive: true });
+let layoutResizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(layoutResizeTimer);
+  layoutResizeTimer = setTimeout(() => {
+    initLayout();
+    syncCenterScrollSpacer();
+  }, 90);
+}, { passive: true });
 
 /* hide all blocks except the given one with a smooth height+opacity collapse */
 function hideOtherBlocks(openBlock) {
@@ -1072,6 +1063,6 @@ document.querySelectorAll('.release-card, .glitch-wrap, .featured-link').forEach
     if (++grainFrame % 6 === 0)
       turbEl.setAttribute('seed', (noiseSeed = (noiseSeed + 1) % 200));
     window.drawVisualizer();
+    requestAnimationFrame(tick);
   }
-  requestAnimationFrame(tick);
 })();
