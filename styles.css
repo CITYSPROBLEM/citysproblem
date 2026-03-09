@@ -1196,26 +1196,27 @@ a:hover .arr { transform: translateX(3px); }
 }
 .past-shows-year { display: flex; flex-direction: column; }
 .past-shows-year-btn {
-  display: inline-flex; align-items: center; justify-content: center;
+  display: flex; align-items: center; justify-content: flex-start;
   width: 100%;
   font-family: 'Michroma', sans-serif;
-  font-size: clamp(.6rem, 1.8vw, .85rem);
+  font-size: clamp(.65rem, 1.8vw, .9rem);
   font-weight: 400;
   letter-spacing: .2em;
   color: var(--ice);
-  padding: .6rem 1rem;
+  padding: .75rem 0;
   border: none;
   background: none;
   position: relative;
   text-shadow: 0 0 10px rgba(0,212,255,.25);
   transition: color .25s;
   white-space: nowrap;
+  border-bottom: 1px solid rgba(0,212,255,.1);
 }
 .past-shows-year-btn::after {
   content: '+';
   position: absolute;
   right: 0;
-  font-size: 1.1rem; line-height: 1;
+  font-size: clamp(1rem, 2.5vw, 1.3rem); line-height: 1;
   color: var(--ice);
   text-shadow: 0 0 8px rgba(0,212,255,.4);
   transition: transform .32s ease;
@@ -1229,21 +1230,28 @@ a:hover .arr { transform: translateX(3px); }
   display: flex;
   flex-direction: column;
   gap: 0;
+  padding-left: .25rem;
 }
 .past-shows-year.open .past-shows-list {
   opacity: 1;
 }
 .past-shows-list .date-row {
-  border-bottom: 1px solid rgba(0,212,255,.05);
-  padding: .4rem 0;
+  justify-content: flex-start;
+  border-bottom: 1px solid rgba(0,212,255,.04);
+  padding: .5rem 0;
+  gap: clamp(.6rem, 2vw, 1.2rem);
 }
 .past-shows-list .date-date {
-  font-size: clamp(.5rem, 1.6vw, .75rem);
-  color: rgba(0,212,255,.5);
+  font-size: clamp(.55rem, 1.6vw, .8rem);
+  color: rgba(0,212,255,.55);
+  min-width: 3.5rem;
+  text-align: left;
 }
 .past-shows-list .date-venue {
-  font-size: clamp(.5rem, 1.6vw, .75rem);
-  color: rgba(200,230,255,.6);
+  font-size: clamp(.55rem, 1.6vw, .8rem);
+  color: rgba(200,230,255,.7);
+  text-align: left;
+  white-space: normal;
 }
 
 /* ── per-section background accents ──────────────── */
@@ -1323,7 +1331,8 @@ a:hover .arr { transform: translateX(3px); }
   }
   .date-date { font-size: .65rem; }
   .date-venue { font-size: .6rem; }
-  .past-shows-list .date-date { font-size: .55rem; }
+  .past-shows-list .date-row { flex-direction: row; text-align: left; }
+  .past-shows-list .date-date { font-size: .55rem; min-width: 3rem; }
   .past-shows-list .date-venue { font-size: .5rem; white-space: normal; }
   .past-shows-year-btn { font-size: .55rem; }
 
