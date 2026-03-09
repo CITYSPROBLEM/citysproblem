@@ -534,10 +534,7 @@ function topbarTargetFromHero() {
   const raw = pushDistance / travel;
   const clamped = Math.max(0, Math.min(1, raw));
   /* smoothstep for a natural push/pull curve */
-  return {
-    progress: clamped * clamped * (3 - 2 * clamped),
-    contactDelta: Math.abs(pushDistance)
-  };
+  return clamped * clamped * (3 - 2 * clamped);
 }
 
 function applyTopbarProgress(hideProgress) {
@@ -552,23 +549,16 @@ let topbarRafPending = false;
 let topbarMotionRaf = 0;
 let topbarProgress = 0;
 let topbarTargetProgress = 0;
-let topbarCoupled = false;
 
 function animateTopbarProgress() {
   const delta = topbarTargetProgress - topbarProgress;
-  if (topbarCoupled) {
-    topbarProgress = topbarTargetProgress;
-    applyTopbarProgress(topbarProgress);
-    topbarMotionRaf = 0;
-    return;
-  }
   if (Math.abs(delta) < 0.002) {
     topbarProgress = topbarTargetProgress;
     applyTopbarProgress(topbarProgress);
     topbarMotionRaf = 0;
     return;
   }
-  topbarProgress += delta * 0.2;
+  topbarProgress += delta * 0.16;
   applyTopbarProgress(topbarProgress);
   topbarMotionRaf = requestAnimationFrame(animateTopbarProgress);
 }
@@ -578,21 +568,18 @@ function scheduleTopbarPositionUpdate() {
   topbarRafPending = true;
   requestAnimationFrame(() => {
     topbarRafPending = false;
-    const target = topbarTargetFromHero();
-    topbarTargetProgress = target.progress;
-    /* once topbar and title get near each other, move as one unit (no lag) */
-    topbarCoupled = target.contactDelta < 110;
+    topbarTargetProgress = topbarTargetFromHero();
     if (!topbarMotionRaf) topbarMotionRaf = requestAnimationFrame(animateTopbarProgress);
   });
 }
 window.addEventListener('scroll', scheduleTopbarPositionUpdate, { passive: true });
 window.addEventListener('resize', scheduleTopbarPositionUpdate, { passive: true });
 document.fonts.ready.then(() => {
-  topbarTargetProgress = topbarTargetFromHero().progress;
+  topbarTargetProgress = topbarTargetFromHero();
   topbarProgress = topbarTargetProgress;
   applyTopbarProgress(topbarProgress);
 });
-topbarTargetProgress = topbarTargetFromHero().progress;
+topbarTargetProgress = topbarTargetFromHero();
 topbarProgress = topbarTargetProgress;
 applyTopbarProgress(topbarProgress);
 
