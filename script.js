@@ -539,10 +539,10 @@ window.addEventListener('resize', () => {
       if (p.y < -20) p.y = dustH + 20;
       if (p.y > dustH + 20) p.y = -20;
 
-      const alpha = (0.2 + 0.42 * p.twinkle) * (0.55 + 0.45 * Math.sin(dustTick * (1.2 + p.twinkle) + p.phase));
+      const alpha = (0.16 + 0.3 * p.twinkle) * (0.5 + 0.5 * Math.sin(dustTick * (1 + p.twinkle) + p.phase));
       const dx = p.x + dustOffsetX * p.depth;
       const dy = p.y + dustOffsetY * p.depth;
-      const a = p.angle + Math.sin(dustTick * p.spin + p.phase) * p.wobble;
+      const a = p.angle + Math.sin(dustTick * p.spin + p.phase) * (p.wobble * 1.4) + (Math.random() - 0.5) * 0.18;
       const ux = Math.cos(a);
       const uy = Math.sin(a);
       const half = p.len * 0.5;
@@ -550,9 +550,9 @@ window.addEventListener('resize', () => {
       const y1 = dy - uy * half;
       const x2 = dx + ux * half;
       const y2 = dy + uy * half;
-      const strokeAlpha = Math.max(0.09, alpha).toFixed(3);
+      const strokeAlpha = Math.max(0.05, alpha).toFixed(3);
 
-      dustCtx.strokeStyle = `rgba(182, 239, 255, ${strokeAlpha})`;
+      dustCtx.strokeStyle = `rgba(216, 224, 230, ${strokeAlpha})`;
       dustCtx.lineWidth = p.width;
       dustCtx.lineCap = 'round';
       dustCtx.beginPath();
@@ -563,7 +563,7 @@ window.addEventListener('resize', () => {
       /* faint sister stroke to create clustered "tuft" texture */
       const px = -uy * p.split;
       const py = ux * p.split;
-      dustCtx.strokeStyle = `rgba(182, 239, 255, ${Math.max(0.05, alpha * 0.6).toFixed(3)})`;
+      dustCtx.strokeStyle = `rgba(196, 204, 212, ${Math.max(0.03, alpha * 0.52).toFixed(3)})`;
       dustCtx.lineWidth = Math.max(0.3, p.width * 0.72);
       dustCtx.beginPath();
       dustCtx.moveTo(x1 + px, y1 + py);
