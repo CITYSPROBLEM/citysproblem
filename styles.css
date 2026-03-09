@@ -1320,7 +1320,6 @@ a:hover .arr { transform: translateX(3px); }
     linear-gradient(100deg, rgba(0,212,255,.14) 0%, rgba(0,212,255,.03) 25%, rgba(4,6,15,.35) 58%, rgba(4,6,15,.6) 100%),
     rgba(4,6,15,.48);
   box-shadow: inset 0 0 26px rgba(0,212,255,.07), 0 0 30px rgba(0,0,0,.3);
-  overflow: hidden;
 }
 .booking-signal-card::before {
   content: '';
@@ -1336,10 +1335,12 @@ a:hover .arr { transform: translateX(3px); }
   content: '';
   position: absolute;
   inset: 0;
+  border-radius: inherit;
   background: linear-gradient(90deg, transparent 0%, rgba(0,212,255,.08) 45%, transparent 100%);
   transform: translateX(-100%);
   animation: bookingSweep 5.5s linear infinite;
   pointer-events: none;
+  clip-path: inset(0 round 12px);
 }
 @keyframes bookingSweep {
   0% { transform: translateX(-100%); opacity: 0; }
@@ -1378,6 +1379,8 @@ a:hover .arr { transform: translateX(3px); }
   justify-self: center;
   align-self: center;
   box-shadow: inset 0 0 14px rgba(0,212,255,.15), 0 0 16px rgba(0,212,255,.16);
+  overflow: visible;
+  contain: none;
 }
 .booking-signal-card .portfolio-title { margin: 0; }
 .booking-signal-card .portfolio-meta { margin: 0; }
