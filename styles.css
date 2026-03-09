@@ -165,7 +165,7 @@ main {
   border: 1px solid rgba(0,212,255,.14);
   border-top: 1px solid rgba(0,212,255,.35);
   border-radius: 10px;
-  background: rgba(4,6,15,.20);
+  background: rgba(4,6,15,.40);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   text-align: center;
