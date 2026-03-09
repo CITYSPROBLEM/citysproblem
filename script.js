@@ -444,7 +444,7 @@ window.addEventListener('scroll', () => {
 
 /* info section scramble — apply hover-scramble after DOM ready */
 const infoSection = document.getElementById('infoSection');
-const CONNECT_EXTRA_WIDTH = 160;
+const CONNECT_EXTRA_WIDTH = 320;
 
 /* reveal info section once it scrolls into view */
 {
