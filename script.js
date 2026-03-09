@@ -516,7 +516,6 @@ window.addEventListener('resize', () => {
 
 /* hide scroll arrow once user has scrolled past the hero */
 let scrollArrowHidden = null;
-let topbarHiddenInHeroZone = null;
 scrollArrowEl.style.transition = 'opacity .4s ease';
 window.addEventListener('scroll', () => {
   const hidden = window.scrollY > 80;
@@ -525,21 +524,40 @@ window.addEventListener('scroll', () => {
   scrollArrowEl.style.opacity = hidden ? '0' : '';
 }, { passive: true });
 
-function updateTopbarHeroWindow() {
+function updateTopbarFromHeroPosition() {
+  const barH = topbarEl.offsetHeight || 72;
+  const hiddenY = -(barH + 2);
+  const vh = window.innerHeight || document.documentElement.clientHeight;
   const h1Rect = h1El.getBoundingClientRect();
-  const h1TopDoc = window.scrollY + h1Rect.top;
-  const startY = Math.max(0, h1TopDoc - window.innerHeight * 0.34);
-  const endY = h1TopDoc + h1Rect.height + window.innerHeight * 0.24;
-  const shouldHide = window.scrollY >= startY && window.scrollY <= endY;
-  if (shouldHide === topbarHiddenInHeroZone) return;
-  topbarHiddenInHeroZone = shouldHide;
-  topbarEl.classList.toggle('scroll-hide', shouldHide);
+
+  /* hidden while title is fully off-screen above; reveal only as it re-enters view */
+  let hideProgress = 0;
+  if (h1Rect.bottom <= 0) {
+    hideProgress = 1;
+  } else if (h1Rect.top < vh && h1Rect.bottom > 0) {
+    const visible = Math.min(h1Rect.bottom, vh) - Math.max(h1Rect.top, 0);
+    const visibilityRatio = Math.max(0, Math.min(1, visible / Math.max(1, h1Rect.height)));
+    hideProgress = 1 - visibilityRatio;
+  }
+
+  topbarEl.style.transform = `translateY(${hiddenY * hideProgress}px)`;
+  topbarEl.style.opacity = `${1 - hideProgress}`;
+  topbarEl.style.pointerEvents = hideProgress > 0.98 ? 'none' : '';
 }
 
-window.addEventListener('scroll', updateTopbarHeroWindow, { passive: true });
-window.addEventListener('resize', updateTopbarHeroWindow, { passive: true });
-document.fonts.ready.then(updateTopbarHeroWindow);
-updateTopbarHeroWindow();
+let topbarRafPending = false;
+function scheduleTopbarPositionUpdate() {
+  if (topbarRafPending) return;
+  topbarRafPending = true;
+  requestAnimationFrame(() => {
+    topbarRafPending = false;
+    updateTopbarFromHeroPosition();
+  });
+}
+window.addEventListener('scroll', scheduleTopbarPositionUpdate, { passive: true });
+window.addEventListener('resize', scheduleTopbarPositionUpdate, { passive: true });
+document.fonts.ready.then(updateTopbarFromHeroPosition);
+updateTopbarFromHeroPosition();
 
 /* info section scramble — apply hover-scramble after DOM ready */
 const infoSection = document.getElementById('infoSection');
