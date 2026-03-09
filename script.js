@@ -997,9 +997,13 @@ const infoSection = document.getElementById('infoSection');
 const MAIN_BLOCK_SELECTOR   = '.info-block:not(.connect-block)';
 const MAIN_HEADER_SELECTOR  = `${MAIN_BLOCK_SELECTOR} .info-block-header`;
 const MAIN_OPEN_SELECTOR    = `${MAIN_BLOCK_SELECTOR}.open`;
+const MAIN_LINK_SELECTOR    = `${MAIN_BLOCK_SELECTOR} .bio-press-links a`;
+const MAIN_LABEL_SELECTOR   = `${MAIN_BLOCK_SELECTOR} .bio-panel-label`;
 function getMainHeaders() { return Array.from(infoSection.querySelectorAll(MAIN_HEADER_SELECTOR)); }
 function getMainOpenBlocks() { return Array.from(infoSection.querySelectorAll(MAIN_OPEN_SELECTOR)); }
 function getMainOpenBlock() { return infoSection.querySelector(MAIN_OPEN_SELECTOR); }
+function getMainLinks() { return Array.from(infoSection.querySelectorAll(MAIN_LINK_SELECTOR)); }
+function getMainLabels() { return Array.from(infoSection.querySelectorAll(MAIN_LABEL_SELECTOR)); }
 
 /* reveal info section once it scrolls into view */
 {
@@ -1059,14 +1063,14 @@ function initLayout() {
   infoSection.offsetWidth; /* force reflow */
 
   /* equalize link widths at full measure width */
-  const links = Array.from(infoSection.querySelectorAll('.bio-press-links a'));
+  const links = getMainLinks();
   links.forEach(a => { a.style.width = 'auto'; });
   infoSection.offsetWidth;
   const maxLinkW = links.reduce((m, a) => Math.max(m, a.offsetWidth), 0);
   if (maxLinkW > 0) links.forEach(a => { a.style.width = maxLinkW + 'px'; });
 
   /* measure label widths for narrow (collapsed) state */
-  const labels = Array.from(infoSection.querySelectorAll('.bio-panel-label'));
+  const labels = getMainLabels();
   const maxLabelW = labels.reduce((m, el) => Math.max(m, el.offsetWidth), 0);
   const hPad = parseFloat(getComputedStyle(infoSection).paddingLeft) * 2;
 
