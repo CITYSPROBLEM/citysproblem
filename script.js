@@ -1090,7 +1090,7 @@ window.addEventListener('resize', initLayout, { passive: true });
 
 /* hide all blocks except the given one with a smooth height+opacity collapse */
 function hideOtherBlocks(openBlock) {
-  Array.from(infoSection.querySelectorAll(MAIN_BLOCK_SELECTOR))
+  Array.from(infoSection.querySelectorAll('.info-block'))
     .filter(b => b !== openBlock)
     .forEach(b => {
       const h = b.offsetHeight;
@@ -1108,7 +1108,7 @@ function hideOtherBlocks(openBlock) {
 
 /* reveal all hidden blocks back to their header height */
 function showAllBlocks() {
-  Array.from(infoSection.querySelectorAll(MAIN_BLOCK_SELECTOR)).forEach(b => {
+  Array.from(infoSection.querySelectorAll('.info-block')).forEach(b => {
     if (!b.style.maxHeight || b.style.maxHeight === '') return; /* already visible */
     const targetH = b.querySelector('.info-block-header').offsetHeight;
     b.style.transition = 'max-height .35s ease, opacity .25s ease';
