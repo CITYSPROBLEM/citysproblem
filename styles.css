@@ -975,9 +975,13 @@ a:hover .arr { transform: translateX(3px); }
 .ticker {
   width: 100%;
   overflow: hidden;
-  padding: 1.2rem 0;
-  border-top: 1px solid rgba(0,212,255,.06);
-  border-bottom: 1px solid rgba(0,212,255,.06);
+  padding: 1.4rem 0;
+  border-top: 1px solid rgba(0,212,255,.16);
+  border-bottom: 1px solid rgba(0,212,255,.16);
+  background:
+    linear-gradient(145deg, rgba(1,16,31,.7), rgba(4,8,24,.95)),
+    radial-gradient(circle at 15% 30%, rgba(0,212,255,.18), transparent 60%);
+  box-shadow: inset 0 0 12px rgba(0,212,255,.15), 0 0 40px rgba(0,212,255,.3);
   opacity: 0;
 }
 .ticker.visible { animation: fadeUp .9s ease forwards; }
@@ -985,8 +989,9 @@ a:hover .arr { transform: translateX(3px); }
   display: flex;
   gap: 1.5rem;
   white-space: nowrap;
-  animation: tickerScroll 25s linear infinite;
+  animation: tickerScroll 22s linear infinite;
   will-change: transform;
+  text-shadow: 0 0 12px rgba(0,212,255,.45);
 }
 .ticker-reverse .ticker-track {
   animation: tickerScrollReverse 30s linear infinite;
@@ -1002,14 +1007,18 @@ a:hover .arr { transform: translateX(3px); }
 }
 .ticker-text {
   font-family: 'Michroma', sans-serif;
-  font-size: clamp(.45rem, 1vw, .6rem);
-  letter-spacing: .3em;
-  color: rgba(0,212,255,.45);
+  font-size: clamp(.55rem, 1vw, .75rem);
+  letter-spacing: .38em;
+  color: #f1fbff;
   text-transform: uppercase;
+  padding: 0 .15rem;
+  text-shadow:
+    0 0 14px rgba(0,212,255,.45),
+    0 0 30px rgba(0,212,255,.2);
 }
 .ticker-sep {
-  color: rgba(0,212,255,.25);
-  font-size: clamp(.45rem, 1vw, .6rem);
+  color: rgba(0,212,255,.6);
+  font-size: clamp(.5rem, 1.1vw, .7rem);
 }
 
 /* ── featured release ────────────────────────────── */
