@@ -1361,12 +1361,43 @@ document.querySelectorAll('.ticker').forEach(t => {
 initSectionReveal('featuredRelease', '.section-label, .featured-title, .featured-meta');
 initSectionReveal('releasesSection', '.section-label, .release-card-title, .release-card-meta');
 initSectionReveal('datesSection', '.section-label, .dates-empty, .date-date, .date-venue');
+initSectionReveal('pastShowsSection', '.section-label');
 
 /* hover-scramble for new static text elements */
 document.querySelectorAll(
   '.featured-title, .featured-meta, .featured-link, .release-card-title, .release-card-meta, .dates-empty, .date-date, .date-venue'
 ).forEach(addScrambleHover);
 document.querySelectorAll('.section-label').forEach(addScrambleHover);
+
+/* past shows year accordion */
+document.querySelectorAll('.past-shows-year').forEach(group => {
+  const btn   = group.querySelector('.past-shows-year-btn');
+  const list  = group.querySelector('.past-shows-list');
+
+  btn.addEventListener('click', () => {
+    const isOpen = group.classList.contains('open');
+    if (isOpen) {
+      group.classList.remove('open');
+      list.style.maxHeight = '0';
+      list.style.opacity   = '0';
+    } else {
+      group.classList.add('open');
+      list.style.maxHeight = list.scrollHeight + 'px';
+      list.style.opacity   = '1';
+      /* scramble-settle the revealed rows */
+      Array.from(list.querySelectorAll('.date-date, .date-venue')).forEach(el => {
+        const text = el.textContent;
+        scrambleThenSettleAt(text, t => { el.textContent = t; }, 300);
+      });
+    }
+  });
+
+  btn.addEventListener('mouseenter', () => document.body.classList.add('link-hover'));
+  btn.addEventListener('mouseleave', () => document.body.classList.remove('link-hover'));
+});
+/* hover-scramble for past shows elements */
+document.querySelectorAll('.past-shows-year-btn').forEach(addScrambleHover);
+document.querySelectorAll('.past-shows-list .date-date, .past-shows-list .date-venue').forEach(addScrambleHover);
 
 /* cursor hover for new interactive elements */
 document.querySelectorAll('.release-card, .glitch-wrap, .featured-link').forEach(el => {

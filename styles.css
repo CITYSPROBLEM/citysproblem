@@ -1185,6 +1185,67 @@ a:hover .arr { transform: translateX(3px); }
   white-space: nowrap;
 }
 
+/* ── past shows ──────────────────────────────────── */
+.past-shows-section { padding-top: 0; }
+.past-shows-inner {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  max-width: min(500px, 100%);
+  margin: 0 auto;
+}
+.past-shows-year { display: flex; flex-direction: column; }
+.past-shows-year-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 100%;
+  font-family: 'Michroma', sans-serif;
+  font-size: clamp(.6rem, 1.8vw, .85rem);
+  font-weight: 400;
+  letter-spacing: .2em;
+  color: var(--ice);
+  padding: .6rem 1rem;
+  border: none;
+  background: none;
+  position: relative;
+  text-shadow: 0 0 10px rgba(0,212,255,.25);
+  transition: color .25s;
+  white-space: nowrap;
+}
+.past-shows-year-btn::after {
+  content: '+';
+  position: absolute;
+  right: 0;
+  font-size: 1.1rem; line-height: 1;
+  color: var(--ice);
+  text-shadow: 0 0 8px rgba(0,212,255,.4);
+  transition: transform .32s ease;
+}
+.past-shows-year.open .past-shows-year-btn::after { transform: rotate(45deg); }
+.past-shows-list {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height .35s cubic-bezier(0.4, 0, 0.2, 1), opacity .2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.past-shows-year.open .past-shows-list {
+  opacity: 1;
+}
+.past-shows-list .date-row {
+  border-bottom: 1px solid rgba(0,212,255,.05);
+  padding: .4rem 0;
+}
+.past-shows-list .date-date {
+  font-size: clamp(.5rem, 1.6vw, .75rem);
+  color: rgba(0,212,255,.5);
+}
+.past-shows-list .date-venue {
+  font-size: clamp(.5rem, 1.6vw, .75rem);
+  color: rgba(200,230,255,.6);
+}
+
 /* ── per-section background accents ──────────────── */
 .featured-release,
 .releases-section,
@@ -1252,7 +1313,9 @@ a:hover .arr { transform: translateX(3px); }
   .release-card-meta { font-size: .38rem; }
 
   .dates-section { padding: 2rem 1rem 4rem; max-width: 100vw; }
+  .past-shows-section { padding: 0 1rem 3rem; }
   .dates-list { max-width: 100%; }
+  .past-shows-inner { max-width: 100%; }
   .date-row {
     flex-direction: column;
     gap: .3rem;
@@ -1260,6 +1323,9 @@ a:hover .arr { transform: translateX(3px); }
   }
   .date-date { font-size: .65rem; }
   .date-venue { font-size: .6rem; }
+  .past-shows-list .date-date { font-size: .55rem; }
+  .past-shows-list .date-venue { font-size: .5rem; white-space: normal; }
+  .past-shows-year-btn { font-size: .55rem; }
 
   .ticker { padding: .8rem 0; }
 
