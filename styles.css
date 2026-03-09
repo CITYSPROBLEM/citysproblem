@@ -165,9 +165,9 @@ main {
   border: 1px solid rgba(0,212,255,.14);
   border-top: 1px solid rgba(0,212,255,.35);
   border-radius: 10px;
-  background: linear-gradient(160deg, rgba(3,9,24,.25) 0%, rgba(4,6,15,.18) 100%);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  background: rgba(4,6,15,.93);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   text-align: center;
   opacity: 0;
   /* TODO: re-enable internal scrolling once info section has enough content to require it
