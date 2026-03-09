@@ -490,30 +490,26 @@ const CONNECT_EXTRA_WIDTH = 320;
 
   function revealInfo() {
     infoLoops = infoLabelEls.map((el, i) => scrambleLoop(infoLabelOrig[i], t => { el.textContent = t; }, 30));
-    infoSection.classList.add('visible');
+    requestAnimationFrame(() => infoSection.classList.add('visible'));
 
     let settled = false;
-    function onFadeUpEnd() {
+    function onFadeInEnd() {
       if (settled) return;
       settled = true;
       infoLoops.forEach(c => c()); infoLoops = null;
       infoLabelEls.forEach((el, i) => settleIn(infoLabelOrig[i], t => { el.textContent = t; }));
-      infoSection.style.animation = 'none';
-      infoSection.style.opacity = '1';
     }
 
-    /* primary: animationend — but don't use { once: true } so a bubbling child
-       animation doesn't consume the listener before fadeUp fires */
-    function onAnimEnd(e) {
-      if (e.target !== infoSection || e.animationName !== 'fadeUp') return;
-      infoSection.removeEventListener('animationend', onAnimEnd);
-      onFadeUpEnd();
+    /* primary: transitionend on the section opacity transition */
+    function onTransitionEnd(e) {
+      if (e.target !== infoSection || e.propertyName !== 'opacity') return;
+      infoSection.removeEventListener('transitionend', onTransitionEnd);
+      onFadeInEnd();
     }
-    infoSection.addEventListener('animationend', onAnimEnd);
+    infoSection.addEventListener('transitionend', onTransitionEnd);
 
-    /* fallback: if animationend never fires (animation blocked on some browsers),
-       guarantee the section becomes visible after the animation duration */
-    setTimeout(onFadeUpEnd, 1000);
+    /* fallback: if transitionend never fires, settle after the transition window */
+    setTimeout(onFadeInEnd, 1100);
   }
 
   const observer = new IntersectionObserver(entries => {

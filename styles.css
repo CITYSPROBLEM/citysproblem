@@ -177,6 +177,8 @@ main::after {
   -webkit-backdrop-filter: blur(20px);
   text-align: center;
   opacity: 0;
+  transform: translateY(16px);
+  will-change: opacity, transform;
   /* TODO: re-enable internal scrolling once info section has enough content to require it
   max-height: 70vh;
   overflow-y: auto;
@@ -193,10 +195,10 @@ main::after {
 }
 .info-section::-webkit-scrollbar-thumb:hover { background: rgba(0,212,255,.55); }
 */
-}
 .info-section.visible {
-  animation: fadeUp .9s ease forwards;
-  transition: width .4s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 1;
+  transform: translateY(0);
+  transition: width .4s cubic-bezier(0.4, 0, 0.2, 1), opacity .9s ease, transform .9s ease;
 }
 .info-block { margin-bottom: 0; }
 .info-block + .info-block { border-top: 1px solid rgba(0,212,255,.08); }
