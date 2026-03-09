@@ -194,14 +194,6 @@ main {
 .info-block { margin-bottom: 0; }
 .info-block + .info-block { border-top: 1px solid rgba(0,212,255,.08); }
 .info-block:first-child .bio-panel-label { margin-top: 0; }
-.info-section .bio-panel-label,
-.info-section .bio-panel-title,
-.info-section .bio-text,
-.info-section .bio-press-links a {
-  text-transform: uppercase;
-  color: var(--text);
-  opacity: 1;
-}
 .info-block-header {
   display: flex; align-items: center; justify-content: center;
   position: relative;
@@ -614,6 +606,33 @@ a:hover .arr { transform: translateX(3px); }
   color: rgba(200,230,255,.3);
   flex-shrink: 0; user-select: none; white-space: nowrap;
 }
+.bio-panel-title {
+  font-family: 'Michroma', sans-serif;
+  font-size: clamp(.85rem, 3vw, 1.3rem);
+  letter-spacing: .12em;
+  color: var(--ice);
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 18px rgba(0,212,255,.35);
+  white-space: nowrap;
+}
+.bio-panel-label {
+  font-family: 'Michroma', sans-serif;
+  font-size: clamp(.7rem, 1.8vw, .85rem);
+  letter-spacing: .22em;
+  color: rgba(0,212,255,.75);
+  margin: 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 0 12px rgba(0,212,255,.3);
+}
+.bio-text {
+  font-family: 'Michroma', sans-serif;
+  font-size: clamp(.82rem, 2.2vw, 1.1rem);
+  line-height: 1.9;
+  letter-spacing: .05em;
+  color: rgba(220,240,255,.88);
+  overflow-wrap: anywhere;
+}
 .bio-press-links { display: flex; flex-direction: column; gap: .65rem; align-items: flex-start; }
 .bio-press-links a::before {
   background: linear-gradient(90deg, transparent, rgba(0,212,255,.04), transparent);
@@ -654,7 +673,7 @@ a:hover .arr { transform: translateX(3px); }
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding-bottom: 0;
+  padding-bottom: 1.5rem;
 }
 .connect-email-link {
   width: 100%;
