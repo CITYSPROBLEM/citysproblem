@@ -958,11 +958,20 @@ initSectionReveal('pastShowsSection', '.section-label, .past-shows-year-btn, .pa
 /* keep upcoming date text from shifting during scramble */
 const upcomingDateEls = Array.from(document.querySelectorAll('#datesSection .date-date, #datesSection .date-venue'));
 function lockUpcomingDateWidths() {
-  upcomingDateEls.forEach(el => { el.style.minWidth = ''; });
+  upcomingDateEls.forEach(el => {
+    el.style.width = '';
+    el.style.minWidth = '';
+  });
   requestAnimationFrame(() => {
     upcomingDateEls.forEach(el => {
+      const original = el.textContent;
+      const widestSample = original.replace(/[^\s]/g, 'W');
       el.style.display = 'inline-block';
-      el.style.minWidth = `${Math.ceil(el.getBoundingClientRect().width)}px`;
+      el.textContent = widestSample;
+      const lockedWidth = Math.ceil(el.getBoundingClientRect().width) + 2;
+      el.textContent = original;
+      el.style.width = `${lockedWidth}px`;
+      el.style.minWidth = `${lockedWidth}px`;
     });
   });
 }
