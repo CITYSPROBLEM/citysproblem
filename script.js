@@ -1,6 +1,7 @@
 /* cursor */
 const cur  = document.getElementById('cur');
 const ring = document.getElementById('cur-ring');
+const isCoarsePointer = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 let mx = 0, my = 0, rx = 0, ry = 0;
 document.addEventListener('mousemove', e => {
   mx = e.clientX; my = e.clientY;
@@ -156,6 +157,7 @@ const h1Orig = 'CITYSPROBLEM';
 let cancelH1;
 let h1FadeUpDone = false;
 let h1SettleFallbackTimer = null;
+let h1SettleWatchdogTimer = null;
 
 function h1Settle() {
   if (h1FadeUpDone) return;
@@ -163,6 +165,10 @@ function h1Settle() {
   if (h1SettleFallbackTimer) {
     clearTimeout(h1SettleFallbackTimer);
     h1SettleFallbackTimer = null;
+  }
+  if (h1SettleWatchdogTimer) {
+    clearTimeout(h1SettleWatchdogTimer);
+    h1SettleWatchdogTimer = null;
   }
   cancelH1?.(); cancelH1 = null;
   h1El.style.opacity = '1';
@@ -189,31 +195,34 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('pageshow', h1Settle, { once: true });
 /* mobile fallback: if animation callbacks are skipped, force settle */
 h1SettleFallbackTimer = setTimeout(h1Settle, 1600);
+h1SettleWatchdogTimer = setTimeout(h1Settle, 2600);
 function applyH1Centering() {
   const overflow = h1El.scrollWidth - h1El.clientWidth;
   h1El.style.transform = overflow > 0 ? `translateX(${-(overflow / 2)}px)` : '';
 }
 
-h1El.addEventListener('mouseenter', () => {
-  h1El.style.width = h1El.offsetWidth + 'px';
-  h1El.style.height = h1El.offsetHeight + 'px';
-  h1El.style.opacity = '1';
-  h1El.style.animation = 'glowPulse 4s ease-in-out infinite';
-  cancelH1?.();
-  h1El.classList.remove('chroma');
-  void h1El.offsetWidth;
-  h1El.classList.add('chroma');
-  setTimeout(() => h1El.classList.remove('chroma'), 500);
-  cancelH1 = scrambleLoop(h1Orig, t => { h1El.textContent = t; applyH1Centering(); });
-});
-h1El.addEventListener('mouseleave', () => {
-  cancelH1?.();
-  cancelH1 = scrambleResolve(h1Orig, t => { h1El.textContent = t; applyH1Centering(); }, ...settleParams(h1Orig), () => {
-    h1El.style.transform = '';
-    h1El.style.width = '';
-    h1El.style.height = '';
+if (!isCoarsePointer) {
+  h1El.addEventListener('mouseenter', () => {
+    h1El.style.width = h1El.offsetWidth + 'px';
+    h1El.style.height = h1El.offsetHeight + 'px';
+    h1El.style.opacity = '1';
+    h1El.style.animation = 'glowPulse 4s ease-in-out infinite';
+    cancelH1?.();
+    h1El.classList.remove('chroma');
+    void h1El.offsetWidth;
+    h1El.classList.add('chroma');
+    setTimeout(() => h1El.classList.remove('chroma'), 500);
+    cancelH1 = scrambleLoop(h1Orig, t => { h1El.textContent = t; applyH1Centering(); });
   });
-});
+  h1El.addEventListener('mouseleave', () => {
+    cancelH1?.();
+    cancelH1 = scrambleResolve(h1Orig, t => { h1El.textContent = t; applyH1Centering(); }, ...settleParams(h1Orig), () => {
+      h1El.style.transform = '';
+      h1El.style.width = '';
+      h1El.style.height = '';
+    });
+  });
+}
 
 /* button scramble */
 document.querySelectorAll('nav a').forEach(a => {
@@ -1016,10 +1025,8 @@ document.querySelectorAll('.release-card, .glitch-wrap, .featured-link').forEach
 });
 
 /* cursor ring spring + grain sync loop */
-const isMobile = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-
 (function tick() {
-  if (!isMobile) {
+  if (!isCoarsePointer) {
     rx += (mx - rx) * .25; ry += (my - ry) * .25;
     ring.style.transform = `translate(${rx}px,${ry}px)`;
     if (++grainFrame % 6 === 0)
