@@ -159,9 +159,7 @@ let h1FadeUpDone = false;
 let h1SettleFallbackTimer = null;
 let h1SettleWatchdogTimer = null;
 
-function h1Settle() {
-  if (h1FadeUpDone) return;
-  h1FadeUpDone = true;
+function h1ClearTimers() {
   if (h1SettleFallbackTimer) {
     clearTimeout(h1SettleFallbackTimer);
     h1SettleFallbackTimer = null;
@@ -170,6 +168,26 @@ function h1Settle() {
     clearTimeout(h1SettleWatchdogTimer);
     h1SettleWatchdogTimer = null;
   }
+}
+
+function h1FinalizeImmediate() {
+  if (h1FadeUpDone) return;
+  h1FadeUpDone = true;
+  h1ClearTimers();
+  cancelH1?.(); cancelH1 = null;
+  h1El.style.opacity = '1';
+  h1El.textContent = h1Orig;
+  applyH1Centering();
+}
+
+function h1Settle() {
+  if (h1FadeUpDone) return;
+  if (isCoarsePointer) {
+    h1FinalizeImmediate();
+    return;
+  }
+  h1FadeUpDone = true;
+  h1ClearTimers();
   cancelH1?.(); cancelH1 = null;
   h1El.style.opacity = '1';
   cancelH1 = settleIn(h1Orig, t => { h1El.textContent = t; applyH1Centering(); });
@@ -195,7 +213,7 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('pageshow', h1Settle, { once: true });
 /* mobile fallback: if animation callbacks are skipped, force settle */
 h1SettleFallbackTimer = setTimeout(h1Settle, 1600);
-h1SettleWatchdogTimer = setTimeout(h1Settle, 2600);
+h1SettleWatchdogTimer = setTimeout(h1FinalizeImmediate, 2600);
 function applyH1Centering() {
   const overflow = h1El.scrollWidth - h1El.clientWidth;
   h1El.style.transform = overflow > 0 ? `translateX(${-(overflow / 2)}px)` : '';
