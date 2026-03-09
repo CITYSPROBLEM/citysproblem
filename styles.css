@@ -811,9 +811,9 @@ a:hover .arr { transform: translateX(3px); }
   gap: .35rem;
 }
 .connect-links a {
-  padding: .45rem 1rem;
-  font-size: clamp(.64rem, 1.8vw, .8rem);
-  letter-spacing: .09em;
+  padding: .35rem .75rem;
+  font-size: clamp(.56rem, 1.35vw, .68rem);
+  letter-spacing: .065em;
   text-transform: uppercase;
   justify-content: flex-start;
 }
