@@ -1023,7 +1023,7 @@ a:hover .arr { transform: translateX(3px); }
   font-family: 'Michroma', sans-serif;
   font-size: clamp(.55rem, 1vw, .75rem);
   letter-spacing: .38em;
-  color: #f1fbff;
+  color: rgba(241, 251, 255, .5);
   text-transform: uppercase;
   padding: 0 .15rem;
   text-shadow:
