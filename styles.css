@@ -239,7 +239,7 @@ main::after {
   to   { background-position: calc(50% + 22px) top, calc(50% - 18px) bottom, left calc(50% + 20px), right calc(50% - 14px); }
 }
 .info-block { margin-bottom: 0; }
-.info-block + .info-block { border-top: 1px solid rgba(0,212,255,.11); }
+.info-block + .info-block { border-top: 1px solid rgba(0,212,255,.14); }
 .info-block:first-child .bio-panel-label { margin-top: 0; }
 .info-block-header {
   display: flex; align-items: center; justify-content: center;
@@ -1212,7 +1212,7 @@ a:hover .arr { transform: translateX(3px); }
   text-shadow: 0 0 10px rgba(0,212,255,.25);
   transition: color .25s;
   white-space: nowrap;
-  border-bottom: 1px solid rgba(0,212,255,.19);
+  border-bottom: 1px solid rgba(0,212,255,.22);
 }
 .past-shows-year-btn::after {
   content: '+';
@@ -1239,7 +1239,7 @@ a:hover .arr { transform: translateX(3px); }
 }
 .past-shows-list .date-row {
   justify-content: flex-start;
-  border-bottom: 1px solid rgba(0,212,255,.11);
+  border-bottom: 1px solid rgba(0,212,255,.14);
   padding: .5rem 0;
   gap: clamp(.6rem, 2vw, 1.2rem);
 }
