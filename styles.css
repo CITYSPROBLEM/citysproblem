@@ -973,9 +973,9 @@ a:hover .arr { transform: translateX(3px); }
 
 /* ── ticker / marquee ────────────────────────────── */
 .ticker {
-  width: calc(100vw);
+  width: 100vw;
   max-width: 100vw;
-  margin-left: calc(-0.5 * (100vw - 100%));
+  margin-left: calc(50% - 50vw);
   overflow: hidden;
   padding: 1.4rem 0;
   border-top: 1px solid rgba(0,212,255,.14);
@@ -986,10 +986,10 @@ a:hover .arr { transform: translateX(3px); }
 .ticker::before {
   content: '';
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   width: 100vw;
-  inset: 0;
+  top: 0;
+  bottom: 0;
   background: linear-gradient(145deg, rgba(1,16,31,.1), rgba(4,8,24,.1));
   box-shadow: inset 0 0 12px rgba(0,212,255,.08), 0 0 20px rgba(0,212,255,.15);
   z-index: 0;
