@@ -1129,7 +1129,6 @@ initSectionReveal('releasesSection', '.section-label, .release-card-title, .rele
 initSectionReveal('datesSection', '.section-label, .dates-empty, .date-date, .date-venue');
 initSectionReveal('pastShowsSection', '.section-label, .past-shows-year-btn, .past-shows-back-btn, .past-shows-list .date-date, .past-shows-list .date-venue');
 initSectionReveal('bookingSection', '.section-label, .portfolio-title, .portfolio-meta, .portfolio-link');
-initSectionReveal('epkSection', '.section-label, .portfolio-title, .portfolio-meta');
 initSectionReveal('quotesSection', '.section-label, .quote-line, .quote-source');
 initSectionReveal('newsletterSection', '.section-label, .portfolio-title, .portfolio-meta, .portfolio-link');
 
