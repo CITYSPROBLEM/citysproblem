@@ -935,8 +935,9 @@ a:hover .arr { transform: translateX(3px); }
 }
 .featured-art-img {
   width: 100%;
+  height: auto;
   aspect-ratio: 1;
-  min-height: 180px;
+  min-height: 0;
   display: block;
   border: 1px solid rgba(0,212,255,.14);
   object-fit: cover;
