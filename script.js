@@ -356,13 +356,15 @@ function updateMarquee() {
 function loadTrack(idx) {
   if (!tracks.length) return;
   trackIdx = ((idx % tracks.length) + tracks.length) % tracks.length;
-  audio.src = tracks[trackIdx].url;
   const title = tracks[trackIdx].title;
   playerTrack.classList.remove('scrolling');
   scrambleResolve(title, t => { playerTrack.textContent = t; }, 16, 25, () => {
     updateMarquee();
   });
   playerCounter.textContent = `${trackIdx + 1} / ${tracks.length}`;
+  if (!deferAudioLoad) {
+    audio.src = tracks[trackIdx].url;
+  }
   if (!audio.paused) audio.play();
 }
 
@@ -371,11 +373,16 @@ function setPlaying(v) {
   btnPlay.classList.toggle('playing', v);
 }
 
+let deferAudioLoad = true;
 if (tracks.length) loadTrack(0);
 else playerTrack.textContent = '—';
 
 btnPlay.addEventListener('click', () => {
   if (!tracks.length) return;
+  if (deferAudioLoad) {
+    audio.src = tracks[trackIdx].url;
+    deferAudioLoad = false;
+  }
   audio.paused ? audio.play() : audio.pause();
 });
 btnPrev.addEventListener('click', () => loadTrack(trackIdx - 1));
