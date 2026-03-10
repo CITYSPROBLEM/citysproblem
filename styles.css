@@ -1276,6 +1276,7 @@ a:hover .arr { transform: translateX(3px); }
   max-width: min(1000px, 92vw);
   padding: clamp(2rem, 4vw, 3.8rem) clamp(1rem, 3vw, 2rem);
   opacity: 0;
+  text-align: center;
 }
 .portfolio-section.visible { animation: fadeUp .9s ease forwards; }
 .portfolio-grid {
@@ -1296,9 +1297,10 @@ a:hover .arr { transform: translateX(3px); }
 .portfolio-link-card {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: .5rem;
   text-decoration: none;
+  text-align: center;
 }
 .portfolio-title {
   font-family: 'Michroma', sans-serif;
@@ -1371,19 +1373,20 @@ a:hover .arr { transform: translateX(3px); }
 .booking-signal-card > * { min-width: 0; }
 .booking-signal-head,
 .booking-signal-meta {
-  text-align: left;
+  text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   min-height: 100%;
 }
 .booking-signal-head {
   padding-right: clamp(.7rem, 1.3vw, 1rem);
-  border-right: 1px solid rgba(0,212,255,.14);
+  border-right: none;
 }
 .booking-signal-meta {
   padding-right: clamp(.7rem, 1.3vw, 1rem);
-  border-right: 1px solid rgba(0,212,255,.12);
+  border-right: none;
 }
 .booking-kicker {
   font-family: 'Michroma', sans-serif;
@@ -1408,7 +1411,7 @@ a:hover .arr { transform: translateX(3px); }
   gap: clamp(.8rem, 1.8vw, 1.2rem);
 }
 .quote-card {
-  text-align: left;
+  text-align: center;
 }
 .quote-line {
   font-family: 'Michroma', sans-serif;
@@ -1546,7 +1549,7 @@ a:hover .arr { transform: translateX(3px); }
     border-right: none;
   }
   .booking-signal-meta { display: flex; flex-direction: column; gap: .2rem; }
-  .booking-cta { min-width: 9.2rem; justify-self: start; }
+  .booking-cta { min-width: 9.2rem; justify-self: center; }
   .portfolio-grid { grid-template-columns: 1fr; gap: .8rem; }
   .quotes-grid { grid-template-columns: 1fr; gap: .8rem; }
   .portfolio-link { min-width: 8.3rem; }
