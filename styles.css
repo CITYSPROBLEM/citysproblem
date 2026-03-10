@@ -1302,10 +1302,9 @@ a:hover .arr { transform: translateX(3px); }
 }
 @media (min-width: 769px) {
   .epk-section .portfolio-grid {
-    grid-template-columns: repeat(auto-fit, minmax(clamp(260px, 34vw, 420px), 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
-    justify-content: center;
-    max-width: min(980px, 100%);
+    max-width: min(900px, 100%);
     margin-inline: auto;
   }
   .epk-section .portfolio-link-card {
