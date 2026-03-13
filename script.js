@@ -43,10 +43,31 @@ function nonSpaceCharCount(text) {
   return text.replace(/ /g, '').length;
 }
 
+function bracketMask(text) {
+  const mask = new Array(text.length).fill(false);
+  const openToClose = { '(': ')', '[': ']', '{': '}' };
+  const closers = new Set(Object.values(openToClose));
+  const stack = [];
+  const chars = text.split('');
+  chars.forEach((c, i) => {
+    if (openToClose[c]) {
+      mask[i] = true;
+      stack.push(openToClose[c]);
+      return;
+    }
+    if (stack.length) mask[i] = true;
+    if (closers.has(c) && stack.length && c === stack[stack.length - 1]) {
+      stack.pop();
+    }
+  });
+  return mask;
+}
+
 function scramblePlan(original, maxChars = Infinity) {
   const eligible = [];
+  const bracketed = bracketMask(original);
   original.split('').forEach((c, i) => {
-    if (c !== ' ') eligible.push(i);
+    if (c !== ' ' && !bracketed[i]) eligible.push(i);
   });
 
   if (!Number.isFinite(maxChars) || maxChars >= eligible.length) {
