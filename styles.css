@@ -985,9 +985,20 @@ a:hover .arr { transform: translateX(3px); }
 }
 .release-art {
   width: 100%;
-  aspect-ratio: 1;
+  height: 100%;
+  aspect-ratio: auto;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
+  transform: none !important;
+}
+.release-art-sidewinder {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  object-fit: contain;
+  object-position: center;
+  transform: none !important;
 }
 .featured-info {
   text-align: left;
