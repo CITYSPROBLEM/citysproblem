@@ -154,20 +154,50 @@ function settleIn(text, setText, onComplete) {
   return scrambleResolve(text, setText, steps, 25, onComplete);
 }
 
+function hasBracketedText(text) {
+  return /[\(\[\{][^)\]}]+[\)\]\}]/.test(text);
+}
+
+function lockBracketTextWidth(el, original) {
+  if (!hasBracketedText(original)) return () => {};
+  const prevDisplay = el.style.display;
+  const prevWidth = el.style.width;
+  const prevMinWidth = el.style.minWidth;
+  const computedDisplay = window.getComputedStyle(el).display;
+  if (computedDisplay === 'inline') el.style.display = 'inline-block';
+  const widestSample = original.replace(/[^\s()[\]{}]/g, 'W');
+  const prevText = el.textContent;
+  el.textContent = widestSample;
+  const lockedWidth = Math.ceil(el.getBoundingClientRect().width) + 2;
+  el.textContent = prevText;
+  el.style.width = `${lockedWidth}px`;
+  el.style.minWidth = `${lockedWidth}px`;
+  return () => {
+    el.style.display = prevDisplay;
+    el.style.width = prevWidth;
+    el.style.minWidth = prevMinWidth;
+  };
+}
+
 /* generic hover-scramble — applies to any static text element */
 function addScrambleHover(el) {
   const orig = el.textContent;          /* capture once — never re-read during hover */
   let cancelScramble = null, cancelResolve = null;
+  let unlockWidth = null;
   el.addEventListener('mouseenter', () => {
     document.body.classList.add('link-hover');
     cancelResolve?.(); cancelResolve = null;  /* stop any in-progress settle */
+    unlockWidth?.(); unlockWidth = null;
+    unlockWidth = lockBracketTextWidth(el, orig);
     cancelScramble?.();
     cancelScramble = scrambleLoop(orig, t => { el.textContent = t; }, 30);
   });
   el.addEventListener('mouseleave', () => {
     document.body.classList.remove('link-hover');
     cancelScramble?.(); cancelScramble = null;
-    cancelResolve = scrambleResolve(orig, t => { el.textContent = t; }, ...settleParams(orig));
+    cancelResolve = scrambleResolve(orig, t => { el.textContent = t; }, ...settleParams(orig), () => {
+      unlockWidth?.(); unlockWidth = null;
+    });
   });
 }
 
@@ -1008,6 +1038,10 @@ infoSection.querySelectorAll('.label-group').forEach(group => {
     if (isOpen) {
       /* close: restore all other groups and collapse songs */
       group.classList.remove('open');
+      if (songs.style.maxHeight === 'none') {
+        songs.style.maxHeight = songs.scrollHeight + 'px';
+        songs.offsetHeight;
+      }
       songs.style.maxHeight = '0';
       songs.style.opacity   = '0';
       showAllLabelGroups();
@@ -1022,6 +1056,9 @@ infoSection.querySelectorAll('.label-group').forEach(group => {
       group.classList.add('open');
       songs.style.maxHeight = songs.scrollHeight + 'px';
       songs.style.opacity   = '1';
+      setTimeout(() => {
+        if (group.classList.contains('open')) songs.style.maxHeight = 'none';
+      }, 380);
       hideLabelGroups(group);
       const finalContentH = parentContent.scrollHeight;
       if (parentContent.style.maxHeight && parentContent.style.maxHeight !== '0px')
@@ -1030,7 +1067,9 @@ infoSection.querySelectorAll('.label-group').forEach(group => {
       /* scramble-settle song links as they slide in */
       Array.from(songs.querySelectorAll('a')).forEach(a => {
         const text = a.textContent;
+        const unlockWidth = lockBracketTextWidth(a, text);
         scrambleThenSettleAt(text, t => { a.textContent = t; }, 300, accordionScrambleLimit(text));
+        setTimeout(unlockWidth, 340);
       });
     }
   });
