@@ -604,13 +604,14 @@ a:hover .arr { transform: translateX(3px); }
   }
   .connect-links {
     flex-wrap: wrap;
-    gap: .35rem;
+    gap: .4rem;
     padding: 0 1rem;
   }
   .connect-links a {
-    flex: 1 1 100%;
+    flex: 1 1 calc(33.333% - .3rem);
+    min-width: 0;
     max-width: none;
-    font-size: clamp(.45rem, 2.4vw, .65rem);
+    font-size: clamp(.4rem, 2vw, .55rem);
   }
   .info-toggle {
     font-size: clamp(.9rem, 4vw, 1.05rem);
@@ -637,6 +638,12 @@ a:hover .arr { transform: translateX(3px); }
     top: 0; left: 0; right: 0;
     width: 100%; height: 3px;
     flex: none;
+  }
+}
+
+@media (max-width: 500px) {
+  .connect-links a {
+    flex-basis: 100%;
   }
 }
 
@@ -718,18 +725,19 @@ a:hover .arr { transform: translateX(3px); }
   width: 100%;
   box-sizing: border-box;
   display: flex;
-  flex-wrap: wrap;
-  gap: .45rem;
+  flex-wrap: nowrap;
+  gap: .5rem;
   padding: 0 clamp(1rem, 3vw, 1.4rem);
   margin-top: .35rem;
-  justify-content: center;
+  justify-content: space-between;
 }
 .connect-links:first-of-type { margin-top: 0; }
 .connect-links a {
-  flex: 1 1 min(120px, 40%);
-  max-width: 220px;
-  padding: .35rem .85rem;
-  font-size: clamp(.48rem, 1.1vw, .62rem);
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: none;
+  padding: .38rem .65rem;
+  font-size: clamp(.44rem, .95vw, .58rem);
   letter-spacing: .08em;
   text-transform: uppercase;
   justify-content: center;
@@ -1415,7 +1423,7 @@ a:hover .arr { transform: translateX(3px); }
   border-right: none;
 }
 .booking-signal-meta {
-  padding-right: clamp(.7rem, 1.3vw, 1rem);
+  padding-right: 0;
   border-right: none;
 }
 .booking-kicker {
@@ -1430,10 +1438,12 @@ a:hover .arr { transform: translateX(3px); }
   min-width: clamp(10.5rem, 13vw, 13rem);
   justify-self: center;
   align-self: center;
-  box-shadow: inset 0 0 14px rgba(0,212,255,.15), 0 0 16px rgba(0,212,255,.16);
+  box-shadow: none;
 }
 .booking-signal-card .portfolio-title { margin: 0; }
+.booking-signal-head .portfolio-title { font-size: clamp(.58rem, 1.15vw, .8rem); }
 .booking-signal-card .portfolio-meta { margin: 0; }
+.booking-signal-meta .portfolio-meta { width: 100%; text-align: center; }
 .booking-signal-card .portfolio-meta + .portfolio-meta { margin-top: .25rem; }
 .quotes-grid {
   display: grid;
