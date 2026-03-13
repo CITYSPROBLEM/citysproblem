@@ -167,7 +167,13 @@
       </a>
       <a class="release-card" href="https://soundcloud.com/citysproblem/sets/breakaway" target="_blank">
         <div class="glitch-wrap release-art-wrap">
-          <div class="placeholder-art" data-label="BREAKAWAY"></div>
+          <picture>
+            <source
+              srcset="IMAGES/breakaway-cover-800.webp 800w, IMAGES/breakaway-cover-1200.webp 1200w, IMAGES/breakaway-cover-lossless.webp 4000w"
+              sizes="(max-width: 768px) 42vw, 260px"
+              type="image/webp">
+            <img class="release-art" src="IMAGES/breakaway-cover.png" alt="Breakaway cover art" loading="lazy" decoding="async" width="4000" height="4000">
+          </picture>
         </div>
         <p class="release-card-title">BREAKAWAY</p>
         <p class="release-card-meta">EP / 2025</p>
