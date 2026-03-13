@@ -141,7 +141,13 @@
     <div class="release-grid">
       <a class="release-card" href="https://soundcloud.com/upszn-899186374/sets/up007-citysproblem-sidewinder" target="_blank">
         <div class="glitch-wrap release-art-wrap">
-          <div class="placeholder-art" data-label="SIDEWINDER"></div>
+          <picture>
+            <source
+              srcset="IMAGES/up007-cover-800.webp 800w, IMAGES/up007-cover-1200.webp 1200w, IMAGES/up007-cover-lossless.webp 3000w"
+              sizes="(max-width: 768px) 42vw, 260px"
+              type="image/webp">
+            <img class="release-art" src="IMAGES/UP007_COVER.png" alt="Sidewinder cover art" loading="lazy" decoding="async" width="3000" height="3000">
+          </picture>
         </div>
         <p class="release-card-title">SIDEWINDER</p>
         <p class="release-card-meta">#UPSZN! / 2026</p>
