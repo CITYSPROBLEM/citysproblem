@@ -979,7 +979,9 @@ a:hover .arr { transform: translateX(3px); }
   font-size: clamp(.9rem, 2.5vw, 1.6rem);
   letter-spacing: .08em;
   color: var(--text);
-  white-space: nowrap;
+  white-space: normal;
+  line-height: 1.35;
+  text-wrap: balance;
   text-shadow: 0 0 14px rgba(0,212,255,.2);
 }
 .featured-meta {

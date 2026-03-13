@@ -1160,7 +1160,7 @@ window.addEventListener('resize', () => {
 
 /* hover-scramble for new static text elements */
 document.querySelectorAll(
-  '.featured-title, .featured-meta, .featured-link, .release-card-title, .release-card-meta, .dates-empty, #datesSection .date-date, #datesSection .date-venue, .portfolio-title, .portfolio-meta, .portfolio-link, .quote-line, .quote-source'
+  '.featured-title, .featured-meta, .featured-link, .release-card-title, .release-card-meta, .dates-empty, #datesSection .date-date, #datesSection .date-venue, .portfolio-title, .portfolio-meta, .portfolio-link, .quote-line, .quote-source, #pastShowsSection .section-label, #pastShowsSection .past-shows-year-btn, #pastShowsSection .past-shows-back-btn'
 ).forEach(addScrambleHover);
 Array.from(document.querySelectorAll('.section-label'))
   .filter(el => !pastShowsSection.contains(el))
