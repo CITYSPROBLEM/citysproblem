@@ -897,7 +897,6 @@ a:hover .arr { transform: translateX(3px); }
 }
 
 /* ── full-viewport section spacing + scroll-snap ─── */
-.featured-release,
 .portfolio-section,
 .info-wrap,
 .dates-wrap {
@@ -909,6 +908,23 @@ a:hover .arr { transform: translateX(3px); }
   scroll-snap-align: center;
   margin-top: clamp(3rem, 6vh, 5rem);
   margin-bottom: clamp(3rem, 6vh, 5rem);
+}
+.featured-wrap {
+  min-height: calc(100vh - 72px - var(--player-h, 56px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  scroll-snap-align: start;
+  margin-top: clamp(3rem, 6vh, 5rem);
+  margin-bottom: clamp(3rem, 6vh, 5rem);
+  width: 100%;
+}
+.featured-wrap .featured-release {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 .info-wrap,
 .dates-wrap {
