@@ -916,12 +916,7 @@ a:hover .arr { transform: translateX(3px); }
   padding: 1.4rem 0;
   border-top: 1px solid rgba(0,212,255,.14);
   border-bottom: 1px solid rgba(0,212,255,.14);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(4,6,15,.95);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  position: relative;
   opacity: 0;
 }
 .ticker::before {
