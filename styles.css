@@ -897,9 +897,16 @@ a:hover .arr { transform: translateX(3px); }
 
 /* ── full-viewport section spacing ───────────────── */
 .featured-release,
-.releases-section,
 .portfolio-section {
   min-height: calc(100vh - 72px - var(--player-h, 56px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.releases-section {
+  min-height: calc(100vh - 72px - var(--player-h, 56px));
+  margin-top: clamp(4rem, 10vh, 8rem);
   display: flex;
   flex-direction: column;
   align-items: center;
