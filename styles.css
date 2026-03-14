@@ -863,6 +863,36 @@ a:hover .arr { transform: translateX(3px); }
   opacity: .5;
 }
 
+/* ── section divider ──────────────────────────────── */
+.section-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(500px, 80vw);
+  margin: 0 auto;
+  gap: 0;
+  opacity: .45;
+}
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+}
+.section-divider::before {
+  background: linear-gradient(90deg, transparent, rgba(0,212,255,.6));
+}
+.section-divider::after {
+  background: linear-gradient(90deg, rgba(0,212,255,.6), transparent);
+}
+.section-divider span {
+  width: 5px; height: 5px;
+  background: rgba(0,212,255,.7);
+  transform: rotate(45deg);
+  flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(0,212,255,.4);
+}
+
 /* ── section label (reusable) ────────────────────── */
 .section-label {
   font-family: 'Michroma', sans-serif;
