@@ -1,31 +1,42 @@
-/* Safari-specific tuning: prioritize frame stability over heavy compositing */
+/* Safari parity tuning: keep Chrome look while compensating Safari intensity */
 html.is-safari .topbar,
-html.is-safari .player,
+html.is-safari .player {
+  backdrop-filter: blur(13px);
+  -webkit-backdrop-filter: blur(13px);
+}
+
 html.is-safari .info-section,
 html.is-safari .portfolio-card,
 html.is-safari .quote-card {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-html.is-safari .grain,
-html.is-safari #cur-ring,
+html.is-safari .grain {
+  opacity: .05;
+}
+
+html.is-safari #cur-ring {
+  display: block;
+  border-color: rgba(0,212,255,.38);
+}
+
 html.is-safari .glitch-wrap::before,
 html.is-safari .glitch-wrap::after {
-  display: none;
+  opacity: .65;
 }
 
 html.is-safari .aurora {
-  filter: blur(24px);
-  opacity: .34;
+  filter: blur(44px);
+  opacity: .58;
 }
 
-html.is-safari .featured-release::before,
+html.is-safari .featured-release::before {
+  filter: blur(56px);
+  opacity: .54;
+}
+
 html.is-safari .releases-section::before {
-  filter: blur(30px);
-  opacity: .42;
-}
-
-html.is-safari .ticker-track {
-  text-shadow: 0 0 6px rgba(0,212,255,.18);
+  filter: blur(46px);
+  opacity: .54;
 }

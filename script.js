@@ -44,9 +44,10 @@ const isCoarsePointer = window.matchMedia('(hover: none) and (pointer: coarse)')
 const browser = document.documentElement.dataset.browser || 'other';
 const isSafari = browser === 'safari';
 const isChrome = browser === 'chrome';
-const enableHeavyPointerFx = !isCoarsePointer && isChrome;
-const enableAnimatedGrain = isChrome;
-const visualizerFrameStride = isChrome ? 1 : 2;
+const isFirefox = browser === 'firefox';
+const enableHeavyPointerFx = !isCoarsePointer && (isChrome || isSafari);
+const enableAnimatedGrain = isChrome || isSafari;
+const visualizerFrameStride = isFirefox ? 2 : 1;
 const LINK_HOVER_SELECTOR = 'a, button, .topbar-logo, .player-progress, .player-vol-slider, .player-track-name, .glitch-wrap, .release-card, .featured-link';
 const scheduleNonCritical = window.requestIdleCallback
   ? fn => window.requestIdleCallback(fn, { timeout: 1200 })
