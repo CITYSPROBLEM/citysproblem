@@ -303,6 +303,7 @@ main {
   align-items: center;
   padding: 72px clamp(1rem, 4vw, 3rem) clamp(3rem, 5vw, 6rem);
   text-align: center;
+  overflow-x: hidden;
   overflow-x: clip;
 }
 main::after {
@@ -313,6 +314,7 @@ main::after {
   flex: 0 0 auto;
 }
 .hero {
+  min-height: calc(100vh - 72px);
   min-height: calc(100dvh - 72px);
   display: flex; flex-direction: column;
   justify-content: center; align-items: center;
@@ -419,6 +421,7 @@ main::after {
   position: absolute; right: -2rem;
   font-size: clamp(1.1rem, 2.8vw, 1.5rem);
   transition: transform .32s ease;
+  -webkit-user-select: none;
   user-select: none;
 }
 .info-block.open .info-toggle { transform: rotate(45deg); }
@@ -662,8 +665,9 @@ a:hover .arr { transform: translateX(3px); }
   box-shadow: 0 0 6px rgba(0,212,255,.7);
   cursor: none;
 }
-.player-vol-slider::-webkit-slider-runnable-track { height: 2px; }
+.player-vol-slider::-webkit-slider-runnable-track { height: 2px; background: transparent; }
 .player-vol-slider::-moz-range-track { height: 2px; background: rgba(0,212,255,.15); }
+.player-vol-slider::-moz-range-progress { height: 2px; background: var(--ice); }
 
 /* hide custom cursor only on real touch devices, not just narrow windows */
 @media (hover: none) and (pointer: coarse) {
@@ -709,6 +713,7 @@ a:hover .arr { transform: translateX(3px); }
     padding: 72px 1.25rem 4rem;
   }
   .hero {
+    min-height: calc(100vh - 72px);
     min-height: calc(100dvh - 72px);
     padding-bottom: var(--player-h, 48px);
   }
@@ -852,6 +857,7 @@ a:hover .arr { transform: translateX(3px); }
   line-height: 1.9;
   letter-spacing: .05em;
   color: rgba(220,240,255,.88);
+  word-break: break-word;
   overflow-wrap: anywhere;
 }
 .bio-press-links { display: flex; flex-direction: column; gap: .65rem; align-items: flex-start; }
@@ -1157,6 +1163,7 @@ a:hover .arr { transform: translateX(3px); }
 .dates-section,
 .portfolio-section {
   content-visibility: auto;
+  contain-intrinsic-block-size: 720px;
   contain-intrinsic-size: 1px 720px;
 }
 .ticker-sep {
@@ -1229,6 +1236,7 @@ a:hover .arr { transform: translateX(3px); }
   color: var(--text);
   white-space: normal;
   line-height: 1.35;
+  text-wrap: pretty;
   text-wrap: balance;
   text-shadow: 0 0 14px rgba(0,212,255,.2);
 }

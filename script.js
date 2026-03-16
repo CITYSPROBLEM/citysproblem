@@ -1006,12 +1006,12 @@ function followSectionCenter(targetEl = infoSection, duration = 400) {
     syncCenterScrollSpacer(targetEl);
     const targetY = currentSectionScrollCenter(targetEl);
     const nextY = startY + (targetY - startY) * ease(t);
-    window.scrollTo({ top: nextY, behavior: 'instant' });
+    window.scrollTo(0, nextY);
     if (t < 1) {
       rafId = requestAnimationFrame(frame);
     } else {
       syncCenterScrollSpacer(targetEl);
-      window.scrollTo({ top: currentSectionScrollCenter(targetEl), behavior: 'instant' });
+      window.scrollTo(0, currentSectionScrollCenter(targetEl));
       cancelInfoCenterFollow = null;
     }
   }
