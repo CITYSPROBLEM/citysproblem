@@ -50,6 +50,23 @@
 /* hide overflow while splash is up */
 html.splash-active { overflow: hidden; }
 
+/* page load fade-in — content starts hidden, bg/vignette/grain stay visible */
+html.page-loading main,
+html.page-loading .topbar,
+html.page-loading .player {
+  opacity: 0 !important;
+  transition: none !important;
+  animation-play-state: paused !important;
+}
+html.page-loading main * {
+  animation-play-state: paused !important;
+}
+html.page-ready main,
+html.page-ready .topbar,
+html.page-ready .player {
+  transition: opacity .8s ease !important;
+}
+
 :root {
   --text: #e0eaf8;
   --ice: #00d4ff;
@@ -299,6 +316,7 @@ main::after {
   min-height: calc(100dvh - 72px);
   display: flex; flex-direction: column;
   justify-content: center; align-items: center;
+  scroll-snap-align: center;
   width: 100%; position: relative;
   padding-bottom: var(--player-h, 56px);
 }

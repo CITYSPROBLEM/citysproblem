@@ -1,10 +1,21 @@
+/* page load fade-in — swap loading→ready so content transitions in smoothly */
+const pageReady = new Promise(resolve => {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.documentElement.classList.remove('page-loading');
+      document.documentElement.classList.add('page-ready');
+      resolve();
+    });
+  });
+});
+
 /* splash screen — only shows once per session */
 const splashReady = (function() {
   const splash = document.getElementById('splash');
-  if (!splash) return Promise.resolve();
+  if (!splash) return pageReady;
   if (sessionStorage.getItem('splashDismissed')) {
     splash.remove();
-    return Promise.resolve();
+    return pageReady;
   }
   document.documentElement.classList.add('splash-active');
   const splashLogo = splash.querySelector('.splash-logo');
