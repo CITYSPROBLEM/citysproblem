@@ -1,14 +1,17 @@
 /* splash screen */
-(function() {
+const splashReady = (function() {
   const splash = document.getElementById('splash');
-  if (!splash) return;
+  if (!splash) return Promise.resolve();
   document.documentElement.classList.add('splash-active');
   const splashLogo = splash.querySelector('.splash-logo');
-  splashLogo.addEventListener('click', function dismiss() {
-    splashLogo.removeEventListener('click', dismiss);
-    splash.classList.add('dismissed');
-    document.documentElement.classList.remove('splash-active');
-    splash.addEventListener('transitionend', () => splash.remove());
+  return new Promise(resolve => {
+    splashLogo.addEventListener('click', function dismiss() {
+      splashLogo.removeEventListener('click', dismiss);
+      splash.classList.add('dismissed');
+      document.documentElement.classList.remove('splash-active');
+      splash.addEventListener('transitionend', () => splash.remove());
+      resolve();
+    });
   });
 })();
 
@@ -285,6 +288,7 @@ function h1Settle() {
   cancelH1 = settleIn(h1Orig, t => { h1El.textContent = t; applyH1Centering(); });
 }
 
+splashReady.then(() => {
 if (isCoarsePointer) {
   /* deterministic mobile intro: short timed scramble burst, then hard settle */
   let burstTicks = 0;
@@ -328,6 +332,7 @@ if (isCoarsePointer) {
   h1SettleFallbackTimer = setTimeout(h1Settle, 1600);
   h1SettleWatchdogTimer = setTimeout(h1FinalizeImmediate, 2600);
 }
+});
 function applyH1Centering() {
   const overflow = h1El.scrollWidth - h1El.clientWidth;
   h1El.style.transform = overflow > 0 ? `translateX(${-(overflow / 2)}px)` : '';
