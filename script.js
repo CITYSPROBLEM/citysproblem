@@ -3,8 +3,9 @@
   const splash = document.getElementById('splash');
   if (!splash) return;
   document.documentElement.classList.add('splash-active');
-  splash.addEventListener('click', function dismiss() {
-    splash.removeEventListener('click', dismiss);
+  const splashLogo = splash.querySelector('.splash-logo');
+  splashLogo.addEventListener('click', function dismiss() {
+    splashLogo.removeEventListener('click', dismiss);
     splash.classList.add('dismissed');
     document.documentElement.classList.remove('splash-active');
     splash.addEventListener('transitionend', () => splash.remove());

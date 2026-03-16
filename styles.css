@@ -6,7 +6,6 @@
   z-index: 9999;
   background: #000;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer !important;
   transition: opacity .6s ease, visibility .6s ease;
 }
 .splash.dismissed {
@@ -17,13 +16,18 @@
 .splash-logo {
   width: clamp(120px, 30vw, 280px);
   height: auto;
-  filter: brightness(0) invert(1);
+  opacity: 0;
   cursor: pointer !important;
-  animation: splashPulse 2.5s ease-in-out infinite;
+  filter: brightness(0) invert(1) brightness(0.961);
+  animation: splashFadeIn 1.2s .2s ease forwards, splashPulse 2.5s 1.4s ease-in-out infinite;
+}
+@keyframes splashFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 @keyframes splashPulse {
-  0%, 100% { opacity: .85; filter: brightness(0) invert(1) drop-shadow(0 0 0px transparent); }
-  50%      { opacity: 1;   filter: brightness(0) invert(1) drop-shadow(0 0 20px rgba(0,212,255,.4)); }
+  0%, 100% { filter: brightness(0) invert(1) brightness(0.961) drop-shadow(0 0 0px transparent); }
+  50%      { filter: brightness(0) invert(1) brightness(0.961) drop-shadow(0 0 20px rgba(0,212,255,.4)); }
 }
 /* pause all site animations while splash is visible */
 .splash-active, .splash-active * {
