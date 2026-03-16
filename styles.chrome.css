@@ -1,0 +1,17 @@
+/* Chrome-specific tuning: preserve full visuals with GPU-friendly hints */
+html.is-chrome .ticker-track,
+html.is-chrome .release-card,
+html.is-chrome .featured-artwork-wrap,
+html.is-chrome .aurora {
+  will-change: transform;
+}
+
+html.is-chrome .topbar,
+html.is-chrome .player {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+html.is-chrome .grain {
+  opacity: .05;
+}

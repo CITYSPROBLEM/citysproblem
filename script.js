@@ -41,7 +41,12 @@ const splashReady = (function() {
 const cur  = document.getElementById('cur');
 const ring = document.getElementById('cur-ring');
 const isCoarsePointer = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-const isSafari = document.documentElement.classList.contains('is-safari');
+const browser = document.documentElement.dataset.browser || 'other';
+const isSafari = browser === 'safari';
+const isChrome = browser === 'chrome';
+const enableHeavyPointerFx = !isCoarsePointer && isChrome;
+const enableAnimatedGrain = isChrome;
+const visualizerFrameStride = isChrome ? 1 : 2;
 const LINK_HOVER_SELECTOR = 'a, button, .topbar-logo, .player-progress, .player-vol-slider, .player-track-name, .glitch-wrap, .release-card, .featured-link';
 const scheduleNonCritical = window.requestIdleCallback
   ? fn => window.requestIdleCallback(fn, { timeout: 1200 })
@@ -409,7 +414,7 @@ if (!isCoarsePointer) {
 {
   const auroraEl = document.querySelector('.aurora');
   const heroEl = document.querySelector('.hero');
-  if (auroraEl && heroEl && !isCoarsePointer && !isSafari) {
+  if (auroraEl && heroEl && enableHeavyPointerFx) {
     let ax = 0, ay = 0, targetAx = 0, targetAy = 0;
     let auroraRafId = 0;
     let auroraRunning = false;
@@ -696,6 +701,7 @@ window.addEventListener('resize', () => {
   const vizCanvas = document.getElementById('visualizer');
   const vizCtx = vizCanvas.getContext('2d');
   let analyser = null, dataArray = null, audioCtxStarted = false;
+  let vizFrameCount = 0;
 
   function initAudioContext() {
     if (audioCtxStarted) return;
@@ -737,6 +743,8 @@ window.addEventListener('resize', () => {
 
   window.shouldDrawVisualizer = shouldDrawVisualizer;
   window.drawVisualizer = function() {
+    vizFrameCount += 1;
+    if (vizFrameCount % visualizerFrameStride !== 0) return;
     if (!shouldDrawVisualizer()) return;
     const W = vizCanvas.clientWidth, H = vizCanvas.clientHeight;
     vizCtx.clearRect(0, 0, W, H);
@@ -1412,7 +1420,7 @@ document.addEventListener('click', e => {
 });
 
 /* ── magnetic hover on CTA buttons ─────────────────── */
-if (!isCoarsePointer && !isSafari) {
+if (enableHeavyPointerFx) {
   scheduleNonCritical(() => {
     const magnetEls = document.querySelectorAll('.booking-cta, .featured-link');
     const MAGNET_STRENGTH = 0.35; /* 0-1 — how far the element pulls toward cursor */
@@ -1437,7 +1445,7 @@ if (!isCoarsePointer && !isSafari) {
 }
 
 /* ── 3D tilt on release cards + featured artwork ──── */
-if (!isCoarsePointer && !isSafari) {
+if (enableHeavyPointerFx) {
   scheduleNonCritical(() => {
     function addTiltHover(el, maxDeg = 8) {
       el.addEventListener('mousemove', e => {
@@ -1463,11 +1471,11 @@ if (!isCoarsePointer && !isSafari) {
 
   function tick() {
     if (!tickRunning) return;
-    if (!isSafari) {
+    if (!isCoarsePointer) {
       rx += (mx - rx) * .25; ry += (my - ry) * .25;
       ring.style.transform = `translate(${rx}px,${ry}px)`;
     }
-    if (!isSafari && ++grainFrame % 6 === 0)
+    if (enableAnimatedGrain && ++grainFrame % 6 === 0)
       turbEl.setAttribute('seed', (noiseSeed = (noiseSeed + 1) % 200));
     if (window.shouldDrawVisualizer?.()) window.drawVisualizer();
     tickRafId = requestAnimationFrame(tick);

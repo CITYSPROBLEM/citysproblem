@@ -25,9 +25,28 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet">
 <script>
-(function(){var u=navigator.userAgent;if(/Safari/.test(u)&&!/Chrome/.test(u)&&!/Chromium/.test(u))document.documentElement.classList.add('is-safari');})();
+(function(){
+  var ua = navigator.userAgent;
+  var isFirefox = /Firefox\//.test(ua);
+  var isSafari = /Safari\//.test(ua) && !/Chrome\//.test(ua) && !/Chromium\//.test(ua) && !/Edg\//.test(ua) && !/OPR\//.test(ua);
+  var isChrome = /Chrome\//.test(ua) && !/Edg\//.test(ua) && !/OPR\//.test(ua);
+  var browser = isSafari ? "safari" : (isFirefox ? "firefox" : (isChrome ? "chrome" : "other"));
+  var root = document.documentElement;
+  root.dataset.browser = browser;
+  root.classList.add("is-" + browser);
+})();
 </script>
-<link rel="stylesheet" href="styles.css?v=20260316i">
+<link rel="stylesheet" href="styles.css?v=20260316j">
+<script>
+(function(){
+  var b = document.documentElement.dataset.browser;
+  if (b !== "safari" && b !== "chrome" && b !== "firefox") return;
+  var link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "styles." + b + ".css?v=20260316j";
+  document.head.appendChild(link);
+})();
+</script>
 </head>
 <body>
 <div class="bg-fixed"></div>
@@ -110,6 +129,15 @@
 <div class="tap-hint" id="tapHint"></div>
 
 <script src="SONGS/tracks.js?v=20260309"></script>
-<script src="script.js?v=20260316i"></script>
+<script src="script.js?v=20260316j"></script>
+<script>
+(function(){
+  var b = document.documentElement.dataset.browser;
+  if (b !== "safari" && b !== "chrome" && b !== "firefox") return;
+  var script = document.createElement("script");
+  script.src = "script." + b + ".js?v=20260316j";
+  document.body.appendChild(script);
+})();
+</script>
 </body>
 </html>

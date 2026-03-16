@@ -1,0 +1,31 @@
+/* Firefox-specific tuning: reduce effects that cost more on Gecko */
+html.is-firefox .topbar,
+html.is-firefox .player,
+html.is-firefox .info-section,
+html.is-firefox .portfolio-card,
+html.is-firefox .quote-card {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.is-firefox .grain,
+html.is-firefox .glitch-wrap::before,
+html.is-firefox .glitch-wrap::after,
+html.is-firefox #cur-ring {
+  display: none;
+}
+
+html.is-firefox .aurora {
+  filter: blur(22px);
+  opacity: .3;
+}
+
+html.is-firefox .featured-release::before,
+html.is-firefox .releases-section::before {
+  filter: blur(28px);
+  opacity: .38;
+}
+
+html.is-firefox .player-vol-slider::-moz-range-thumb {
+  box-shadow: 0 0 4px rgba(0,212,255,.3);
+}
