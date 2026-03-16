@@ -950,6 +950,11 @@ a:hover .arr { transform: translateX(3px); }
 }
 .featured-wrap {
   justify-content: flex-start;
+  position: relative;
+  padding-top: 3rem;
+}
+.featured-wrap > .ticker {
+  flex-shrink: 0;
 }
 .featured-wrap .featured-release {
   flex: 1;
