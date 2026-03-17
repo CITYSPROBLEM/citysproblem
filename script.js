@@ -863,141 +863,8 @@ if (h1El) {
 
 /* info section scramble — apply hover-scramble after DOM ready */
 const infoSection = document.getElementById('infoSection');
+const hasInfoSection = Boolean(infoSection && !infoSection.hidden);
 const CONNECT_EXTRA_WIDTH = 320;
-
-/* reveal info section once it scrolls into view */
-{
-  const infoLabelEls = Array.from(infoSection.querySelectorAll('.bio-panel-label'));
-  const infoLabelOrig = infoLabelEls.map(el => el.textContent);
-  let infoLoops = null;
-
-  function revealInfo() {
-    infoLoops = infoLabelEls.map((el, i) => scrambleLoop(infoLabelOrig[i], t => { el.textContent = t; }, 30));
-    requestAnimationFrame(() => infoSection.classList.add('visible'));
-
-    let settled = false;
-    function onFadeInEnd() {
-      if (settled) return;
-      settled = true;
-      infoLoops.forEach(c => c()); infoLoops = null;
-      infoLabelEls.forEach((el, i) => settleIn(infoLabelOrig[i], t => { el.textContent = t; }));
-    }
-
-    /* primary: transitionend on the section opacity transition */
-    function onTransitionEnd(e) {
-      if (e.target !== infoSection || e.propertyName !== 'opacity') return;
-      infoSection.removeEventListener('transitionend', onTransitionEnd);
-      onFadeInEnd();
-    }
-    infoSection.addEventListener('transitionend', onTransitionEnd);
-
-    /* fallback: if transitionend never fires, settle after the transition window */
-    setTimeout(onFadeInEnd, 1100);
-  }
-
-  const observer = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting) { revealInfo(); observer.disconnect(); }
-  }, { threshold: 0 });
-  observer.observe(infoSection);
-}
-
-/* auto-center removed — multiple sections now, free scroll */
-
-let narrowW = 0, expandedW = 0;
-
-function expandedWidthForBlock(block) {
-  if (!block) return expandedW;
-  const limit = window.innerWidth * 0.95;
-  if (!block.classList.contains('connect-block')) return expandedW;
-  return Math.min(expandedW + CONNECT_EXTRA_WIDTH, limit);
-}
-
-function initLayout() {
-  const mobile = window.innerWidth <= 768;
-  if (mobile) {
-    infoSection.style.width = '';
-    infoSection.style.transition = 'none';
-    syncCenterScrollSpacer();
-    return;
-  }
-
-  /* disable transition during measurement */
-  infoSection.style.transition = 'none';
-  infoSection.style.width = Math.min(window.innerWidth * 0.9, 1400) + 'px';
-  infoSection.offsetWidth; /* force reflow */
-
-  /* equalize link widths at full measure width */
-  const links = Array.from(infoSection.querySelectorAll('.bio-press-links a'));
-  links.forEach(a => { a.style.width = 'auto'; });
-  infoSection.offsetWidth;
-  const maxLinkW = links.reduce((m, a) => Math.max(m, a.offsetWidth), 0);
-  if (maxLinkW > 0) links.forEach(a => { a.style.width = maxLinkW + 'px'; });
-
-  /* measure label widths for narrow (collapsed) state */
-  const labels = Array.from(infoSection.querySelectorAll('.bio-panel-label'));
-  const maxLabelW = labels.reduce((m, el) => Math.max(m, el.offsetWidth), 0);
-  const hPad = parseFloat(getComputedStyle(infoSection).paddingLeft) * 2;
-
-  expandedW = Math.min(maxLinkW + hPad, window.innerWidth * 0.9);
-  narrowW = Math.max(280, maxLabelW + hPad + 40); /* +40 for toggle icon */
-
-  /* set correct width for current state — no transition yet */
-  const openBlock = infoSection.querySelector('.info-block.open');
-  const widthForOpen = openBlock ? expandedWidthForBlock(openBlock) : narrowW;
-  infoSection.style.width = widthForOpen + 'px';
-  infoSection.offsetWidth;
-
-  /* re-enable transition — future width changes will animate */
-  infoSection.style.transition = '';
-  syncCenterScrollSpacer();
-}
-
-document.fonts.ready.then(initLayout);
-document.fonts.ready.then(syncCenterScrollSpacer);
-let layoutResizeTimer = null;
-window.addEventListener('resize', () => {
-  clearTimeout(layoutResizeTimer);
-  layoutResizeTimer = setTimeout(() => {
-    initLayout();
-    syncCenterScrollSpacer();
-  }, 90);
-}, { passive: true });
-
-/* hide all blocks except the given one with a smooth height+opacity collapse */
-function hideOtherBlocks(openBlock) {
-  Array.from(infoSection.querySelectorAll('.info-block'))
-    .filter(b => b !== openBlock)
-    .forEach(b => {
-      const h = b.offsetHeight;
-      b.style.overflow = 'hidden';
-      b.style.transition = 'none';
-      b.style.maxHeight = h + 'px';
-      b.style.opacity = '1';
-      b.offsetHeight; /* force reflow */
-      b.style.transition = 'max-height .35s ease, opacity .25s ease';
-      b.style.maxHeight = '0';
-      b.style.opacity = '0';
-      b.style.pointerEvents = 'none';
-    });
-}
-
-/* reveal all hidden blocks back to their header height */
-function showAllBlocks() {
-  Array.from(infoSection.querySelectorAll('.info-block')).forEach(b => {
-    if (!b.style.maxHeight || b.style.maxHeight === '') return; /* already visible */
-    const targetH = b.querySelector('.info-block-header').offsetHeight;
-    b.style.transition = 'max-height .35s ease, opacity .25s ease';
-    b.style.maxHeight = targetH + 'px';
-    b.style.opacity = '1';
-    b.style.pointerEvents = '';
-    setTimeout(() => {
-      b.style.transition = '';
-      b.style.maxHeight = '';
-      b.style.opacity = '';
-      b.style.overflow = '';
-    }, 370);
-  });
-}
 
 function centerBandY() {
   const topEdge = topbarEl ? topbarEl.getBoundingClientRect().bottom : 0;
@@ -1005,10 +872,14 @@ function centerBandY() {
   return topEdge + (bottomEdge - topEdge) / 2;
 }
 
-let centerScrollTarget = infoSection;
+const defaultCenterTarget = infoSection || pastShowsSection || null;
+let centerScrollTarget = defaultCenterTarget;
 
-function syncCenterScrollSpacer(targetEl = centerScrollTarget || infoSection) {
-  if (!mainEl || !targetEl) return;
+function syncCenterScrollSpacer(targetEl = centerScrollTarget || defaultCenterTarget) {
+  if (!mainEl || !targetEl || !targetEl.isConnected) {
+    document.documentElement.style.setProperty('--info-scroll-spacer', '0px');
+    return;
+  }
   const lowerViewportSpace = Math.max(0, window.innerHeight - centerBandY());
   const neededSpace = Math.max(0, lowerViewportSpace - targetEl.offsetHeight / 2);
   document.documentElement.style.setProperty('--info-scroll-spacer', `${Math.ceil(neededSpace)}px`);
@@ -1021,8 +892,8 @@ function clampScrollY(targetY) {
 }
 
 /* return the vertical scroll position that centers the current target in the usable viewport */
-function currentSectionScrollCenter(targetEl = centerScrollTarget || infoSection) {
-  if (!targetEl) return window.scrollY;
+function currentSectionScrollCenter(targetEl = centerScrollTarget || defaultCenterTarget) {
+  if (!targetEl || !targetEl.isConnected) return window.scrollY;
   const rect = targetEl.getBoundingClientRect();
   const rectCenter = rect.top + rect.height / 2;
   return clampScrollY(window.scrollY + rectCenter - centerBandY());
@@ -1030,7 +901,8 @@ function currentSectionScrollCenter(targetEl = centerScrollTarget || infoSection
 
 let cancelInfoCenterFollow = null;
 
-function followSectionCenter(targetEl = infoSection, duration = 400) {
+function followSectionCenter(targetEl = defaultCenterTarget, duration = 400) {
+  if (!targetEl || !targetEl.isConnected) return;
   centerScrollTarget = targetEl;
   cancelInfoCenterFollow?.();
 
@@ -1064,192 +936,327 @@ function followSectionCenter(targetEl = infoSection, duration = 400) {
   };
 }
 
-function syncSectionCenterState(targetEl = infoSection) {
+function syncSectionCenterState(targetEl = defaultCenterTarget) {
+  if (!targetEl || !targetEl.isConnected) return;
   centerScrollTarget = targetEl;
   syncCenterScrollSpacer(targetEl);
 }
 
-/* accordion */
-infoSection.querySelectorAll('.info-block-header').forEach(header => {
-  header.addEventListener('click', () => {
-    const block  = header.closest('.info-block');
-    const isOpen = block.classList.contains('open');
+if (hasInfoSection) {
+  /* reveal info section once it scrolls into view */
+  {
+    const infoLabelEls = Array.from(infoSection.querySelectorAll('.bio-panel-label'));
+    const infoLabelOrig = infoLabelEls.map(el => el.textContent);
+    let infoLoops = null;
 
-    /* close any open block */
-    infoSection.querySelectorAll('.info-block.open').forEach(b => {
-      b.classList.remove('open');
-      b.querySelector('.info-block-content').style.maxHeight = '0px';
-      resetLabelGroups(b);
-    });
+    function revealInfo() {
+      infoLoops = infoLabelEls.map((el, i) => scrambleLoop(infoLabelOrig[i], t => { el.textContent = t; }, 30));
+      requestAnimationFrame(() => infoSection.classList.add('visible'));
 
-    if (isOpen) {
-      showAllBlocks();
-      if (window.innerWidth > 768) infoSection.style.width = narrowW + 'px';
-      infoSection.offsetHeight;
-      followSectionCenter(infoSection, 400);
-    } else {
-      const content = block.querySelector('.info-block-content');
-
-      hideOtherBlocks(block);
-      if (window.innerWidth > 768) infoSection.style.width = expandedWidthForBlock(block) + 'px';
-      block.classList.add('open');
-      content.style.maxHeight = content.scrollHeight + 'px';
-      followSectionCenter(infoSection, 400);
-
-      /* scramble-settle the revealed text */
-      const textEls  = Array.from(content.querySelectorAll('.bio-text, .bio-press-links a, .label-btn'));
-      const textOrig = textEls.map(el => el.textContent);
-      const lockWidthEls = window.innerWidth <= 768
-        ? textEls.filter(el => el.matches('.bio-press-links a, .label-btn'))
-        : [];
-      lockWidthEls.forEach(el => {
-        const w = Math.ceil(el.getBoundingClientRect().width);
-        el.style.minWidth = `${w}px`;
-        el.style.whiteSpace = 'nowrap';
-      });
-      const loops    = textEls.map((el, i) => scrambleLoop(textOrig[i], t => { el.textContent = t; }, 30, accordionScrambleLimit(textOrig[i])));
-      loops.forEach(c => c());
-      let remainingSettle = textEls.length;
-      textEls.forEach((el, i) => scrambleResolve(
-        textOrig[i],
-        t => { el.textContent = t; },
-        16,
-        20,
-        () => {
-          if (--remainingSettle !== 0) return;
-          lockWidthEls.forEach(locked => {
-            locked.style.minWidth = '';
-            locked.style.whiteSpace = '';
-          });
-        },
-        accordionScrambleLimit(textOrig[i])
-      ));
-    }
-  });
-});
-
-/* label releases — helpers */
-function hideLabelGroups(openGroup) {
-  infoSection.querySelectorAll('.label-group').forEach(g => {
-    if (g === openGroup) return;
-    /* ensure songs are closed before hiding the group */
-    g.classList.remove('open');
-    g.querySelector('.label-songs').style.maxHeight = '0';
-    /* snapshot current height then animate to 0 */
-    const h = g.offsetHeight;
-    g.style.overflow    = 'hidden';
-    g.style.transition  = 'none';
-    g.style.maxHeight   = h + 'px';
-    g.style.opacity     = '1';
-    g.offsetHeight; /* force reflow */
-    g.style.transition  = 'max-height .3s ease, opacity .2s ease';
-    g.style.maxHeight   = '0';
-    g.style.opacity     = '0';
-    g.style.pointerEvents = 'none';
-  });
-}
-
-function showAllLabelGroups() {
-  infoSection.querySelectorAll('.label-group').forEach(g => {
-    if (!g.style.maxHeight) return; /* already visible */
-    g.style.transition    = 'max-height .3s ease, opacity .2s ease';
-    g.style.maxHeight     = g.scrollHeight + 'px';
-    g.style.opacity       = '1';
-    g.style.pointerEvents = '';
-    setTimeout(() => {
-      g.style.transition = '';
-      g.style.maxHeight  = '';
-      g.style.opacity    = '';
-      g.style.overflow   = '';
-    }, 320);
-  });
-}
-
-function resetLabelGroups(block) {
-  block.querySelectorAll('.label-group').forEach(g => {
-    g.classList.remove('open');
-    g.style.maxHeight    = '';
-    g.style.opacity      = '';
-    g.style.overflow     = '';
-    g.style.transition   = '';
-    g.style.pointerEvents = '';
-    const s = g.querySelector('.label-songs');
-    if (s) s.style.maxHeight = '0';
-  });
-}
-
-/* label releases — sub-accordion for each label group */
-infoSection.querySelectorAll('.label-group').forEach(group => {
-  const btn   = group.querySelector('.label-btn');
-  const songs = group.querySelector('.label-songs');
-
-  btn.addEventListener('click', () => {
-    const isOpen        = group.classList.contains('open');
-    const parentContent = group.closest('.info-block-content');
-
-    if (isOpen) {
-      /* close: restore all other groups and collapse songs */
-      group.classList.remove('open');
-      if (songs.style.maxHeight === 'none') {
-        songs.style.maxHeight = songs.scrollHeight + 'px';
-        songs.offsetHeight;
+      let settled = false;
+      function onFadeInEnd() {
+        if (settled) return;
+        settled = true;
+        infoLoops.forEach(c => c()); infoLoops = null;
+        infoLabelEls.forEach((el, i) => settleIn(infoLabelOrig[i], t => { el.textContent = t; }));
       }
-      songs.style.maxHeight = '0';
-      songs.style.opacity   = '0';
-      showAllLabelGroups();
-      followSectionCenter(infoSection, 400);
-      /* parent max-height can only shrink after transitions finish (content is taller mid-transition) */
-      setTimeout(() => {
-        if (parentContent.style.maxHeight && parentContent.style.maxHeight !== '0px')
-          parentContent.style.maxHeight = parentContent.scrollHeight + 'px';
-      }, 380);
-    } else {
-      /* open: expand songs and hide all other groups */
-      group.classList.add('open');
-      songs.style.maxHeight = songs.scrollHeight + 'px';
-      songs.style.opacity   = '1';
-      setTimeout(() => {
-        if (group.classList.contains('open')) songs.style.maxHeight = 'none';
-      }, 380);
-      hideLabelGroups(group);
-      const finalContentH = parentContent.scrollHeight;
-      if (parentContent.style.maxHeight && parentContent.style.maxHeight !== '0px')
-        parentContent.style.maxHeight = finalContentH + 'px';
-      followSectionCenter(infoSection, 400);
-      /* scramble-settle song links as they slide in */
-      Array.from(songs.querySelectorAll('a')).forEach(a => {
-        const text = a.textContent;
-        const unlockWidth = lockBracketTextWidth(a, text);
-        scrambleThenSettleAt(text, t => { a.textContent = t; }, 300, accordionScrambleLimit(text));
-        setTimeout(unlockWidth, 340);
-      });
+
+      /* primary: transitionend on the section opacity transition */
+      function onTransitionEnd(e) {
+        if (e.target !== infoSection || e.propertyName !== 'opacity') return;
+        infoSection.removeEventListener('transitionend', onTransitionEnd);
+        onFadeInEnd();
+      }
+      infoSection.addEventListener('transitionend', onTransitionEnd);
+
+      /* fallback: if transitionend never fires, settle after the transition window */
+      setTimeout(onFadeInEnd, 1100);
     }
+
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) { revealInfo(); observer.disconnect(); }
+    }, { threshold: 0 });
+    observer.observe(infoSection);
+  }
+
+  /* auto-center removed — multiple sections now, free scroll */
+  let narrowW = 0, expandedW = 0;
+
+  function expandedWidthForBlock(block) {
+    if (!block) return expandedW;
+    const limit = window.innerWidth * 0.95;
+    if (!block.classList.contains('connect-block')) return expandedW;
+    return Math.min(expandedW + CONNECT_EXTRA_WIDTH, limit);
+  }
+
+  function initLayout() {
+    const mobile = window.innerWidth <= 768;
+    if (mobile) {
+      infoSection.style.width = '';
+      infoSection.style.transition = 'none';
+      syncCenterScrollSpacer();
+      return;
+    }
+
+    /* disable transition during measurement */
+    infoSection.style.transition = 'none';
+    infoSection.style.width = Math.min(window.innerWidth * 0.9, 1400) + 'px';
+    infoSection.offsetWidth; /* force reflow */
+
+    /* equalize link widths at full measure width */
+    const links = Array.from(infoSection.querySelectorAll('.bio-press-links a'));
+    links.forEach(a => { a.style.width = 'auto'; });
+    infoSection.offsetWidth;
+    const maxLinkW = links.reduce((m, a) => Math.max(m, a.offsetWidth), 0);
+    if (maxLinkW > 0) links.forEach(a => { a.style.width = maxLinkW + 'px'; });
+
+    /* measure label widths for narrow (collapsed) state */
+    const labels = Array.from(infoSection.querySelectorAll('.bio-panel-label'));
+    const maxLabelW = labels.reduce((m, el) => Math.max(m, el.offsetWidth), 0);
+    const hPad = parseFloat(getComputedStyle(infoSection).paddingLeft) * 2;
+
+    expandedW = Math.min(maxLinkW + hPad, window.innerWidth * 0.9);
+    narrowW = Math.max(280, maxLabelW + hPad + 40); /* +40 for toggle icon */
+
+    /* set correct width for current state — no transition yet */
+    const openBlock = infoSection.querySelector('.info-block.open');
+    const widthForOpen = openBlock ? expandedWidthForBlock(openBlock) : narrowW;
+    infoSection.style.width = widthForOpen + 'px';
+    infoSection.offsetWidth;
+
+    /* re-enable transition — future width changes will animate */
+    infoSection.style.transition = '';
+    syncCenterScrollSpacer();
+  }
+
+  document.fonts.ready.then(initLayout);
+  document.fonts.ready.then(syncCenterScrollSpacer);
+  let layoutResizeTimer = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(layoutResizeTimer);
+    layoutResizeTimer = setTimeout(() => {
+      initLayout();
+      syncCenterScrollSpacer();
+    }, 90);
+  }, { passive: true });
+
+  /* hide all blocks except the given one with a smooth height+opacity collapse */
+  function hideOtherBlocks(openBlock) {
+    Array.from(infoSection.querySelectorAll('.info-block'))
+      .filter(b => b !== openBlock)
+      .forEach(b => {
+        const h = b.offsetHeight;
+        b.style.overflow = 'hidden';
+        b.style.transition = 'none';
+        b.style.maxHeight = h + 'px';
+        b.style.opacity = '1';
+        b.offsetHeight; /* force reflow */
+        b.style.transition = 'max-height .35s ease, opacity .25s ease';
+        b.style.maxHeight = '0';
+        b.style.opacity = '0';
+        b.style.pointerEvents = 'none';
+      });
+  }
+
+  /* reveal all hidden blocks back to their header height */
+  function showAllBlocks() {
+    Array.from(infoSection.querySelectorAll('.info-block')).forEach(b => {
+      if (!b.style.maxHeight || b.style.maxHeight === '') return; /* already visible */
+      const targetH = b.querySelector('.info-block-header').offsetHeight;
+      b.style.transition = 'max-height .35s ease, opacity .25s ease';
+      b.style.maxHeight = targetH + 'px';
+      b.style.opacity = '1';
+      b.style.pointerEvents = '';
+      setTimeout(() => {
+        b.style.transition = '';
+        b.style.maxHeight = '';
+        b.style.opacity = '';
+        b.style.overflow = '';
+      }, 370);
+    });
+  }
+
+  /* accordion */
+  infoSection.querySelectorAll('.info-block-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const block  = header.closest('.info-block');
+      const isOpen = block.classList.contains('open');
+
+      /* close any open block */
+      infoSection.querySelectorAll('.info-block.open').forEach(b => {
+        b.classList.remove('open');
+        b.querySelector('.info-block-content').style.maxHeight = '0px';
+        resetLabelGroups(b);
+      });
+
+      if (isOpen) {
+        showAllBlocks();
+        if (window.innerWidth > 768) infoSection.style.width = narrowW + 'px';
+        infoSection.offsetHeight;
+        followSectionCenter(infoSection, 400);
+      } else {
+        const content = block.querySelector('.info-block-content');
+
+        hideOtherBlocks(block);
+        if (window.innerWidth > 768) infoSection.style.width = expandedWidthForBlock(block) + 'px';
+        block.classList.add('open');
+        content.style.maxHeight = content.scrollHeight + 'px';
+        followSectionCenter(infoSection, 400);
+
+        /* scramble-settle the revealed text */
+        const textEls  = Array.from(content.querySelectorAll('.bio-text, .bio-press-links a, .label-btn'));
+        const textOrig = textEls.map(el => el.textContent);
+        const lockWidthEls = window.innerWidth <= 768
+          ? textEls.filter(el => el.matches('.bio-press-links a, .label-btn'))
+          : [];
+        lockWidthEls.forEach(el => {
+          const w = Math.ceil(el.getBoundingClientRect().width);
+          el.style.minWidth = `${w}px`;
+          el.style.whiteSpace = 'nowrap';
+        });
+        const loops = textEls.map((el, i) => scrambleLoop(textOrig[i], t => { el.textContent = t; }, 30, accordionScrambleLimit(textOrig[i])));
+        loops.forEach(c => c());
+        let remainingSettle = textEls.length;
+        textEls.forEach((el, i) => scrambleResolve(
+          textOrig[i],
+          t => { el.textContent = t; },
+          16,
+          20,
+          () => {
+            if (--remainingSettle !== 0) return;
+            lockWidthEls.forEach(locked => {
+              locked.style.minWidth = '';
+              locked.style.whiteSpace = '';
+            });
+          },
+          accordionScrambleLimit(textOrig[i])
+        ));
+      }
+    });
   });
 
-});
+  /* label releases — helpers */
+  function hideLabelGroups(openGroup) {
+    infoSection.querySelectorAll('.label-group').forEach(g => {
+      if (g === openGroup) return;
+      /* ensure songs are closed before hiding the group */
+      g.classList.remove('open');
+      g.querySelector('.label-songs').style.maxHeight = '0';
+      /* snapshot current height then animate to 0 */
+      const h = g.offsetHeight;
+      g.style.overflow = 'hidden';
+      g.style.transition = 'none';
+      g.style.maxHeight = h + 'px';
+      g.style.opacity = '1';
+      g.offsetHeight; /* force reflow */
+      g.style.transition = 'max-height .3s ease, opacity .2s ease';
+      g.style.maxHeight = '0';
+      g.style.opacity = '0';
+      g.style.pointerEvents = 'none';
+    });
+  }
 
-/* click outside info section to collapse open accordion */
-document.addEventListener('click', e => {
-  const openBlock = infoSection.querySelector('.info-block.open');
-  if (!openBlock || infoSection.contains(e.target)) return;
+  function showAllLabelGroups() {
+    infoSection.querySelectorAll('.label-group').forEach(g => {
+      if (!g.style.maxHeight) return; /* already visible */
+      g.style.transition = 'max-height .3s ease, opacity .2s ease';
+      g.style.maxHeight = g.scrollHeight + 'px';
+      g.style.opacity = '1';
+      g.style.pointerEvents = '';
+      setTimeout(() => {
+        g.style.transition = '';
+        g.style.maxHeight = '';
+        g.style.opacity = '';
+        g.style.overflow = '';
+      }, 320);
+    });
+  }
 
-  openBlock.classList.remove('open');
-  openBlock.querySelector('.info-block-content').style.maxHeight = '0px';
-  resetLabelGroups(openBlock);
-  showAllBlocks();
-  if (window.innerWidth > 768) infoSection.style.width = narrowW + 'px';
-  syncSectionCenterState(infoSection);
-});
+  function resetLabelGroups(block) {
+    block.querySelectorAll('.label-group').forEach(g => {
+      g.classList.remove('open');
+      g.style.maxHeight = '';
+      g.style.opacity = '';
+      g.style.overflow = '';
+      g.style.transition = '';
+      g.style.pointerEvents = '';
+      const s = g.querySelector('.label-songs');
+      if (s) s.style.maxHeight = '0';
+    });
+  }
 
-/* apply hover-scramble to all remaining static text elements
-   (info section elements are excluded — no hover scramble there) */
-const infoSectionEls = new Set(infoSection.querySelectorAll('.bio-panel-label, .bio-text, .bio-press-links a'));
-[
-  /* panel titles + labels (excluding info section) */
-  ...Array.from(document.querySelectorAll('.bio-panel-title, .bio-panel-label')).filter(el => !infoSectionEls.has(el)),
-  /* bio body text (excluding info section) */
-  ...Array.from(document.querySelectorAll('.bio-text')).filter(el => !infoSectionEls.has(el)),
-].forEach(addScrambleHover);
+  /* label releases — sub-accordion for each label group */
+  infoSection.querySelectorAll('.label-group').forEach(group => {
+    const btn = group.querySelector('.label-btn');
+    const songs = group.querySelector('.label-songs');
+
+    btn.addEventListener('click', () => {
+      const isOpen = group.classList.contains('open');
+      const parentContent = group.closest('.info-block-content');
+
+      if (isOpen) {
+        /* close: restore all other groups and collapse songs */
+        group.classList.remove('open');
+        if (songs.style.maxHeight === 'none') {
+          songs.style.maxHeight = songs.scrollHeight + 'px';
+          songs.offsetHeight;
+        }
+        songs.style.maxHeight = '0';
+        songs.style.opacity = '0';
+        showAllLabelGroups();
+        followSectionCenter(infoSection, 400);
+        /* parent max-height can only shrink after transitions finish (content is taller mid-transition) */
+        setTimeout(() => {
+          if (parentContent.style.maxHeight && parentContent.style.maxHeight !== '0px')
+            parentContent.style.maxHeight = parentContent.scrollHeight + 'px';
+        }, 380);
+      } else {
+        /* open: expand songs and hide all other groups */
+        group.classList.add('open');
+        songs.style.maxHeight = songs.scrollHeight + 'px';
+        songs.style.opacity = '1';
+        setTimeout(() => {
+          if (group.classList.contains('open')) songs.style.maxHeight = 'none';
+        }, 380);
+        hideLabelGroups(group);
+        const finalContentH = parentContent.scrollHeight;
+        if (parentContent.style.maxHeight && parentContent.style.maxHeight !== '0px')
+          parentContent.style.maxHeight = finalContentH + 'px';
+        followSectionCenter(infoSection, 400);
+        /* scramble-settle song links as they slide in */
+        Array.from(songs.querySelectorAll('a')).forEach(a => {
+          const text = a.textContent;
+          const unlockWidth = lockBracketTextWidth(a, text);
+          scrambleThenSettleAt(text, t => { a.textContent = t; }, 300, accordionScrambleLimit(text));
+          setTimeout(unlockWidth, 340);
+        });
+      }
+    });
+  });
+
+  /* click outside info section to collapse open accordion */
+  document.addEventListener('click', e => {
+    const openBlock = infoSection.querySelector('.info-block.open');
+    if (!openBlock || infoSection.contains(e.target)) return;
+
+    openBlock.classList.remove('open');
+    openBlock.querySelector('.info-block-content').style.maxHeight = '0px';
+    resetLabelGroups(openBlock);
+    showAllBlocks();
+    if (window.innerWidth > 768) infoSection.style.width = narrowW + 'px';
+    syncSectionCenterState(infoSection);
+  });
+
+  /* apply hover-scramble to all remaining static text elements
+     (info section elements are excluded — no hover scramble there) */
+  const infoSectionEls = new Set(infoSection.querySelectorAll('.bio-panel-label, .bio-text, .bio-press-links a'));
+  [
+    /* panel titles + labels (excluding info section) */
+    ...Array.from(document.querySelectorAll('.bio-panel-title, .bio-panel-label')).filter(el => !infoSectionEls.has(el)),
+    /* bio body text (excluding info section) */
+    ...Array.from(document.querySelectorAll('.bio-text')).filter(el => !infoSectionEls.has(el)),
+  ].forEach(addScrambleHover);
+}
 
 /* info-block-header scramble removed — clickable elements skip hover-scramble */
 
