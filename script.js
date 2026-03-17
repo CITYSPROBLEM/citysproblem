@@ -1,4 +1,88 @@
 /* page load fade-in — swap loading→ready so content transitions in smoothly */
+function forceHideCursorNow() {
+  document.documentElement.style.cursor = 'none';
+  if (document.body) document.body.style.cursor = 'none';
+}
+forceHideCursorNow();
+window.addEventListener('pageshow', forceHideCursorNow);
+window.addEventListener('focus', forceHideCursorNow);
+document.addEventListener('pointerdown', forceHideCursorNow, true);
+document.addEventListener('mousedown', forceHideCursorNow, true);
+document.addEventListener('touchstart', forceHideCursorNow, { passive: true, capture: true });
+
+let navInFlight = false;
+const prefetchedPages = new Set();
+
+function isInternalNavigableLink(anchor) {
+  if (!anchor || !anchor.getAttribute) return false;
+  const rawHref = anchor.getAttribute('href');
+  if (!rawHref || rawHref.startsWith('#')) return false;
+  if (anchor.hasAttribute('download')) return false;
+  const target = (anchor.getAttribute('target') || '').toLowerCase();
+  if (target && target !== '_self') return false;
+  let url;
+  try {
+    url = new URL(anchor.href, window.location.href);
+  } catch {
+    return false;
+  }
+  if (url.origin !== window.location.origin) return false;
+  const path = url.pathname.toLowerCase();
+  return path.endsWith('.html') || path === '/' || path.endsWith('/index');
+}
+
+function prefetchInternalPage(anchor) {
+  if (!isInternalNavigableLink(anchor)) return;
+  const url = new URL(anchor.href, window.location.href).href;
+  if (prefetchedPages.has(url)) return;
+  prefetchedPages.add(url);
+  const link = document.createElement('link');
+  link.rel = 'prefetch';
+  link.href = url;
+  link.as = 'document';
+  document.head.appendChild(link);
+}
+
+function navigateWithMask(url, replace = false) {
+  if (navInFlight) return;
+  navInFlight = true;
+  forceHideCursorNow();
+  document.documentElement.classList.add('nav-transitioning');
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (replace) window.location.replace(url);
+      else window.location.href = url;
+    });
+  });
+}
+
+document.addEventListener('click', e => {
+  if (e.defaultPrevented) return;
+  if (e.button !== 0) return;
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  if (!(e.target instanceof Element)) return;
+  const anchor = e.target.closest('a[href]');
+  if (!anchor || !isInternalNavigableLink(anchor)) return;
+  const targetUrl = new URL(anchor.href, window.location.href).href;
+  const here = window.location.href.split('#')[0];
+  const next = targetUrl.split('#')[0];
+  if (next === here) return;
+  e.preventDefault();
+  navigateWithMask(targetUrl);
+}, true);
+
+document.addEventListener('pointerenter', e => {
+  if (!(e.target instanceof Element)) return;
+  const anchor = e.target.closest('a[href]');
+  if (anchor) prefetchInternalPage(anchor);
+}, true);
+
+document.addEventListener('touchstart', e => {
+  if (!(e.target instanceof Element)) return;
+  const anchor = e.target.closest('a[href]');
+  if (anchor) prefetchInternalPage(anchor);
+}, { passive: true, capture: true });
+
 const pageReady = new Promise(resolve => {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -76,7 +160,7 @@ if (!isCoarsePointer) {
 /* topbar logo -> home route */
 const topbarLogoEl = document.querySelector('.topbar-logo');
 if (topbarLogoEl) {
-  const goHome = () => { window.location.href = 'index.html'; };
+  const goHome = () => { navigateWithMask('index.html'); };
   topbarLogoEl.setAttribute('role', 'link');
   topbarLogoEl.setAttribute('tabindex', '0');
   topbarLogoEl.addEventListener('click', goHome);

@@ -1,4 +1,31 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
+html, body {
+  cursor: none !important;
+  caret-color: transparent !important;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+html.nav-transitioning,
+html.nav-transitioning * {
+  cursor: none !important;
+}
+a, button, input, textarea, select, [contenteditable] {
+  cursor: none !important;
+  caret-color: transparent !important;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: #030a14;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10050;
+  transition: opacity .16s linear;
+}
+html.nav-transitioning body::before {
+  opacity: 1;
+}
 
 /* splash screen */
 .splash {
@@ -735,15 +762,7 @@ a:hover .arr { transform: translateX(3px); }
 
 /* hide custom cursor only on real touch devices, not just narrow windows */
 @media (hover: none) and (pointer: coarse) {
-  *, *::before, *::after { cursor: auto !important; }
-  html { cursor: auto; }
-  body { cursor: auto; }
   #cur, #cur-ring { display: none; }
-  a { cursor: auto; }
-  .player-btn-shuffle, .player-btn, .player-progress,
-  .player-vol-slider,
-  .player-vol-slider::-webkit-slider-thumb,
-  .player-vol-slider::-moz-range-thumb { cursor: auto; }
 
   /* ── mobile performance: remove expensive GPU effects ── */
 
