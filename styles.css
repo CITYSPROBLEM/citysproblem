@@ -230,11 +230,14 @@ body.link-hover #cur-ring { width: 42px; height: 42px; margin: -21px 0 0 -21px; 
   margin-left: auto;
 }
 html:not(.page-subpage) .topbar-nav.hero-nav-unit {
-  margin-left: 0;
-  margin-top: 1.05rem;
+  margin: 2.2rem auto 0;
   align-self: center;
+  width: max-content;
+  justify-content: center;
   position: relative;
   z-index: 6;
+  transform: scale(1.4);
+  transform-origin: center top;
 }
 .topbar-nav-link {
   display: inline-flex;
@@ -342,6 +345,14 @@ main::after {
   width: 100%; position: relative;
   padding-bottom: var(--player-h, 56px);
 }
+html:not(.page-subpage) main {
+  padding-bottom: 0;
+}
+html:not(.page-subpage) .hero {
+  min-height: calc(100vh - 72px - var(--player-h, 56px));
+  min-height: calc(100dvh - 72px - var(--player-h, 56px));
+  padding-bottom: 0;
+}
 .info-section {
   display: block;
   position: relative;
@@ -366,6 +377,14 @@ main::after {
   scrollbar-width: thin;
   scrollbar-color: rgba(0,212,255,.3) transparent;
   */
+}
+.featured-release,
+.releases-section,
+.info-wrap,
+.dates-wrap,
+.portfolio-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 700px;
 }
 /* TODO: re-enable with above
 .info-section::-webkit-scrollbar { width: 4px; }
