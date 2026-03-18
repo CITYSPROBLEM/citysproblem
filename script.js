@@ -10,6 +10,47 @@ document.addEventListener('pointerdown', forceHideCursorNow, true);
 document.addEventListener('mousedown', forceHideCursorNow, true);
 document.addEventListener('touchstart', forceHideCursorNow, { passive: true, capture: true });
 
+const animDebugEnabled = new URLSearchParams(window.location.search).get('animdebug') === '1';
+let animDebugOverlay = null;
+let animDebugLines = [];
+
+function initAnimDebugOverlay() {
+  if (!animDebugEnabled || animDebugOverlay) return;
+  const overlay = document.createElement('div');
+  overlay.id = 'animDebugOverlay';
+  overlay.style.cssText = [
+    'position:fixed',
+    'right:12px',
+    'bottom:12px',
+    'z-index:99999',
+    'max-width:min(92vw,540px)',
+    'max-height:42vh',
+    'overflow:auto',
+    'padding:10px 12px',
+    'border:1px solid rgba(0,212,255,.45)',
+    'background:rgba(3,10,20,.86)',
+    'color:#bfefff',
+    'font:12px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace',
+    'letter-spacing:.01em',
+    'backdrop-filter:blur(4px)',
+    'pointer-events:none'
+  ].join(';');
+  document.body.appendChild(overlay);
+  animDebugOverlay = overlay;
+  animDebugLog('animdebug enabled');
+}
+
+function animDebugLog(message) {
+  if (!animDebugEnabled) return;
+  if (!animDebugOverlay) initAnimDebugOverlay();
+  const t = new Date().toLocaleTimeString();
+  animDebugLines.push(`${t}  ${message}`);
+  if (animDebugLines.length > 16) animDebugLines = animDebugLines.slice(-16);
+  if (animDebugOverlay) animDebugOverlay.textContent = animDebugLines.join('\n');
+}
+
+document.addEventListener('DOMContentLoaded', initAnimDebugOverlay, { once: true });
+
 let softNavInFlight = false;
 
 function samePath(urlA, urlB) {
@@ -35,41 +76,36 @@ function setActiveTopbarLink(url) {
 function syncNavPlacement() {
   const navEl = document.querySelector('.topbar .topbar-nav') || document.querySelector('.topbar-nav:not(.hero-nav-clone)');
   if (!navEl) return;
-  const heroEl = document.querySelector('.hero');
   const topbarEl = document.querySelector('.topbar');
+  const heroEl = document.querySelector('.hero');
   const isHomePage = !document.documentElement.classList.contains('page-subpage');
+  const existingClone = document.querySelector('.topbar-nav.hero-nav-clone');
 
-  /* mobile: hide topbar nav on home (hero clone only), show in topbar on subpages */
-  if (isCoarsePointer) {
-    const existingClone = document.querySelector('.topbar-nav.hero-nav-clone');
-    if (isHomePage && heroEl) {
-      /* hide canonical nav in topbar on home */
-      navEl.classList.add('topbar-nav-hidden');
-      navEl.classList.remove('hero-nav-unit');
-      if (existingClone) existingClone.remove();
-      const clone = navEl.cloneNode(true);
-      clone.classList.remove('topbar-nav-hidden');
-      clone.classList.add('hero-nav-clone', 'hero-nav-unit');
-      clone.removeAttribute('aria-label');
-      /* always animate the clone in, regardless of skip-nav-intro */
-      clone.style.opacity = '0';
-      clone.style.animation = 'fadeUp .9s .2s ease forwards';
-      heroEl.appendChild(clone);
-      return;
-    }
-    if (existingClone) existingClone.remove();
-    if (topbarEl && !topbarEl.contains(navEl)) topbarEl.appendChild(navEl);
-    navEl.classList.remove('hero-nav-unit', 'topbar-nav-hidden');
-    return;
-  }
+  if (existingClone) existingClone.remove();
+  if (topbarEl && !topbarEl.contains(navEl)) topbarEl.appendChild(navEl);
+  navEl.classList.remove('hero-nav-unit');
+  navEl.style.animation = '';
+  navEl.style.opacity = '';
+  delete navEl.dataset.homeNavAnimated;
 
+  /* home page: nav lives under CITYSPROBLEM hero title, not in topbar */
   if (isHomePage && heroEl) {
     if (!heroEl.contains(navEl)) heroEl.appendChild(navEl);
     navEl.classList.add('hero-nav-unit');
+    navEl.classList.remove('topbar-nav-hidden');
+    if (!navEl.dataset.homeNavAnimated) {
+      navEl.dataset.homeNavAnimated = '1';
+      navEl.style.opacity = '0';
+      navEl.style.animation = isCoarsePointer
+        ? 'fadeUp .9s .2s ease forwards'
+        : 'fadeUpHeroNav .9s .2s ease forwards';
+      animDebugLog('hero-nav under hero');
+    }
     return;
   }
-  navEl.classList.remove('hero-nav-unit');
-  if (topbarEl && !topbarEl.contains(navEl)) topbarEl.appendChild(navEl);
+
+  /* subpages: nav visible in topbar */
+  navEl.classList.remove('topbar-nav-hidden');
 }
 
 function forceRevealMain(mainEl) {
@@ -110,8 +146,9 @@ async function softNavigate(url, replace = false, force = false) {
     keepClasses.delete('page-loading');
     keepClasses.add('page-ready');
     document.documentElement.className = Array.from(keepClasses).join(' ');
-
-    document.title = parsed.title || document.title;
+    const incomingPageKey = parsed.documentElement.dataset.pageKey || '';
+    if (incomingPageKey) document.documentElement.dataset.pageKey = incomingPageKey;
+    else delete document.documentElement.dataset.pageKey;
     /* rescue persistent elements that may have been moved inside <main> */
     const navEl = curMain.querySelector('.topbar-nav');
     if (navEl) {
@@ -119,6 +156,8 @@ async function softNavigate(url, replace = false, force = false) {
       document.querySelector('.topbar')?.appendChild(navEl);
     }
     curMain.replaceWith(newMain);
+    window.applyPageSections?.(document);
+    window.applyPageInfo?.();
     syncNavPlacement();
     /* fade in new content — force reflow so Safari sees the opacity:0 frame */
     newMain.style.opacity = '0';
@@ -267,6 +306,8 @@ let noiseSeed = 0, grainFrame = 0;
 /* scramble */
 const glyphSet      = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@%&<>?';
 const glyphSetLower = 'abcdefghijklmnopqrstuvwxyz0123456789#@%&<>?';
+const SCRAMBLE_SETTLE_MS = 500;
+const SCRAMBLE_TICK_MS = 30;
 /* match case of original char so lowercase text (e.g. bio) stays the same height */
 function randGlyph(c) {
   const set = (c >= 'a' && c <= 'z') ? glyphSetLower : glyphSet;
@@ -352,39 +393,39 @@ function scrambleLoop(original, setText, stepMs = 50, maxChars = Infinity) {
 }
 
 function scrambleResolve(original, setText, steps = 16, stepMs = 50, onComplete, maxChars = Infinity) {
+  return scrambleResolveForMs(original, setText, Math.max(1, steps * stepMs), onComplete, maxChars);
+}
+
+function scrambleResolveForMs(original, setText, durationMs = SCRAMBLE_SETTLE_MS, onComplete, maxChars = Infinity) {
   const plan = scramblePlan(original, maxChars);
   const originalLen = original.length;
-  let step = 0, last = 0, rafId;
-  /* starts at stepMs (full speed), slows quadratically to ~2× at the last step */
-  function stepDelay(s) { return stepMs * (1 + Math.pow(s / steps, 2)); }
+  const safeDuration = Math.max(1, durationMs);
+  const start = performance.now();
+  let lastTick = 0;
+  let rafId = 0;
   function frame(ts) {
-    if (ts - last >= stepDelay(step)) {
-      last = ts;
-      const resolvedCount = Math.floor((step / steps) * plan.count);
-      setText(fixedLen(original.split('').map((c, i) => {
-        if (c === ' ') return ' ';
-        if (!plan.ranks.has(i) || plan.ranks.get(i) < resolvedCount) return c;
-        return randGlyph(c);
-      }).join(''), originalLen));
-      if (++step > steps) { setText(original); onComplete?.(); return; }
+    if (ts - lastTick < SCRAMBLE_TICK_MS) {
+      rafId = requestAnimationFrame(frame);
+      return;
     }
+    lastTick = ts;
+    const progress = Math.min(1, (ts - start) / safeDuration);
+    const resolvedCount = Math.floor(progress * plan.count);
+    setText(fixedLen(original.split('').map((c, i) => {
+      if (c === ' ') return ' ';
+      if (!plan.ranks.has(i) || plan.ranks.get(i) < resolvedCount) return c;
+      return randGlyph(c);
+    }).join(''), originalLen));
+    if (progress >= 1) { setText(original); onComplete?.(); return; }
     rafId = requestAnimationFrame(frame);
   }
   rafId = requestAnimationFrame(frame);
   return () => cancelAnimationFrame(rafId);
 }
 
-/* settle timing scales with character count.
-   stepMs stays at 25 ms (the original per-step speed, unchanged).
-   steps = one per non-space character, so shorter text settles faster and
-   longer text settles slower in exact proportion to their length.
-   Reference: 16-char text → 16 steps × 25 ms = 400 ms (same as original default).
-   Min 6 steps (very short symbols), no meaningful upper cap for typical text.
-   To revert to fixed timing: delete this function and replace every
-   ...settleParams(x) with  16, 25  in the scrambleResolve calls below. */
+/* fixed global settle timing for all scramble resolutions */
 function settleParams(text) {
-  const len = text.replace(/ /g, '').length;   /* non-space character count */
-  return [Math.max(6, len), 25];               /* [steps, stepMs] */
+  return [Math.max(1, Math.round(SCRAMBLE_SETTLE_MS / 25)), 25];
 }
 
 /* resolve text that is already actively scrambling — call after stopping a
@@ -395,14 +436,13 @@ function settleParams(text) {
 /* scramble immediately, then begin settling early enough that the settle
    finishes at exactly targetMs from now — use for animations with a known duration */
 function scrambleThenSettleAt(text, setText, targetMs, maxChars = Infinity) {
-  const stepMs   = 25;
-  const steps    = Math.max(4, Math.min(Math.floor(targetMs / stepMs), nonSpaceCharCount(text), Math.max(4, maxChars)));
-  const startAt  = Math.max(0, targetMs - steps * stepMs);
+  const settleMs = Math.max(1, Math.min(SCRAMBLE_SETTLE_MS, targetMs));
+  const startAt  = Math.max(0, targetMs - settleMs);
   let cancelLoop = scrambleLoop(text, setText, 30, maxChars);
   let cancelSettle = null;
   const timer = setTimeout(() => {
     cancelLoop?.(); cancelLoop = null;
-    cancelSettle = scrambleResolve(text, setText, steps, stepMs, null, maxChars);
+    cancelSettle = scrambleResolveForMs(text, setText, settleMs, null, maxChars);
   }, startAt);
   return function cancel() {
     clearTimeout(timer);
@@ -412,8 +452,7 @@ function scrambleThenSettleAt(text, setText, targetMs, maxChars = Infinity) {
 }
 
 function settleIn(text, setText, onComplete) {
-  const steps = Math.max(6, Math.min(20, text.replace(/ /g, '').length));
-  return scrambleResolve(text, setText, steps, 25, onComplete);
+  return scrambleResolveForMs(text, setText, SCRAMBLE_SETTLE_MS, onComplete);
 }
 
 function hasBracketedText(text) {
@@ -457,7 +496,7 @@ function addScrambleHover(el) {
   el.addEventListener('mouseleave', () => {
     document.body.classList.remove('link-hover');
     cancelScramble?.(); cancelScramble = null;
-    cancelResolve = scrambleResolve(orig, t => { el.textContent = t; }, ...settleParams(orig), () => {
+    cancelResolve = scrambleResolveForMs(orig, t => { el.textContent = t; }, SCRAMBLE_SETTLE_MS, () => {
       unlockWidth?.(); unlockWidth = null;
     });
   });
@@ -588,7 +627,7 @@ if (!isCoarsePointer) {
   });
   h1El.addEventListener('mouseleave', () => {
     cancelH1?.();
-    cancelH1 = scrambleResolve(h1Orig, t => { if (h1El?.isConnected) { h1El.textContent = t; applyH1Centering(); } }, ...settleParams(h1Orig), () => {
+    cancelH1 = scrambleResolveForMs(h1Orig, t => { if (h1El?.isConnected) { h1El.textContent = t; applyH1Centering(); } }, SCRAMBLE_SETTLE_MS, () => {
       if (!h1El?.isConnected) return;
       h1El.style.transform = '';
       h1El.style.width = '';
@@ -843,7 +882,7 @@ function loadTrack(idx, opts = {}) {
   trackIdx = ((idx % tracks.length) + tracks.length) % tracks.length;
   const title = tracks[trackIdx].title;
   playerTrack.classList.remove('scrolling');
-  scrambleResolve(title, t => { playerTrack.textContent = t; }, 16, 25, () => {
+  scrambleResolveForMs(title, t => { playerTrack.textContent = t; }, SCRAMBLE_SETTLE_MS, () => {
     updateMarquee();
   });
   playerCounter.textContent = `${trackIdx + 1} / ${tracks.length}`;
@@ -1029,7 +1068,7 @@ window.addEventListener('resize', () => {
   playerTrack.addEventListener('mouseleave', () => {
     const current = tracks.length ? tracks[trackIdx].title : '—';
     cancelTrackScramble?.(); cancelTrackScramble = null;
-    cancelTrackResolve = scrambleResolve(current, t => { playerTrack.textContent = t; }, ...settleParams(current), () => {
+    cancelTrackResolve = scrambleResolveForMs(current, t => { playerTrack.textContent = t; }, SCRAMBLE_SETTLE_MS, () => {
       updateMarquee();
     });
   });
@@ -1325,39 +1364,24 @@ function initInfoSection() {
   {
     const infoLabelEls = Array.from(infoSection.querySelectorAll('.bio-panel-label'));
     const infoLabelOrig = infoLabelEls.map(el => el.textContent);
-    let infoLoops = null;
-
     /* prep: entire section starts invisible */
     infoSection.style.opacity = '0';
     infoSection.style.transform = 'translateY(12px)';
     infoSection.style.transition = 'none';
+    void infoSection.offsetHeight; /* ensure initial hidden state is committed */
 
     function revealInfo() {
-      infoLoops = infoLabelEls.map((el, i) => scrambleLoop(infoLabelOrig[i], t => { el.textContent = t; }, 30));
-      /* fade everything in together */
+      const fadeMs = 500;
+      infoLabelEls.forEach((el, i) => {
+        scrambleThenSettleAt(infoLabelOrig[i], t => { el.textContent = t; }, fadeMs, accordionScrambleLimit(infoLabelOrig[i]));
+      });
+      /* fade everything in together; stage then promote on next frame */
       infoSection.style.transition = 'opacity .5s ease, transform .5s ease';
-      infoSection.style.opacity = '1';
-      infoSection.style.transform = 'translateY(0)';
-      requestAnimationFrame(() => infoSection.classList.add('visible'));
-
-      let settled = false;
-      function onFadeInEnd() {
-        if (settled) return;
-        settled = true;
-        infoLoops.forEach(c => c()); infoLoops = null;
-        infoLabelEls.forEach((el, i) => settleIn(infoLabelOrig[i], t => { el.textContent = t; }));
-      }
-
-      /* primary: transitionend on the section opacity transition */
-      function onTransitionEnd(e) {
-        if (e.target !== infoSection || e.propertyName !== 'opacity') return;
-        infoSection.removeEventListener('transitionend', onTransitionEnd);
-        onFadeInEnd();
-      }
-      infoSection.addEventListener('transitionend', onTransitionEnd);
-
-      /* fallback: if transitionend never fires, settle after the transition window */
-      setTimeout(onFadeInEnd, 1100);
+      requestAnimationFrame(() => {
+        infoSection.style.opacity = '1';
+        infoSection.style.transform = 'translateY(0)';
+        infoSection.classList.add('visible');
+      });
     }
 
     const observer = new IntersectionObserver(entries => {
@@ -1504,11 +1528,10 @@ function initInfoSection() {
         const loops = textEls.map((el, i) => scrambleLoop(textOrig[i], t => { el.textContent = t; }, 30, accordionScrambleLimit(textOrig[i])));
         loops.forEach(c => c());
         let remainingSettle = textEls.length;
-        textEls.forEach((el, i) => scrambleResolve(
+        textEls.forEach((el, i) => scrambleResolveForMs(
           textOrig[i],
           t => { el.textContent = t; },
-          16,
-          20,
+          SCRAMBLE_SETTLE_MS,
           () => {
             if (--remainingSettle !== 0) return;
             lockWidthEls.forEach(locked => {
@@ -1614,7 +1637,7 @@ function initInfoSection() {
         Array.from(songs.querySelectorAll('a')).forEach(a => {
           const text = a.textContent;
           const unlockWidth = lockBracketTextWidth(a, text);
-          scrambleThenSettleAt(text, t => { a.textContent = t; }, 300, accordionScrambleLimit(text));
+          scrambleThenSettleAt(text, t => { a.textContent = t; }, SCRAMBLE_SETTLE_MS, accordionScrambleLimit(text));
           setTimeout(unlockWidth, 340);
         });
       }
@@ -1653,6 +1676,7 @@ initInfoSection();
 function initSectionReveal(sectionId, textSelector) {
   const section = document.getElementById(sectionId);
   if (!section) return;
+  animDebugLog(`section prep: ${sectionId}`);
   const textEls = Array.from(section.querySelectorAll(textSelector));
   const textOrig = textEls.map(el => el.textContent);
 
@@ -1668,7 +1692,7 @@ function initSectionReveal(sectionId, textSelector) {
 
   const observer = new IntersectionObserver(entries => {
     if (entries[0].isIntersecting) {
-      const loops = textEls.map((el, i) => scrambleLoop(textOrig[i], t => { el.textContent = t; }, 30));
+      animDebugLog(`section reveal start: ${sectionId}`);
       section.classList.add('visible');
 
       /* stagger children in */
@@ -1680,19 +1704,20 @@ function initSectionReveal(sectionId, textSelector) {
         }, i * 60);
       });
 
-      let settled = false;
-      function doSettle() {
-        if (settled) return;
-        settled = true;
-        loops.forEach(c => c());
-        textEls.forEach((el, i) => settleIn(textOrig[i], t => { el.textContent = t; }));
+      function fadeTargetMsForText(el) {
+        const container = staggerChildren.find(node => node === el || node.contains(el));
+        const idx = container ? Math.max(0, staggerChildren.indexOf(container)) : 0;
+        return idx * 60 + 500;
+      }
+      textEls.forEach((el, i) => {
+        scrambleThenSettleAt(textOrig[i], t => { el.textContent = t; }, fadeTargetMsForText(el), accordionScrambleLimit(textOrig[i]));
+      });
+      const settleDoneMs = Math.max(500, staggerChildren.length * 60 + 500);
+      setTimeout(() => {
+        animDebugLog(`section settle: ${sectionId}`);
         section.style.animation = 'none';
         section.style.opacity = '1';
-      }
-      section.addEventListener('animationend', e => {
-        if (e.target === section && e.animationName === 'fadeUp') doSettle();
-      }, { once: true });
-      setTimeout(doSettle, 1000);
+      }, settleDoneMs + 20);
       observer.disconnect();
     }
   }, { threshold: 0 });
@@ -1909,6 +1934,9 @@ function initPageContent() {
   /* abort previous page-content listeners (window/document) */
   _pageContentAbort?.abort();
   _pageContentAbort = new AbortController();
+
+  window.applyPageSections?.(document);
+  window.applyPageInfo?.();
 
   /* re-query in-main DOM references */
   h1El = document.querySelector('h1');

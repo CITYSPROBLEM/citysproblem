@@ -1,30 +1,32 @@
 <!DOCTYPE html>
-<html lang="en" class="page-loading page-subpage page-404">
+<html lang="en" class="page-loading page-subpage page-404" data-page-key="notFound">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <style>html,body,*{cursor:none!important;caret-color:transparent!important;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;}</style>
 <meta name="theme-color" content="#030a14">
-<meta name="description" content="Page not found on the CITYSPROBLEM official site.">
-<meta name="robots" content="noindex, follow">
-<link rel="canonical" href="https://www.citysproblem.com/404.html">
-<meta property="og:title" content="CITYSPROBLEM | 404">
-<meta property="og:description" content="Page not found. Return to the official CITYSPROBLEM site.">
+<meta name="description" content="">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="">
+<meta property="og:title" content="">
+<meta property="og:description" content="">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="CITYSPROBLEM">
-<meta property="og:url" content="https://www.citysproblem.com/404.html">
+<meta property="og:url" content="">
 <meta property="og:image" content="https://www.citysproblem.com/IMAGES/pfp-og-top.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="CITYSPROBLEM | 404">
-<meta name="twitter:description" content="Page not found. Return to the official CITYSPROBLEM site.">
-<meta name="twitter:url" content="https://www.citysproblem.com/404.html">
+<meta name="twitter:title" content="">
+<meta name="twitter:description" content="">
+<meta name="twitter:url" content="">
 <meta name="twitter:image" content="https://www.citysproblem.com/IMAGES/pfp-og-top.jpg">
-<title>CITYSPROBLEM | 404</title>
+<title>CITYSPROBLEM</title>
 <link rel="icon" type="image/png" href="IMAGES/logo_white.png">
 <link rel="apple-touch-icon" href="IMAGES/logo_white.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet">
+<script src="content/page-info.js?v=20260318a"></script>
+<script src="components/page-info.js?v=20260318a"></script>
 <script>
 (function(){
   var ua = navigator.userAgent;
@@ -87,38 +89,12 @@
 
 <canvas class="visualizer" id="visualizer"></canvas>
 
-<header class="topbar">
-  <img class="topbar-logo" src="IMAGES/logo_white-128.png" alt="CITYSPROBLEM" width="128" height="128">
-  <div class="topbar-title" id="topbarTitle">CITYSPROBLEM</div>
-  <nav class="topbar-nav" aria-label="Primary">
-    <a class="topbar-nav-link" href="music.html" data-route="music.html">Music</a>
-    <a class="topbar-nav-link" href="shows.html" data-route="shows.html">Shows</a>
-    <a class="topbar-nav-link" href="press.html" data-route="press.html">Press</a>
-    <a class="topbar-nav-link" href="about.html" data-route="about.html">About</a>
-    <a class="topbar-nav-link" href="booking.html" data-route="booking.html">Booking</a>
-  </nav>
-</header>
+<header class="topbar" data-component="topbar" data-active-route=""></header>
 <main>
   <section class="portfolio-section booking-section" id="bookingSection">
-    <p class="section-label">404</p>
-    <div class="booking-signal-card">
-      <div class="booking-signal-head">
-        <p class="booking-kicker">SIGNAL LOST</p>
-        <p class="portfolio-title">THIS PAGE DOES NOT EXIST</p>
-      </div>
-      <div class="booking-signal-meta">
-        <p class="portfolio-meta">TRY A VERIFIED ROUTE BELOW</p>
-      </div>
-      <a class="portfolio-link booking-cta" href="index.html">RETURN TO HOME</a>
-    </div>
   </section>
 
   <section class="portfolio-section newsletter-section" id="newsletterSection">
-    <p class="section-label">DIRECT LINKS</p>
-    <div class="portfolio-card">
-      <p class="portfolio-title">MUSIC / SHOWS / PRESS / ABOUT / BOOKING</p>
-      <a class="portfolio-link" href="music.html">OPEN MUSIC</a>
-    </div>
   </section>
 
   <section class="info-section" id="infoSection" aria-hidden="true" hidden></section>
@@ -126,30 +102,12 @@
   <section class="dates-section past-shows-section" id="pastShowsSection" aria-hidden="true" hidden></section>
 </main>
 
-<div class="player" id="player">
-  <div class="player-inner" id="playerInner">
-    <div class="player-controls">
-      <button class="player-btn player-btn-skip" id="btnPrev" style="transform:scaleX(-1)">▶&#xFE0E;▶&#xFE0E;</button>
-      <button class="player-btn player-btn-play" id="btnPlay">▶&#xFE0E;</button>
-      <button class="player-btn player-btn-skip" id="btnNext">▶&#xFE0E;▶&#xFE0E;</button>
-      <button class="player-btn player-btn-shuffle" id="btnShuffle">&#x21C6;</button>
-    </div>
-    <span class="player-time-disp" id="playerTimeCurrent">0:00</span>
-    <div class="player-progress" id="playerProgress">
-      <div class="player-fill" id="playerFill"></div>
-    </div>
-    <span class="player-time-disp" id="playerTimeTotal">0:00</span>
-    <span class="player-counter" id="playerCounter">1 / 1</span>
-    <div class="player-volume-row">
-      <input class="player-vol-slider" id="volSlider" type="range" min="0" max="1" step="0.01" value="1">
-    </div>
-    <div class="player-track-clip"><span class="player-track-name" id="playerTrack">—</span></div>
-  </div>
-</div>
-<audio id="audio" preload="none"></audio>
+<div id="site-player-mount" data-component="player"></div>
 
-<div class="tap-hint" id="tapHint"></div>
-
+<script src="content/site-content.js?v=20260318a"></script>
+<script src="components/layout.js?v=20260318a"></script>
+<script src="content/page-sections.js?v=20260318a"></script>
+<script src="components/page-sections.js?v=20260318a"></script>
 <script src="SONGS/tracks.js?v=20260317k"></script>
 <script src="script.js?v=20260318o"></script>
 <script>

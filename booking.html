@@ -1,30 +1,32 @@
 <!DOCTYPE html>
-<html lang="en" class="page-loading page-subpage page-booking">
+<html lang="en" class="page-loading page-subpage page-booking" data-page-key="booking">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <style>html,body,*{cursor:none!important;caret-color:transparent!important;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;}</style>
 <meta name="theme-color" content="#030a14">
-<meta name="description" content="Book CITYSPROBLEM for clubs, festivals, and special events.">
+<meta name="description" content="">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://www.citysproblem.com/booking.html">
-<meta property="og:title" content="CITYSPROBLEM | Booking">
-<meta property="og:description" content="Book CITYSPROBLEM for clubs, festivals, and special events.">
+<link rel="canonical" href="">
+<meta property="og:title" content="">
+<meta property="og:description" content="">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="CITYSPROBLEM">
-<meta property="og:url" content="https://www.citysproblem.com/booking.html">
+<meta property="og:url" content="">
 <meta property="og:image" content="https://www.citysproblem.com/IMAGES/pfp-og-top.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="CITYSPROBLEM | Booking">
-<meta name="twitter:description" content="Book CITYSPROBLEM for clubs, festivals, and special events.">
-<meta name="twitter:url" content="https://www.citysproblem.com/booking.html">
+<meta name="twitter:title" content="">
+<meta name="twitter:description" content="">
+<meta name="twitter:url" content="">
 <meta name="twitter:image" content="https://www.citysproblem.com/IMAGES/pfp-og-top.jpg">
-<title>CITYSPROBLEM | Booking</title>
+<title>CITYSPROBLEM</title>
 <link rel="icon" type="image/png" href="IMAGES/logo_white.png">
 <link rel="apple-touch-icon" href="IMAGES/logo_white.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet">
+<script src="content/page-info.js?v=20260318a"></script>
+<script src="components/page-info.js?v=20260318a"></script>
 <script>
 (function(){
   var ua = navigator.userAgent;
@@ -69,21 +71,6 @@
   document.head.appendChild(mobileLink);
 })();
 </script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "MusicGroup",
-  "name": "CITYSPROBLEM",
-  "url": "https://www.citysproblem.com/",
-  "image": "https://www.citysproblem.com/IMAGES/pfp-og-top.jpg",
-  "sameAs": [
-    "https://www.instagram.com/itsthecitysproblemnow",
-    "https://x.com/CITYSPROBLEM",
-    "https://www.youtube.com/@citysproblem",
-    "https://soundcloud.com/citysproblem"
-  ]
-}
-</script>
 </head>
 <body>
 <div class="bg-fixed"></div>
@@ -102,38 +89,12 @@
 
 <canvas class="visualizer" id="visualizer"></canvas>
 
-<header class="topbar">
-  <img class="topbar-logo" src="IMAGES/logo_white-128.png" alt="CITYSPROBLEM" width="128" height="128">
-  <div class="topbar-title" id="topbarTitle">CITYSPROBLEM</div>
-  <nav class="topbar-nav" aria-label="Primary">
-    <a class="topbar-nav-link" href="music.html" data-route="music.html">Music</a>
-    <a class="topbar-nav-link" href="shows.html" data-route="shows.html">Shows</a>
-    <a class="topbar-nav-link" href="press.html" data-route="press.html">Press</a>
-    <a class="topbar-nav-link" href="about.html" data-route="about.html">About</a>
-    <a class="topbar-nav-link is-active" href="booking.html" data-route="booking.html" aria-current="page">Booking</a>
-  </nav>
-</header>
+<header class="topbar" data-component="topbar" data-active-route="booking.html"></header>
 <main>
   <section class="portfolio-section booking-section" id="bookingSection">
-    <p class="section-label">BOOKING</p>
-    <div class="booking-signal-card">
-      <div class="booking-signal-head">
-        <p class="booking-kicker">LIVE PERFORMANCE INQUIRIES</p>
-        <p class="portfolio-title">AVAILABLE FOR CLUBS, FESTIVALS, AND SPECIAL EVENTS</p>
-      </div>
-      <div class="booking-signal-meta">
-        <p class="portfolio-meta">BASE: NYC / AVAILABLE FOR TRAVEL</p>
-      </div>
-      <a class="portfolio-link booking-cta" href="mailto:dj@citysproblem.com?subject=Booking%20Inquiry">BOOK CITYSPROBLEM</a>
-    </div>
   </section>
 
   <section class="portfolio-section newsletter-section" id="newsletterSection">
-    <p class="section-label">NEWSLETTER</p>
-    <div class="portfolio-card">
-      <p class="portfolio-title">GET DROPS, SHOW ANNOUNCEMENTS, AND EXCLUSIVES FIRST</p>
-      <a class="portfolio-link" href="mailto:dj@citysproblem.com?subject=Newsletter%20Signup&body=Please%20add%20me%20to%20the%20CITYSPROBLEM%20newsletter.">SUBSCRIBE</a>
-    </div>
   </section>
 
   <section class="info-section" id="infoSection" aria-hidden="true" hidden></section>
@@ -141,30 +102,12 @@
   <section class="dates-section past-shows-section" id="pastShowsSection" aria-hidden="true" hidden></section>
 </main>
 
-<div class="player" id="player">
-  <div class="player-inner" id="playerInner">
-    <div class="player-controls">
-      <button class="player-btn player-btn-skip" id="btnPrev" style="transform:scaleX(-1)">▶&#xFE0E;▶&#xFE0E;</button>
-      <button class="player-btn player-btn-play" id="btnPlay">▶&#xFE0E;</button>
-      <button class="player-btn player-btn-skip" id="btnNext">▶&#xFE0E;▶&#xFE0E;</button>
-      <button class="player-btn player-btn-shuffle" id="btnShuffle">&#x21C6;</button>
-    </div>
-    <span class="player-time-disp" id="playerTimeCurrent">0:00</span>
-    <div class="player-progress" id="playerProgress">
-      <div class="player-fill" id="playerFill"></div>
-    </div>
-    <span class="player-time-disp" id="playerTimeTotal">0:00</span>
-    <span class="player-counter" id="playerCounter">1 / 1</span>
-    <div class="player-volume-row">
-      <input class="player-vol-slider" id="volSlider" type="range" min="0" max="1" step="0.01" value="1">
-    </div>
-    <div class="player-track-clip"><span class="player-track-name" id="playerTrack">—</span></div>
-  </div>
-</div>
-<audio id="audio" preload="none"></audio>
+<div id="site-player-mount" data-component="player"></div>
 
-<div class="tap-hint" id="tapHint"></div>
-
+<script src="content/site-content.js?v=20260318a"></script>
+<script src="components/layout.js?v=20260318a"></script>
+<script src="content/page-sections.js?v=20260318a"></script>
+<script src="components/page-sections.js?v=20260318a"></script>
 <script src="SONGS/tracks.js?v=20260317k"></script>
 <script src="script.js?v=20260318o"></script>
 <script>
