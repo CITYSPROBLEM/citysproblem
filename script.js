@@ -1309,7 +1309,10 @@ function initInfoSection() {
     const infoLabelOrig = infoLabelEls.map(el => el.textContent);
     let infoLoops = null;
 
-    /* prep stagger: info-blocks start invisible (matches initSectionReveal pattern) */
+    /* prep: box + children start invisible */
+    infoSection.style.opacity = '0';
+    infoSection.style.transform = 'translateY(12px)';
+    infoSection.style.transition = 'none';
     const staggerChildren = Array.from(infoSection.querySelectorAll('.info-block'));
     staggerChildren.forEach(el => {
       el.style.opacity = '0';
@@ -1319,6 +1322,10 @@ function initInfoSection() {
 
     function revealInfo() {
       infoLoops = infoLabelEls.map((el, i) => scrambleLoop(infoLabelOrig[i], t => { el.textContent = t; }, 30));
+      /* fade in the box itself first */
+      infoSection.style.transition = 'opacity .5s ease, transform .5s ease';
+      infoSection.style.opacity = '1';
+      infoSection.style.transform = 'translateY(0)';
       requestAnimationFrame(() => infoSection.classList.add('visible'));
 
       /* stagger info-blocks in */
