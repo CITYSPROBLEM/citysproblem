@@ -97,7 +97,11 @@ async function softNavigate(url, replace = false, force = false) {
 
     const keepClasses = new Set(
       Array.from(document.documentElement.classList).filter(c =>
-        c.startsWith('is-') || c.startsWith('skip-')
+        c.startsWith('is-') ||
+        c.startsWith('skip-') ||
+        c.startsWith('mobile-') ||
+        c.startsWith('browser-js-') ||
+        c === 'low-memory-mobile'
       )
     );
     const incoming = parsed.documentElement.className.split(/\s+/).filter(Boolean);
