@@ -93,6 +93,7 @@ html {
 }
 html.page-subpage {
   scroll-snap-type: none;
+  overscroll-behavior: none;
 }
 html.page-subpage main {
   padding-top: 80px;
@@ -116,6 +117,9 @@ html.page-subpage .dates-wrap,
 html.page-subpage .portfolio-section {
   min-height: calc(100vh - 80px - var(--player-h, 56px));
   scroll-snap-align: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 html::-webkit-scrollbar { width: 7px; }
 html::-webkit-scrollbar-track { background: rgba(255,255,255,.08); }
