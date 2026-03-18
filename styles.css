@@ -116,7 +116,6 @@ html.page-subpage .info-wrap,
 html.page-subpage .dates-wrap,
 html.page-subpage .portfolio-section {
   min-height: calc(100vh - 80px - var(--player-h, 56px));
-  min-height: calc(100dvh - 80px - var(--player-h, 56px));
   scroll-snap-align: none;
   display: flex;
   flex-direction: column;

@@ -1958,7 +1958,6 @@ function initBookingScrollClamp() {
   recalc();
   const sig = _pageContentAbort?.signal;
   window.addEventListener('resize', recalc, { passive: true, signal: sig });
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', recalc, { signal: sig });
   document.fonts.ready.then(recalc);
 }
 
