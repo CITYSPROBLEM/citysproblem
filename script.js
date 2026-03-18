@@ -54,6 +54,9 @@ async function softNavigate(url, replace = false, force = false) {
     );
     const incoming = parsed.documentElement.className.split(/\s+/).filter(Boolean);
     incoming.forEach(c => keepClasses.add(c));
+    /* soft-nav should never leave the app in initial-load hidden state */
+    keepClasses.delete('page-loading');
+    keepClasses.add('page-ready');
     document.documentElement.className = Array.from(keepClasses).join(' ');
 
     document.title = parsed.title || document.title;
