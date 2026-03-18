@@ -784,10 +784,22 @@ html.skip-player-intro .player {
     display: flex;
     width: min(95vw, 520px);
     max-width: 95vw;
-    transform: none;
+    justify-content: center;
+    align-self: center;
+    text-align: center;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
     animation: fadeUp .9s .2s ease forwards;
     margin: clamp(1.1rem, 2.8vh, 1.8rem) auto 0;
     gap: .6rem .75rem;
+  }
+
+  html:not(.page-subpage) .hero .topbar-nav.hero-nav-unit {
+    width: min(95vw, 520px);
+    max-width: 95vw;
+    left: 50%;
+    transform: translateX(-50%);
   }
   html.skip-nav-intro:not(.page-subpage) .topbar-nav.hero-nav-unit {
     animation: none;
@@ -886,6 +898,11 @@ html.skip-player-intro .player {
     width: 100%; height: 3px;
     flex: none;
   }
+}
+
+/* fallback: hide custom cursor on all touch-capable devices */
+@media (hover: none), (pointer: coarse) {
+  #cur, #cur-ring { display: none !important; opacity: 0 !important; }
 }
 
 @media (max-width: 500px) {

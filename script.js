@@ -219,6 +219,12 @@ if (isMobileViewport) {
   ring?.remove();
 }
 
+/* fallback for mobile browsers that report non-coarse pointers */
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+  cur?.remove();
+  ring?.remove();
+}
+
 if (!isCoarsePointer) {
   document.addEventListener('mousemove', e => {
     mx = e.clientX; my = e.clientY;
