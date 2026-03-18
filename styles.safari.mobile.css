@@ -28,6 +28,18 @@ html.is-safari.mobile-optimized .glitch-wrap::after {
   opacity: .42;
 }
 
+/* iOS Safari: keep featured artwork wrapper from clipping lower pixels */
+html.is-safari.mobile-optimized .featured-release .featured-artwork-wrap.glitch-wrap {
+  overflow: visible;
+}
+html.is-safari.mobile-optimized .featured-release .featured-art-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  object-fit: contain;
+}
+
 /* defer heavy visual layers until first interaction */
 html.is-safari.mobile-optimized.mobile-effects-deferred .aurora,
 html.is-safari.mobile-optimized.mobile-effects-deferred .featured-release::before,

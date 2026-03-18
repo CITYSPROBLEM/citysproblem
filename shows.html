@@ -65,7 +65,7 @@
   if (!isMobile || (b !== "safari" && b !== "chrome")) return;
   var mobileLink = document.createElement("link");
   mobileLink.rel = "stylesheet";
-  mobileLink.href = "styles." + b + ".mobile.css?v=20260318b";
+  mobileLink.href = "styles." + b + ".mobile.css?v=20260318c";
   document.head.appendChild(mobileLink);
 })();
 </script>
@@ -202,7 +202,7 @@
   var isMobile = window.matchMedia("(hover: none) and (pointer: coarse)").matches || window.innerWidth <= 768;
   if (!isMobile || (b !== "safari" && b !== "chrome")) return;
   var mobileScript = document.createElement("script");
-  mobileScript.src = "script." + b + ".mobile.js?v=20260318c";
+  mobileScript.src = "script." + b + ".mobile.js?v=20260318d";
   document.body.appendChild(mobileScript);
 })();
 </script>
