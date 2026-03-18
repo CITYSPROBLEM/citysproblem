@@ -1905,8 +1905,15 @@ function initMagneticAndTilt() {
 initMagneticAndTilt();
 
 /* ── music featured artwork crop guard (soft-nav + Safari mobile) ───────── */
+let musicFeaturedResizeObserver = null;
 function fixMusicFeaturedArtworkCrop() {
-  if (!document.documentElement.classList.contains('page-music')) return;
+  if (!document.documentElement.classList.contains('page-music')) {
+    if (musicFeaturedResizeObserver) {
+      musicFeaturedResizeObserver.disconnect();
+      musicFeaturedResizeObserver = null;
+    }
+    return;
+  }
   const wrap = document.querySelector('.featured-artwork-wrap');
   const img = document.querySelector('.featured-art-img');
   if (!wrap || !img) return;
@@ -1916,16 +1923,15 @@ function fixMusicFeaturedArtworkCrop() {
     wrap.style.height = 'auto';
     img.style.display = 'block';
     img.style.width = '100%';
-    img.style.height = 'auto';
+    img.style.height = '100%';
     img.style.maxHeight = 'none';
     img.style.objectFit = 'contain';
 
     const wrapWidth = wrap.getBoundingClientRect().width;
     if (wrapWidth > 0) {
-      const ratio = (img.naturalWidth > 0 && img.naturalHeight > 0)
-        ? (img.naturalHeight / img.naturalWidth)
-        : 1;
-      wrap.style.minHeight = Math.round(wrapWidth * ratio) + 'px';
+      const square = Math.round(wrapWidth) + 'px';
+      wrap.style.height = square;
+      wrap.style.minHeight = square;
     }
   }
 
@@ -1935,6 +1941,12 @@ function fixMusicFeaturedArtworkCrop() {
     img.addEventListener('load', () => {
       requestAnimationFrame(() => requestAnimationFrame(applyLayoutGuard));
     }, { once: true });
+  }
+
+  if (musicFeaturedResizeObserver) musicFeaturedResizeObserver.disconnect();
+  if ('ResizeObserver' in window) {
+    musicFeaturedResizeObserver = new ResizeObserver(() => applyLayoutGuard());
+    musicFeaturedResizeObserver.observe(wrap);
   }
 }
 fixMusicFeaturedArtworkCrop();

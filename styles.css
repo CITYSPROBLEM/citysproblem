@@ -24,7 +24,7 @@ a, button, input, textarea, select, [contenteditable] {
   pointer-events: none;
 }
 .splash-logo {
-  width: clamp(120px, 30vw, 280px);
+  width: clamp(150px, 36vw, 340px);
   height: auto;
   opacity: 0;
   cursor: none !important;
