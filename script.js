@@ -264,7 +264,7 @@ const isFirefox = browser === 'firefox';
 const isMobileViewport = isCoarsePointer || window.innerWidth <= 768;
 const enableHeavyPointerFx = !isCoarsePointer && (isChrome || isSafari);
 const enableAnimatedGrain = isChrome || isSafari;
-const visualizerFrameStride = isMobileViewport ? (isFirefox ? 4 : 3) : 1;
+const visualizerFrameStride = isMobileViewport ? (isFirefox ? 6 : 5) : 2;
 const grainFrameStride = isMobileViewport ? 18 : 10;
 const LINK_HOVER_SELECTOR = 'a, button, .topbar-logo, .player-progress, .player-vol-slider, .player-track-name, .glitch-wrap, .release-card, .featured-link';
 const scheduleNonCritical = window.requestIdleCallback
@@ -1116,15 +1116,15 @@ window.addEventListener('resize', () => {
   const VIZ_TARGET_BINS = 420;
   const VIZ_HEIGHT_GAMMA = 0.62;
   const VIZ_HEIGHT_BOOST = 1.25;
-  const VIZ_TRANSIENT_BOOST = 0.45;
+  const VIZ_TRANSIENT_BOOST = 0.28;
   const VIZ_MAX_HEIGHT_FRAC = 0.9;
   const VIZ_NOISE_GATE = 0.05;
   const VIZ_MIN_VISIBLE_HEIGHT_FRAC = 0.015;
-  const VIZ_SPATIAL_SMOOTH_PASSES = 2;
+  const VIZ_SPATIAL_SMOOTH_PASSES = 4;
   const VIZ_FRONT_WIDTH_SCALE = 1.0;
   const VIZ_BACK_WIDTH_SCALE = 1.0;
   const VIZ_BACK_HEIGHT_SCALE = 0.58;
-  const VIZ_BACK_SMOOTHING = 0.13;
+  const VIZ_BACK_SMOOTHING = 0.08;
   let analyser = null, dataArray = null, prevData = null, backData = null, audioCtxStarted = false;
   let vizReactive = null, vizScratch = null;
   let vizMinBin = 0, vizMaxBin = 0;
@@ -1137,7 +1137,7 @@ window.addEventListener('resize', () => {
     const source = audioCtx.createMediaElementSource(audio);
     analyser = audioCtx.createAnalyser();
     analyser.fftSize = 2048;
-    analyser.smoothingTimeConstant = 0.05;
+    analyser.smoothingTimeConstant = 0.16;
     analyser.minDecibels = -96;
     analyser.maxDecibels = -16;
     source.connect(analyser);
