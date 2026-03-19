@@ -1120,9 +1120,12 @@ window.addEventListener('resize', () => {
   const VIZ_MAX_HEIGHT_FRAC = 0.72;
   const VIZ_NOISE_GATE = 0.05;
   const VIZ_MIN_VISIBLE_HEIGHT_FRAC = 0.003;
-  const VIZ_BAR_GAP_PX = 1.1;
-  const VIZ_BAR_WIDTH_SCALE = 0.72;
-  let analyser = null, dataArray = null, prevData = null, audioCtxStarted = false;
+  const VIZ_BAR_GAP_PX = 1.0;
+  const VIZ_FRONT_WIDTH_SCALE = 0.56;
+  const VIZ_BACK_WIDTH_SCALE = 0.9;
+  const VIZ_BACK_HEIGHT_SCALE = 0.58;
+  const VIZ_BACK_SMOOTHING = 0.13;
+  let analyser = null, dataArray = null, prevData = null, backData = null, audioCtxStarted = false;
   let vizMinBin = 0, vizMaxBin = 0;
   let vizFrameCount = 0;
 
@@ -1140,6 +1143,7 @@ window.addEventListener('resize', () => {
     analyser.connect(audioCtx.destination);
     dataArray = new Uint8Array(analyser.frequencyBinCount);
     prevData = new Float32Array(analyser.frequencyBinCount);
+    backData = new Float32Array(analyser.frequencyBinCount);
     const hzPerBin = audioCtx.sampleRate / analyser.fftSize;
     vizMinBin = 0;
     vizMaxBin = Math.min(analyser.frequencyBinCount - 1, Math.floor(20000 / hzPerBin));
@@ -1160,6 +1164,7 @@ window.addEventListener('resize', () => {
     const W = vizCanvas.clientWidth, H = vizCanvas.clientHeight;
     vizCtx.clearRect(0, 0, W, H);
     if (prevData) prevData.fill(0);
+    if (backData) backData.fill(0);
   }
 
   function shouldDrawVisualizer() {
@@ -1186,7 +1191,9 @@ window.addEventListener('resize', () => {
     const bars = VIZ_TARGET_BINS;
     const barW = W / bars;
     const gap = Math.min(VIZ_BAR_GAP_PX, barW * 0.65);
-    const drawW = Math.max(0.15, (barW - gap) * VIZ_BAR_WIDTH_SCALE);
+    const slotW = Math.max(0.12, barW - gap);
+    const frontW = Math.max(0.08, slotW * VIZ_FRONT_WIDTH_SCALE);
+    const backW = Math.max(frontW + 0.06, slotW * VIZ_BACK_WIDTH_SCALE);
     const minVisibleH = H * VIZ_MIN_VISIBLE_HEIGHT_FRAC;
     const logMin = Math.log(minBin + 1);
     const logMax = Math.log(maxBin + 1);
@@ -1203,10 +1210,21 @@ window.addEventListener('resize', () => {
       if (prevData) prevData[leftBin] = v;
       const shaped = Math.pow(v, VIZ_HEIGHT_GAMMA);
       const reactive = Math.min(1, shaped * VIZ_HEIGHT_BOOST + transient);
-      const h = v > 0 ? Math.max(minVisibleH, reactive * H * VIZ_MAX_HEIGHT_FRAC) : 0;
-      vizCtx.fillStyle = `rgba(0,212,255,${0.12 + reactive * 0.44})`;
-      const x = i * barW + (barW - drawW) * 0.5;
-      vizCtx.fillRect(x, H - h, drawW, h);
+      const targetBack = reactive * VIZ_BACK_HEIGHT_SCALE;
+      const prevBack = backData ? backData[leftBin] : targetBack;
+      const smoothBack = prevBack + (targetBack - prevBack) * VIZ_BACK_SMOOTHING;
+      if (backData) backData[leftBin] = smoothBack;
+      const backH = v > 0 ? Math.max(minVisibleH * 0.7, smoothBack * H * VIZ_MAX_HEIGHT_FRAC) : 0;
+      const frontH = v > 0 ? Math.max(minVisibleH, reactive * H * VIZ_MAX_HEIGHT_FRAC) : 0;
+      const slotX = i * barW + (barW - slotW) * 0.5;
+      const backX = slotX + (slotW - backW) * 0.5;
+      const frontX = slotX + (slotW - frontW) * 0.5;
+
+      vizCtx.fillStyle = `rgba(0,212,255,${0.06 + smoothBack * 0.2})`;
+      vizCtx.fillRect(backX, H - backH, backW, backH);
+
+      vizCtx.fillStyle = `rgba(0,212,255,${0.16 + reactive * 0.44})`;
+      vizCtx.fillRect(frontX, H - frontH, frontW, frontH);
     }
   };
 }
