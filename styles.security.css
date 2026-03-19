@@ -1,0 +1,14 @@
+html,
+body,
+* {
+  cursor: none !important;
+  caret-color: transparent !important;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+.noise-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}

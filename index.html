@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<style>html,body,*{cursor:none!important;caret-color:transparent!important;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;}</style>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; media-src 'self' blob: data:; connect-src 'self'; worker-src 'self' blob:">
 <meta name="theme-color" content="#030a14">
 <meta name="description" content="">
 <meta name="robots" content="index, follow">
@@ -27,50 +27,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet">
 <script src="content/page-info.js?v=20260318a"></script>
 <script src="components/page-info.js?v=20260318a"></script>
-<script>
-(function(){
-  var ua = navigator.userAgent;
-  var isFirefox = /Firefox\//.test(ua);
-  var isSafari = /Safari\//.test(ua) && !/Chrome\//.test(ua) && !/Chromium\//.test(ua) && !/Edg\//.test(ua) && !/OPR\//.test(ua);
-  var isChrome = /Chrome\//.test(ua) && !/Edg\//.test(ua) && !/OPR\//.test(ua);
-  var browser = isSafari ? "safari" : (isFirefox ? "firefox" : (isChrome ? "chrome" : "other"));
-  var root = document.documentElement;
-  root.dataset.browser = browser;
-  root.classList.add("is-" + browser);
-  if (sessionStorage.getItem("playerIntroSeen")) root.classList.add("skip-player-intro");
-  else sessionStorage.setItem("playerIntroSeen", "1");
-  if (sessionStorage.getItem("navIntroSeen")) root.classList.add("skip-nav-intro");
-  else sessionStorage.setItem("navIntroSeen", "1");
-  if (sessionStorage.getItem("pageIntroSeen")) root.classList.add("skip-page-intro");
-  else sessionStorage.setItem("pageIntroSeen", "1");
-  var forceStyle = document.createElement("style");
-  forceStyle.setAttribute("data-force-cursor", "1");
-  forceStyle.textContent = "html,body,*{cursor:none!important;caret-color:transparent!important;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;}";
-  document.head.appendChild(forceStyle);
-  window.addEventListener("beforeunload", function(){
-    document.documentElement.style.cursor = "none";
-    if (document.body) document.body.style.cursor = "none";
-  }, { once: true });
-})();
-</script>
+<script src="scripts/security-bootstrap.js?v=20260319a"></script>
+<link rel="stylesheet" href="styles.security.css?v=20260319a">
 <link rel="stylesheet" href="styles.css?v=20260318n">
-<script>
-(function(){
-  var b = document.documentElement.dataset.browser;
-  if (b !== "safari" && b !== "chrome" && b !== "firefox") return;
-  var link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "styles." + b + ".css?v=20260318f";
-  document.head.appendChild(link);
-
-  var isMobile = window.matchMedia("(hover: none) and (pointer: coarse)").matches || window.innerWidth <= 768;
-  if (!isMobile || (b !== "safari" && b !== "chrome")) return;
-  var mobileLink = document.createElement("link");
-  mobileLink.rel = "stylesheet";
-  mobileLink.href = "styles." + b + ".mobile.css?v=20260318c";
-  document.head.appendChild(mobileLink);
-})();
-</script>
+<script src="scripts/security-browser-styles.js?v=20260319a"></script>
 </head>
 <body>
 <!-- splash screen -->
@@ -81,7 +41,7 @@
 <div class="bg-fixed"></div>
 
 <!-- SVG filter for film grain -->
-<svg style="position:absolute;width:0;height:0;" aria-hidden="true">
+<svg class="noise-defs" aria-hidden="true">
   <filter id="noise" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
     <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" seed="0" stitchTiles="stitch"/>
     <feColorMatrix type="saturate" values="0"/>
@@ -114,20 +74,6 @@
 <script src="components/page-sections.js?v=20260318a"></script>
 <script src="SONGS/tracks.js?v=20260317k"></script>
 <script src="script.js?v=20260319o"></script>
-<script>
-(function(){
-  var b = document.documentElement.dataset.browser;
-  if (b !== "safari" && b !== "chrome" && b !== "firefox") return;
-  var script = document.createElement("script");
-  script.src = "script." + b + ".js?v=20260318f";
-  document.body.appendChild(script);
-
-  var isMobile = window.matchMedia("(hover: none) and (pointer: coarse)").matches || window.innerWidth <= 768;
-  if (!isMobile || (b !== "safari" && b !== "chrome")) return;
-  var mobileScript = document.createElement("script");
-  mobileScript.src = "script." + b + ".mobile.js?v=20260318f";
-  document.body.appendChild(mobileScript);
-})();
-</script>
+<script src="scripts/security-browser-scripts.js?v=20260319a"></script>
 </body>
 </html>
