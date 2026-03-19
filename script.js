@@ -1126,6 +1126,7 @@ window.addEventListener('resize', () => {
   const VIZ_BACK_HEIGHT_SCALE = 0.58;
   const VIZ_BACK_SMOOTHING = 0.13;
   let analyser = null, dataArray = null, prevData = null, backData = null, audioCtxStarted = false;
+  let vizReactive = null, vizScratch = null;
   let vizMinBin = 0, vizMaxBin = 0;
   let vizFrameCount = 0;
 
@@ -1143,7 +1144,7 @@ window.addEventListener('resize', () => {
     analyser.connect(audioCtx.destination);
     dataArray = new Uint8Array(analyser.frequencyBinCount);
     prevData = new Float32Array(analyser.frequencyBinCount);
-    backData = new Float32Array(analyser.frequencyBinCount);
+    backData = new Float32Array(VIZ_TARGET_BINS);
     const hzPerBin = audioCtx.sampleRate / analyser.fftSize;
     vizMinBin = 0;
     vizMaxBin = Math.min(analyser.frequencyBinCount - 1, Math.floor(20000 / hzPerBin));
@@ -1165,6 +1166,8 @@ window.addEventListener('resize', () => {
     vizCtx.clearRect(0, 0, W, H);
     if (prevData) prevData.fill(0);
     if (backData) backData.fill(0);
+    if (vizReactive) vizReactive.fill(0);
+    if (vizScratch) vizScratch.fill(0);
   }
 
   function shouldDrawVisualizer() {
@@ -1190,13 +1193,16 @@ window.addEventListener('resize', () => {
     const availableBins = Math.max(1, (maxBin - minBin + 1));
     const bars = VIZ_TARGET_BINS;
     const barW = W / bars;
-    const gap = Math.min(VIZ_BAR_GAP_PX, barW * 0.65);
-    const slotW = Math.max(0.12, barW - gap);
+    const slotW = Math.max(0.12, barW);
     const frontW = Math.max(0.08, slotW * VIZ_FRONT_WIDTH_SCALE);
     const backW = Math.max(frontW + 0.06, slotW * VIZ_BACK_WIDTH_SCALE);
     const minVisibleH = H * VIZ_MIN_VISIBLE_HEIGHT_FRAC;
     const logMin = Math.log(minBin + 1);
     const logMax = Math.log(maxBin + 1);
+    if (!vizReactive || vizReactive.length !== bars) {
+      vizReactive = new Float32Array(bars);
+      vizScratch = new Float32Array(bars);
+    }
     for (let i = 0; i < bars; i++) {
       const t = bars <= 1 ? 0 : i / (bars - 1);
       const pos = Math.exp(logMin + t * (logMax - logMin)) - 1 - minBin;
@@ -1209,21 +1215,39 @@ window.addEventListener('resize', () => {
       const transient = Math.max(0, v - prev) * VIZ_TRANSIENT_BOOST;
       if (prevData) prevData[leftBin] = v;
       const shaped = Math.pow(v, VIZ_HEIGHT_GAMMA);
-      const reactive = Math.min(1, shaped * VIZ_HEIGHT_BOOST + transient);
+      vizReactive[i] = Math.min(1, shaped * VIZ_HEIGHT_BOOST + transient);
+    }
+
+    let reactiveView = vizReactive;
+    let scratchView = vizScratch;
+    for (let p = 0; p < VIZ_SPATIAL_SMOOTH_PASSES; p++) {
+      for (let i = 0; i < bars; i++) {
+        const l = reactiveView[i > 0 ? i - 1 : i];
+        const c = reactiveView[i];
+        const r = reactiveView[i < bars - 1 ? i + 1 : i];
+        scratchView[i] = (l + c * 2 + r) * 0.25;
+      }
+      const tmp = reactiveView;
+      reactiveView = scratchView;
+      scratchView = tmp;
+    }
+
+    for (let i = 0; i < bars; i++) {
+      const reactive = reactiveView[i];
       const targetBack = reactive * VIZ_BACK_HEIGHT_SCALE;
-      const prevBack = backData ? backData[leftBin] : targetBack;
+      const prevBack = backData ? backData[i] : targetBack;
       const smoothBack = prevBack + (targetBack - prevBack) * VIZ_BACK_SMOOTHING;
-      if (backData) backData[leftBin] = smoothBack;
-      const backH = v > 0 ? Math.max(minVisibleH * 0.7, smoothBack * H * VIZ_MAX_HEIGHT_FRAC) : 0;
-      const frontH = v > 0 ? Math.max(minVisibleH, reactive * H * VIZ_MAX_HEIGHT_FRAC) : 0;
+      if (backData) backData[i] = smoothBack;
+      const backH = reactive > 0 ? Math.max(minVisibleH * 0.7, smoothBack * H * VIZ_MAX_HEIGHT_FRAC) : 0;
+      const frontH = reactive > 0 ? Math.max(minVisibleH, reactive * H * VIZ_MAX_HEIGHT_FRAC) : 0;
       const slotX = i * barW + (barW - slotW) * 0.5;
       const backX = slotX + (slotW - backW) * 0.5;
       const frontX = slotX + (slotW - frontW) * 0.5;
 
-      vizCtx.fillStyle = `rgba(0,212,255,${0.06 + smoothBack * 0.2})`;
+      vizCtx.fillStyle = 'rgba(0,125,165,0.92)';
       vizCtx.fillRect(backX, H - backH, backW, backH);
 
-      vizCtx.fillStyle = `rgba(0,212,255,${0.16 + reactive * 0.44})`;
+      vizCtx.fillStyle = 'rgba(0,212,255,0.98)';
       vizCtx.fillRect(frontX, H - frontH, frontW, frontH);
     }
   };
