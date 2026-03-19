@@ -1117,7 +1117,9 @@ window.addEventListener('resize', () => {
   const VIZ_HEIGHT_GAMMA = 0.72;
   const VIZ_HEIGHT_BOOST = 0.92;
   const VIZ_TRANSIENT_BOOST = 0.28;
-  const VIZ_MAX_HEIGHT_FRAC = 0.78;
+  const VIZ_MAX_HEIGHT_FRAC = 0.72;
+  const VIZ_SOFT_KNEE_START = 0.76;
+  const VIZ_HARD_PEAK_CAP = 0.9;
   const VIZ_NOISE_GATE = 0.07;
   const VIZ_MIN_VISIBLE_HEIGHT_FRAC = 0.008;
   const VIZ_SPATIAL_SMOOTH_PASSES = 4;
@@ -1234,7 +1236,13 @@ window.addEventListener('resize', () => {
 
     for (let i = 0; i < bars; i++) {
       const bassTaper = i < bars * 0.2 ? (0.72 + 0.28 * (i / (bars * 0.2))) : 1;
-      const reactive = reactiveView[i] * bassTaper;
+      const reactiveRaw = reactiveView[i] * bassTaper;
+      const over = Math.max(0, reactiveRaw - VIZ_SOFT_KNEE_START);
+      const compressed = over > 0 ? (over / (1 + over * 8.5)) : 0;
+      const reactive = Math.min(
+        VIZ_HARD_PEAK_CAP,
+        (reactiveRaw <= VIZ_SOFT_KNEE_START ? reactiveRaw : VIZ_SOFT_KNEE_START + compressed)
+      );
       const targetBack = reactive * VIZ_BACK_HEIGHT_SCALE;
       const prevBack = backData ? backData[i] : targetBack;
       const smoothBack = prevBack + (targetBack - prevBack) * VIZ_BACK_SMOOTHING;
