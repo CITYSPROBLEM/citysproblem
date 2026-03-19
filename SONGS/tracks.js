@@ -1,11 +1,10 @@
-// ─── TRACK LIST ───────────────────────────────────────────────────────────────
-// Drop audio files into the SONGS folder, then register them here.
-// Format: { title: 'DISPLAY NAME', file: 'filename.mp3' }
-// Supported formats: mp3, wav, ogg, flac, aac, m4a
-// ──────────────────────────────────────────────────────────────────────────────
 window.TRACKS = [
-{ title: 'CITYSPROBLEM - Tomorrow', file: 'CITYSPROBLEM_-_Tomorrow.mp3' },
-{ title: 'CITYSPROBLEM - SATELLITE', file: 'CITYSPROBLEM_-_SATELLITE.mp3' },
-{ title: 'CITYSPROBLEM - Stay', file: 'CITYSPROBLEM_-_Stay.mp3' },
-{ title: 'ortisei - In Blue (CITYSPROBLEM Remix)', file: 'ortisei_-_In_Blue_(CITYSPROBLEM_Remix).mp3' },
+{ title: 'CITYSPROBLEM - Tomorrow', file: 'CITYSPROBLEM_-_Tomorrow.opus' },
+{ title: 'CITYSPROBLEM - Stay', file: 'CITYSPROBLEM_-_Stay.opus' },
+{ title: 'CITYSPROBLEM - SATELLITE ALT MIX', file: 'CITYSPROBLEM_-_SATELLITE_ALT_MIX.opus' },
+{ title: 'ortisei - In Blue (CITYSPROBLEM Remix)', file: 'ortisei_-_In_Blue_(CITYSPROBLEM_Remix).opus' },
+{ title: 'CITYSPROBLEM - Right Back', file: 'CITYSPROBLEM_-_Right_Back.opus' },
+{ title: 'Luminary - Amsterdam (CITYSPROBLEM Remix)', file: 'Luminary_-_Amsterdam_(CITYSPROBLEM_Remix).opus' },
+{ title: 'CITYSPROBLEM - Never Let Me Go', file: 'CITYSPROBLEM_-_Never_Let_Me_Go.opus' },
+{ title: 'CITYSPROBLEM - I\'m Your Love', file: 'CITYSPROBLEM_-_I\'m_Your_Love.opus' },
 ];

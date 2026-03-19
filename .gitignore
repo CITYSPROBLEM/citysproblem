@@ -4,3 +4,12 @@ node_modules/
 package-lock.json
 playwright-report/
 test-results/
+
+# Local audio automation (keep out of repo)
+launchd/
+scripts/watch-wav-to-ogg.js
+scripts/convert-wav-to-opus.js
+scripts/convert-all-wavs-in-songs.sh
+scripts/rename-opus-spaces.sh
+scripts/sync-opus-to-tracks.js
+scripts/sync-opus-to-tracks-onchange.sh
