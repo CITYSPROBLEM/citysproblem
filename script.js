@@ -1,11 +1,30 @@
 /* page load fade-in — swap loading→ready so content transitions in smoothly */
+function ensureCursorLockStyle() {
+  let styleEl = document.getElementById('cursor-lock-style');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'cursor-lock-style';
+    styleEl.textContent = [
+      '*, *::before, *::after { cursor: none !important; }',
+      'html, body, a, button, input, textarea, select, [contenteditable] {',
+      '  cursor: none !important;',
+      '  caret-color: transparent !important;',
+      '}'
+    ].join('\n');
+    document.head.appendChild(styleEl);
+  }
+}
+
 function forceHideCursorNow() {
-  document.documentElement.style.cursor = 'none';
-  if (document.body) document.body.style.cursor = 'none';
+  ensureCursorLockStyle();
+  document.documentElement.style.setProperty('cursor', 'none', 'important');
+  if (document.body) document.body.style.setProperty('cursor', 'none', 'important');
 }
 forceHideCursorNow();
 window.addEventListener('pageshow', forceHideCursorNow);
 window.addEventListener('focus', forceHideCursorNow);
+window.addEventListener('mousemove', forceHideCursorNow, { passive: true });
+document.addEventListener('visibilitychange', forceHideCursorNow);
 document.addEventListener('pointerdown', forceHideCursorNow, true);
 document.addEventListener('mousedown', forceHideCursorNow, true);
 document.addEventListener('touchstart', forceHideCursorNow, { passive: true, capture: true });
@@ -245,7 +264,7 @@ const isFirefox = browser === 'firefox';
 const isMobileViewport = isCoarsePointer || window.innerWidth <= 768;
 const enableHeavyPointerFx = !isCoarsePointer && (isChrome || isSafari);
 const enableAnimatedGrain = isChrome || isSafari;
-const visualizerFrameStride = isMobileViewport ? (isFirefox ? 4 : 3) : (isFirefox ? 2 : 1);
+const visualizerFrameStride = isMobileViewport ? (isFirefox ? 8 : 7) : (isFirefox ? 4 : 3);
 const grainFrameStride = isMobileViewport ? 18 : 10;
 const LINK_HOVER_SELECTOR = 'a, button, .topbar-logo, .player-progress, .player-vol-slider, .player-track-name, .glitch-wrap, .release-card, .featured-link';
 const scheduleNonCritical = window.requestIdleCallback
@@ -1094,6 +1113,7 @@ window.addEventListener('resize', () => {
 {
   const vizCanvas = document.getElementById('visualizer');
   const vizCtx = vizCanvas.getContext('2d');
+  const VIZ_TARGET_BINS = 500;
   const VIZ_HEIGHT_GAMMA = 0.62;
   const VIZ_HEIGHT_BOOST = 0.82;
   const VIZ_TRANSIENT_BOOST = 1.05;
@@ -1110,7 +1130,7 @@ window.addEventListener('resize', () => {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const source = audioCtx.createMediaElementSource(audio);
     analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 256;
+    analyser.fftSize = 2048;
     analyser.smoothingTimeConstant = 0.05;
     analyser.minDecibels = -96;
     analyser.maxDecibels = -16;
@@ -1120,10 +1140,7 @@ window.addEventListener('resize', () => {
     prevData = new Float32Array(analyser.frequencyBinCount);
     const hzPerBin = audioCtx.sampleRate / analyser.fftSize;
     vizMinBin = 0;
-    vizMaxBin = Math.min(
-      analyser.frequencyBinCount - 1,
-      Math.floor(20000 / hzPerBin)
-    );
+    vizMaxBin = analyser.frequencyBinCount - 1;
   }
 
   audio.addEventListener('play', initAudioContext, { once: true });
@@ -1163,11 +1180,13 @@ window.addEventListener('resize', () => {
     analyser.getByteFrequencyData(dataArray);
     const minBin = Math.max(0, Math.min(vizMinBin, dataArray.length - 1));
     const maxBin = Math.max(minBin, Math.min(vizMaxBin, dataArray.length - 1));
-    const bars = Math.max(1, (maxBin - minBin + 1));
+    const availableBins = Math.max(1, (maxBin - minBin + 1));
+    const bars = VIZ_TARGET_BINS;
     const barW = W / bars;
     const minVisibleH = H * VIZ_MIN_VISIBLE_HEIGHT_FRAC;
     for (let i = 0; i < bars; i++) {
-      const bin = minBin + i;
+      const t = bars <= 1 ? 0 : i / (bars - 1);
+      const bin = minBin + Math.round(t * (availableBins - 1));
       const raw = dataArray[bin] / 255;
       const v = raw <= VIZ_NOISE_GATE ? 0 : (raw - VIZ_NOISE_GATE) / (1 - VIZ_NOISE_GATE);
       const prev = prevData ? prevData[bin] : 0;
@@ -1177,7 +1196,7 @@ window.addEventListener('resize', () => {
       const reactive = Math.min(1, shaped * VIZ_HEIGHT_BOOST + transient);
       const h = v > 0 ? Math.max(minVisibleH, reactive * H * VIZ_MAX_HEIGHT_FRAC) : 0;
       vizCtx.fillStyle = `rgba(0,212,255,${0.12 + reactive * 0.44})`;
-      vizCtx.fillRect(i * barW, H - h, barW - 1, h);
+      vizCtx.fillRect(i * barW, H - h, Math.max(0.7, barW), h);
     }
   };
 }
