@@ -13,3 +13,5 @@ scripts/convert-all-wavs-in-songs.sh
 scripts/rename-opus-spaces.sh
 scripts/sync-opus-to-tracks.js
 scripts/sync-opus-to-tracks-onchange.sh
+
+qa-screenshots/
