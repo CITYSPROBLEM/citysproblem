@@ -1116,13 +1116,13 @@ window.addEventListener('resize', () => {
   const VIZ_TARGET_BINS = 1000;
   const VIZ_HEIGHT_GAMMA = 0.62;
   const VIZ_HEIGHT_BOOST = 0.82;
-  const VIZ_TRANSIENT_BOOST = 1.05;
+  const VIZ_TRANSIENT_BOOST = 0.45;
   const VIZ_MAX_HEIGHT_FRAC = 0.72;
   const VIZ_NOISE_GATE = 0.05;
   const VIZ_MIN_VISIBLE_HEIGHT_FRAC = 0.003;
-  const VIZ_BAR_GAP_PX = 1.0;
-  const VIZ_FRONT_WIDTH_SCALE = 0.56;
-  const VIZ_BACK_WIDTH_SCALE = 0.9;
+  const VIZ_SPATIAL_SMOOTH_PASSES = 2;
+  const VIZ_FRONT_WIDTH_SCALE = 1.0;
+  const VIZ_BACK_WIDTH_SCALE = 1.0;
   const VIZ_BACK_HEIGHT_SCALE = 0.58;
   const VIZ_BACK_SMOOTHING = 0.13;
   let analyser = null, dataArray = null, prevData = null, backData = null, audioCtxStarted = false;
