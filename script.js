@@ -1,33 +1,4 @@
 /* page load fade-in — swap loading→ready so content transitions in smoothly */
-function ensureCursorLockStyle() {
-  let styleEl = document.getElementById('cursor-lock-style');
-  if (!styleEl) {
-    styleEl = document.createElement('style');
-    styleEl.id = 'cursor-lock-style';
-    styleEl.textContent = [
-      '*, *::before, *::after { cursor: none !important; }',
-      'html, body, a, button, input, textarea, select, [contenteditable] {',
-      '  cursor: none !important;',
-      '  caret-color: transparent !important;',
-      '}'
-    ].join('\n');
-    document.head.appendChild(styleEl);
-  }
-}
-
-function forceHideCursorNow() {
-  ensureCursorLockStyle();
-  document.documentElement.style.setProperty('cursor', 'none', 'important');
-  if (document.body) document.body.style.setProperty('cursor', 'none', 'important');
-}
-forceHideCursorNow();
-window.addEventListener('pageshow', forceHideCursorNow);
-window.addEventListener('focus', forceHideCursorNow);
-window.addEventListener('mousemove', forceHideCursorNow, { passive: true });
-document.addEventListener('visibilitychange', forceHideCursorNow);
-document.addEventListener('pointerdown', forceHideCursorNow, true);
-document.addEventListener('mousedown', forceHideCursorNow, true);
-document.addEventListener('touchstart', forceHideCursorNow, { passive: true, capture: true });
 
 const animDebugEnabled = new URLSearchParams(window.location.search).get('animdebug') === '1';
 let animDebugOverlay = null;
@@ -140,7 +111,6 @@ async function softNavigate(url, replace = false, force = false) {
   if (!force && samePath(window.location.href, target.href)) return;
   if (softNavInFlight) return;
   softNavInFlight = true;
-  forceHideCursorNow();
   try {
     const res = await fetch(target.href, { credentials: 'same-origin' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

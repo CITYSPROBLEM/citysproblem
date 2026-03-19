@@ -42,7 +42,7 @@
       '<div class="player" id="player">',
       '  <div class="player-inner" id="playerInner">',
       '    <div class="player-controls">',
-      '      <button class="player-btn player-btn-skip" id="btnPrev" style="transform:scaleX(-1)">\u25B6\uFE0E\u25B6\uFE0E</button>',
+      '      <button class="player-btn player-btn-skip player-btn-prev" id="btnPrev">\u25B6\uFE0E\u25B6\uFE0E</button>',
       '      <button class="player-btn player-btn-play" id="btnPlay">\u25B6\uFE0E</button>',
       '      <button class="player-btn player-btn-skip" id="btnNext">\u25B6\uFE0E\u25B6\uFE0E</button>',
       '      <button class="player-btn player-btn-shuffle" id="btnShuffle">\u21C6</button>',
