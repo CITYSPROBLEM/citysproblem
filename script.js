@@ -1114,16 +1114,16 @@ window.addEventListener('resize', () => {
   const vizCanvas = document.getElementById('visualizer');
   const vizCtx = vizCanvas.getContext('2d');
   const VIZ_TARGET_BINS = 420;
-  const VIZ_HEIGHT_GAMMA = 0.62;
-  const VIZ_HEIGHT_BOOST = 1.25;
+  const VIZ_HEIGHT_GAMMA = 0.72;
+  const VIZ_HEIGHT_BOOST = 0.92;
   const VIZ_TRANSIENT_BOOST = 0.28;
-  const VIZ_MAX_HEIGHT_FRAC = 0.9;
-  const VIZ_NOISE_GATE = 0.05;
-  const VIZ_MIN_VISIBLE_HEIGHT_FRAC = 0.015;
+  const VIZ_MAX_HEIGHT_FRAC = 0.78;
+  const VIZ_NOISE_GATE = 0.07;
+  const VIZ_MIN_VISIBLE_HEIGHT_FRAC = 0.008;
   const VIZ_SPATIAL_SMOOTH_PASSES = 4;
   const VIZ_FRONT_WIDTH_SCALE = 1.0;
   const VIZ_BACK_WIDTH_SCALE = 1.0;
-  const VIZ_BACK_HEIGHT_SCALE = 0.58;
+  const VIZ_BACK_HEIGHT_SCALE = 0.46;
   const VIZ_BACK_SMOOTHING = 0.08;
   let analyser = null, dataArray = null, prevData = null, backData = null, audioCtxStarted = false;
   let vizReactive = null, vizScratch = null;
@@ -1233,7 +1233,8 @@ window.addEventListener('resize', () => {
     }
 
     for (let i = 0; i < bars; i++) {
-      const reactive = reactiveView[i];
+      const bassTaper = i < bars * 0.2 ? (0.72 + 0.28 * (i / (bars * 0.2))) : 1;
+      const reactive = reactiveView[i] * bassTaper;
       const targetBack = reactive * VIZ_BACK_HEIGHT_SCALE;
       const prevBack = backData ? backData[i] : targetBack;
       const smoothBack = prevBack + (targetBack - prevBack) * VIZ_BACK_SMOOTHING;
