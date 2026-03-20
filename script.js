@@ -632,6 +632,7 @@ function initAurora() {
   const auroraEl = document.querySelector('.aurora');
   const heroEl = document.querySelector('.hero');
   if (auroraEl && heroEl && enableHeavyPointerFx) {
+    const sig = _pageContentAbort?.signal;
     let ax = 0, ay = 0, targetAx = 0, targetAy = 0;
     let auroraRafId = 0;
     let auroraRunning = false;
@@ -647,7 +648,7 @@ function initAurora() {
       /* normalise cursor to -1…+1 relative to hero centre */
       targetAx = ((e.clientX - heroRect.left) / heroRect.width - 0.5) * 2;
       targetAy = ((e.clientY - heroRect.top)  / heroRect.height - 0.5) * 2;
-    });
+    }, { signal: sig });
 
     function auroraFrame() {
       if (!auroraRunning) return;
@@ -686,7 +687,10 @@ function initAurora() {
     }, { threshold: 0.05 });
     heroObserver.observe(heroEl);
 
-    const sig = _pageContentAbort?.signal;
+    sig?.addEventListener('abort', () => {
+      stopAurora();
+      heroObserver.disconnect();
+    });
     document.addEventListener('visibilitychange', syncAuroraState, { signal: sig });
     window.addEventListener('resize', updateHeroRect, { passive: true, signal: sig });
     window.addEventListener('scroll', updateHeroRect, { passive: true, signal: sig });
@@ -1606,7 +1610,7 @@ function initInfoSection() {
           accordionScrambleLimit(textOrig[i])
         ));
       }
-    });
+    }, { signal: sig });
   });
 
   /* label releases — helpers */
@@ -1705,7 +1709,7 @@ function initInfoSection() {
           setTimeout(unlockWidth, 340);
         });
       }
-    });
+    }, { signal: sig });
   });
 
   /* click outside info section to collapse open accordion */
@@ -1945,11 +1949,11 @@ function initPastShows() {
         hideOtherPastShowsYears(group);
         followSectionCenter(pastShowsSection, 350);
       }
-    });
+    }, { signal: sig });
 
     backBtn.addEventListener('click', () => {
       resetPastShowsAccordion();
-    });
+    }, { signal: sig });
   });
 
   document.addEventListener('click', e => {
@@ -1963,7 +1967,9 @@ initPastShows();
 /* ── magnetic hover on CTA buttons ─────────────────── */
 function initMagneticAndTilt() {
   if (!enableHeavyPointerFx) return;
+  const sig = _pageContentAbort?.signal;
   scheduleNonCritical(() => {
+    if (sig?.aborted) return;
     const magnetEls = document.querySelectorAll('.booking-cta, .featured-link');
     const MAGNET_STRENGTH = 0.35;
     magnetEls.forEach(el => {
@@ -1973,8 +1979,8 @@ function initMagneticAndTilt() {
         const cx = rect.left + rect.width / 2;
         const cy = rect.top  + rect.height / 2;
         el.style.transform = `translate(${(e.clientX - cx) * MAGNET_STRENGTH}px, ${(e.clientY - cy) * MAGNET_STRENGTH}px)`;
-      });
-      el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+      }, { signal: sig });
+      el.addEventListener('mouseleave', () => { el.style.transform = ''; }, { signal: sig });
     });
 
     function addTiltHover(el, maxDeg = 8) {
@@ -1983,8 +1989,8 @@ function initMagneticAndTilt() {
         const x = (e.clientX - rect.left) / rect.width  - 0.5;
         const y = (e.clientY - rect.top)  / rect.height - 0.5;
         el.style.transform = `perspective(600px) rotateY(${x * maxDeg}deg) rotateX(${-y * maxDeg}deg)`;
-      });
-      el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+      }, { signal: sig });
+      el.addEventListener('mouseleave', () => { el.style.transform = ''; }, { signal: sig });
     }
     document.querySelectorAll('.release-card').forEach(c => addTiltHover(c, 8));
     const featuredWrap = document.querySelector('.featured-artwork-wrap');
