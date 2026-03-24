@@ -6,19 +6,26 @@
 <p class="section-label">LATEST RELEASE</p>
       <div class="featured-inner">
         <div class="glitch-wrap featured-artwork-wrap">
-          <img class="featured-art-img" src="IMAGES/im-your-love-1400.jpg" alt="I'm Your Love / Never Let Me Go" loading="eager" decoding="sync" width="1400" height="1400">
+          <img class="featured-art-img" src="IMAGES/tomorrow-cover.png" alt="Tomorrow" loading="eager" decoding="sync" width="1400" height="1400">
         </div>
         <div class="featured-info">
-          <p class="featured-title">I'M YOUR LOVE / NEVER LET ME GO</p>
+          <p class="featured-title">TOMORROW</p>
           <p class="featured-meta">SINGLE</p>
-          <p class="featured-meta">2025</p>
-          <a class="featured-link" href="https://soundcloud.com/citysproblem/sets/im-your-love-never-let-me-go" target="_blank" rel="noopener noreferrer">LISTEN</a>
+          <p class="featured-meta">2026</p>
+          <a class="featured-link" href="https://soundcloud.com/citysproblem/tomorrow" target="_blank" rel="noopener noreferrer">LISTEN</a>
         </div>
       </div>
 `,
       "releasesSection": `
 <p class="section-label">DISCOGRAPHY</p>
     <div class="release-grid">
+      <a class="release-card" href="https://soundcloud.com/citysproblem/sets/im-your-love-never-let-me-go" target="_blank" rel="noopener noreferrer">
+        <div class="glitch-wrap release-art-wrap">
+          <img class="release-art" src="IMAGES/im-your-love-1400.jpg" alt="I'm Your Love / Never Let Me Go cover art" loading="lazy" decoding="async" width="1400" height="1400">
+        </div>
+        <p class="release-card-title">I'M YOUR LOVE / NEVER LET ME GO</p>
+        <p class="release-card-meta">SINGLE / 2025</p>
+      </a>
       <a class="release-card" href="https://soundcloud.com/upszn-899186374/sets/up007-citysproblem-sidewinder" target="_blank" rel="noopener noreferrer">
         <div class="glitch-wrap release-art-wrap">
           <picture>
