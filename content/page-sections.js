@@ -6,7 +6,7 @@
 <p class="section-label">LATEST RELEASE</p>
       <div class="featured-inner">
         <div class="glitch-wrap featured-artwork-wrap">
-          <img class="featured-art-img" src="IMAGES/tomorrow-cover.png" alt="Tomorrow" loading="eager" decoding="sync" width="1400" height="1400">
+          <img class="featured-art-img" src="IMAGES/tomorrow-cover-1400.jpg" alt="Tomorrow" loading="eager" decoding="sync" width="1400" height="1400">
         </div>
         <div class="featured-info">
           <p class="featured-title">TOMORROW</p>
