@@ -1295,11 +1295,12 @@ html.skip-player-intro .player {
 }
 .featured-artwork-wrap {
   width: clamp(140px, 35vw, 340px);
-  flex: 0 1 clamp(140px, 35vw, 340px);
+  flex: 0 0 clamp(140px, 35vw, 340px);
   display: block;
   line-height: 0;
   transform-style: preserve-3d;
   transition: transform .25s ease-out;
+  aspect-ratio: 1 / 1;
 }
 .featured-artwork-wrap picture {
   display: block;
