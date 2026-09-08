@@ -235,14 +235,14 @@
       <div class="booking-signal-meta">
         <p class="portfolio-meta">BASE: NYC / AVAILABLE FOR TRAVEL</p>
       </div>
-      <a class="portfolio-link booking-cta" href="mailto:dj@citysproblem.com?subject=Booking%20Inquiry">BOOK CITYSPROBLEM</a>
+      <a class="portfolio-link booking-cta" href="mailto:trance@citysproblem.com?subject=Booking%20Inquiry">BOOK CITYSPROBLEM</a>
     </div>
 `,
       "newsletterSection": `
 <p class="section-label">NEWSLETTER</p>
     <div class="portfolio-card">
       <p class="portfolio-title">GET DROPS, SHOW ANNOUNCEMENTS, AND EXCLUSIVES FIRST</p>
-      <a class="portfolio-link" href="mailto:dj@citysproblem.com?subject=Newsletter%20Signup&body=Please%20add%20me%20to%20the%20CITYSPROBLEM%20newsletter.">SUBSCRIBE</a>
+      <a class="portfolio-link" href="mailto:trance@citysproblem.com?subject=Newsletter%20Signup&body=Please%20add%20me%20to%20the%20CITYSPROBLEM%20newsletter.">SUBSCRIBE</a>
     </div>
 `
     },
